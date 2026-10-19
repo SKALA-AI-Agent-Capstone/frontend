@@ -63,3 +63,16 @@ npm run build
 
 VITE_* 변수는 브라우저에 포함될 수 있으므로 내부 토큰과 API 키를 넣지 않는다.
 사용자 로그인과 기업별 접근 권한은 후속 구현 항목이다.
+
+## 업무 화면 개발 전 확인
+
+| 공통 문서 | 확인할 내용 |
+| --- | --- |
+| backend/docs/09-input-pipeline.md | PDF와 이미지, OCR와 Vision 분기, 판독 확인과 원본 폐기 |
+| backend/docs/03-contracts.md | 현재 API와 제안 계약, 실행 상태와 승인 상태 구분 |
+| backend/docs/10-work-breakdown.md | FE-01~FE-05 작업, 다른 역할이 넘길 입력과 통합 순서 |
+| backend/docs/05-collaboration.md | 기능 브랜치, 커밋, PR와 소비자 리뷰 |
+
+LLM 키와 OCR 처리를 Vue에 넣지 않는다. 화면은 파일과 사용자 확인을 Backend로 전달한다.
+원본 좌표가 없으면 페이지 단위로 표시하며, 폐기된 원본과 수정된 광고 버전을 각각 처리한다.
+chore/dev-foundation은 초기 실행환경 브랜치다. 실제 업무 기능은 feat/*로 나누어 개발한다.
