@@ -13,3 +13,9 @@
 - 사용자 인증과 기업 권한, 광고 위치 좌표와 근거 문서 페이지를 구분한다.
 - 타입 검사와 빌드는 npm run build로 검증한다.
 - 기존 파일은 원래 파일에 직접 수정한다.
+
+## 현재 단건 MVP
+
+- 제공된 JavaScript Vue UI를 유지하고 공통 HTTP에는 TypeScript를 사용한다. 기존 시안을 전면 TypeScript로 바꾸는 작업은 이번 범위가 아니다.
+- 실제 진입은 main.ts와 router/index.js, 화면은 pages와 shared다. 초기 views와 api 경로를 현재 업무 화면으로 오해하지 않는다.
+- 단건 기능은 feat/non-vector-mvp에서 개발한다. RAG 검색, SSE, 다건과 과금은 미연결 상태를 정확히 표시한다.

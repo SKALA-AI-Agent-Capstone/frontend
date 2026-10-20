@@ -1,0 +1,46 @@
+/* 전역 타이포그래피 유틸리티 — KRDS Type scale 과 1:1 대응 (line-height 150%) */
+.text-display-l,
+.text-display-m,
+.text-display-s,
+.text-heading-l,
+.text-heading-m,
+.text-heading-s {
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-heading);
+}
+.text-display-l { font-size: var(--font-size-display-l); }
+.text-display-m { font-size: var(--font-size-display-m); }
+.text-display-s { font-size: var(--font-size-display-s); }
+.text-heading-l { font-size: var(--font-size-heading-l); }
+.text-heading-m { font-size: var(--font-size-heading-m); }
+.text-heading-s { font-size: var(--font-size-heading-s); }
+
+.text-title-xxl,
+.text-title-xl,
+.text-title-l,
+.text-title-m,
+.text-title-s,
+.text-title-xs {
+  font-weight: var(--font-weight-bold);
+}
+.text-title-xxl { font-size: var(--font-size-title-xxl); }
+.text-title-xl { font-size: var(--font-size-title-xl); }
+.text-title-l { font-size: var(--font-size-title-l); }
+.text-title-m { font-size: var(--font-size-title-m); }
+.text-title-s { font-size: var(--font-size-title-s); }
+.text-title-xs { font-size: var(--font-size-title-xs); }
+
+.text-body-l { font-size: var(--font-size-body-l); }
+.text-body-m { font-size: var(--font-size-body-m); }
+.text-body-s { font-size: var(--font-size-body-s); }
+.text-detail-l { font-size: var(--font-size-detail-l); }
+.text-detail-m { font-size: var(--font-size-detail-m); }
+.text-detail-s { font-size: var(--font-size-detail-s); }
+.text-label-l { font-size: var(--font-size-label-l); }
+.text-label-m { font-size: var(--font-size-label-m); }
+.text-label-s { font-size: var(--font-size-label-s); }
+.text-label-xs { font-size: var(--font-size-label-xs); }
+
+.text-bold { font-weight: var(--font-weight-bold); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-primary { color: var(--color-primary); }

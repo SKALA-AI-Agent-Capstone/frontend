@@ -1,0 +1,215 @@
+/*
+ * 전역 디자인 토큰 — 디지털 정부서비스 UI/UX 가이드라인(KRDS) 기준
+ * 모든 색상, 서체, 간격, 형태, 배치 값은 이 파일의 CSS 변수만 사용한다.
+ * 컴포넌트에서 hex / px 값을 직접 쓰지 말고 var(--*) 로 참조할 것.
+ *
+ * 단위: 서체, 간격은 rem 사용 (html { font-size: 62.5% } → 1rem = 10px)
+ * Breakpoint (CSS 변수로 미디어쿼리를 쓸 수 없으므로 상수로 관리 — src/shared/constants/breakpoints.js)
+ *   Mobile  ≤ 600px   (4 col)
+ *   Tablet  601–1024px (8 col)
+ *   Desktop ≥ 1025px  (12 col, 콘텐츠 최대 1280px 고정)
+ */
+:root {
+  /* ───────── 1. 색상 ,  Key colors (primitive) ───────── */
+  --krds-primary-10: #d3e1fb;
+  --krds-primary-50: #246beb;
+  --krds-primary-60: #1d56bc;
+  --krds-primary-70: #16408d;
+
+  --krds-secondary-5: #edf1f5;
+  --krds-secondary-40: #2a5c96;
+  --krds-secondary-50: #003675;
+  --krds-secondary-70: #002046;
+
+  --krds-gray-0: #ffffff;
+  --krds-gray-5: #f8f8f8;
+  --krds-gray-10: #f0f0f0;
+  --krds-gray-20: #e4e4e4;
+  --krds-gray-40: #c6c6c6;
+  --krds-gray-50: #8e8e8e;
+  --krds-gray-70: #555555;
+  --krds-gray-90: #1d1d1d;
+
+  /* ───────── 2. 색상 ,  Semantic (60% 배경 / 30% 보조 / 10% 강조) ───────── */
+  --color-primary: var(--krds-primary-50);
+  --color-primary-hover: var(--krds-primary-60);
+  --color-primary-active: var(--krds-primary-70);
+  --color-primary-subtle: var(--krds-primary-10);
+  --color-on-primary: var(--krds-gray-0);
+
+  --color-secondary: var(--krds-secondary-50);
+  --color-secondary-light: var(--krds-secondary-40);
+  --color-secondary-dark: var(--krds-secondary-70);
+  --color-secondary-subtle: var(--krds-secondary-5);
+  --color-on-secondary: var(--krds-gray-0);
+
+  --color-bg-page: var(--krds-gray-5);
+  --color-bg-surface: var(--krds-gray-0);
+  --color-bg-muted: var(--krds-gray-10);
+  --color-text: var(--krds-gray-90);
+  --color-text-secondary: var(--krds-gray-70); /* 흰 배경 대비 7.4:1 */
+  --color-text-disabled: var(--krds-gray-50); /* 비활성 상태 전용 (명암비 예외) */
+  --color-border: var(--krds-gray-20);
+  --color-border-strong: var(--krds-gray-40);
+  --color-overlay: rgba(29, 29, 29, 0.5);
+
+  /* System colors — 텍스트와 아이콘을 함께 사용 */
+  --color-danger: #eb003b;
+  --color-danger-surface: #feecf0;
+  --color-danger-border: #fcd4de;
+  --color-danger-text: #d50136;
+
+  --color-warning: #ffb724;
+  --color-warning-surface: #fff8e9;
+  --color-warning-border: #ffeac1;
+  --color-warning-text: #8a6209;
+
+  --color-success: #008a1e;
+  --color-success-surface: #eef7f0;
+  --color-success-border: #cee9d4;
+  --color-success-text: #006e18;
+
+  --color-info: #2768ff;
+  --color-info-surface: #e9f0ff;
+  --color-info-border: #d4e1ff;
+  --color-info-text: #1f53cc;
+
+  /* ───────── 3. 서체 ,  Typeface ───────── */
+  --font-family-base: 'Pretendard GOV Variable', 'Pretendard GOV', -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-family-icon: 'Material Symbols Outlined';
+
+  /* Font weight: Regular / Bold 2가지만 사용 */
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+
+  /* Line height: 폰트 크기의 150% */
+  --line-height-base: 1.5;
+  --letter-spacing-heading: 1px; /* Display ,  Heading 전용 */
+
+  /* Type scale (PC) */
+  --font-size-display-l: 6.6rem;
+  --font-size-display-m: 5rem;
+  --font-size-display-s: 4rem;
+  --font-size-heading-l: 5rem;
+  --font-size-heading-m: 4rem;
+  --font-size-heading-s: 3.2rem;
+  --font-size-title-xxl: 3.2rem;
+  --font-size-title-xl: 2.5rem;
+  --font-size-title-l: 2.1rem;
+  --font-size-title-m: 1.9rem;
+  --font-size-title-s: 1.7rem;
+  --font-size-title-xs: 1.5rem;
+  --font-size-body-l: 1.9rem;
+  --font-size-body-m: 1.7rem; /* 기본 본문 */
+  --font-size-body-s: 1.5rem;
+  --font-size-detail-l: 1.7rem;
+  --font-size-detail-m: 1.5rem;
+  --font-size-detail-s: 1.3rem;
+  --font-size-label-l: 1.9rem;
+  --font-size-label-m: 1.7rem;
+  --font-size-label-s: 1.5rem;
+  --font-size-label-xs: 1.3rem;
+  --font-size-link-l: 1.9rem;
+  --font-size-link-m: 1.7rem;
+  --font-size-link-s: 1.5rem;
+
+  /* ───────── 4. 배치 ,  Spacing (8-Point grid, 필요 시 4의 배수) ───────── */
+  --space-2xs: 0.2rem; /* 2px — 테두리 보정용 */
+  --space-xs: 0.4rem; /* 4px */
+  --space-sm: 0.8rem; /* 8px */
+  --space-md: 1.6rem; /* 16px */
+  --space-lg: 2.4rem; /* 24px */
+  --space-xl: 3.2rem; /* 32px */
+  --space-2xl: 4rem; /* 40px */
+  --space-3xl: 4.8rem; /* 48px */
+  --space-4xl: 6.4rem; /* 64px */
+  --space-5xl: 8rem; /* 80px */
+
+  /* Layout spacing (Desktop) */
+  --space-gnb-body: var(--space-5xl); /* GNB - Body 80 */
+  --space-heading-body: var(--space-5xl); /* Heading(h1) - Contents 80 */
+  --space-contents: var(--space-4xl); /* Contents - Contents 64 */
+  --space-body-footer: var(--space-5xl); /* Body - Footer 80 */
+  --space-title-h2: var(--space-2xl); /* Title(h2) - Contents 40 */
+  --space-title-h3: var(--space-xl); /* Title(h3) - Contents 32 */
+  --space-text: var(--space-lg); /* Text - Text 24 */
+
+  /* ───────── 5. 형태 ,  Corner radius (정부상징 로고 사용 기관: 최대 12px) ───────── */
+  --radius-xs: 2px; /* 12~16 — 인디케이터, Badge-Dot, Progress bar */
+  --radius-sm: 4px; /* 20~24 — Checkbox, Radio, Tag, Chip, Badge */
+  --radius-sm-2: 6px; /* 32~40 — Small button */
+  --radius-md: 8px; /* 48~64 — Button, Text input, Select, Step indicator */
+  --radius-lg: 10px; /* 72~80 — Card, Dialog */
+  --radius-xl: 12px; /* 96~120 — Banner, 대형 Card, Bottom sheet */
+  --radius-full: 9999px; /* 원형 아이콘 컨테이너, 점 전용 */
+
+  /* ───────── 6. Elevation ───────── */
+  --shadow-level-1: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-level-2: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --shadow-level-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  --blur-overlay: 4px;
+
+  /* ───────── 7. 배치 ,  Grid & Layout ───────── */
+  --layout-max-width: 1280px; /* 콘텐츠 영역 최대값 (고정) */
+  --layout-margin: 24px; /* Screen margin: PC 최소 24px */
+  --layout-gutter: 24px;
+  --layout-columns: 12;
+  --masthead-height: 32px;
+  --control-height: 48px; /* Medium: Button, Input, Select */
+  --control-height-sm: 40px; /* Small button */
+  --control-check-size: 20px; /* Checkbox, Radio */
+  --touch-target: 44px; /* 터치 최소 영역 44 × 44 */
+  --border-width: 1px;
+  --border-width-strong: 1.5px;
+  --focus-ring: 2px solid var(--color-primary);
+  --focus-ring-offset: 2px;
+  --dot-size: 6px;
+  --modal-width-md: 672px;
+  --modal-width-lg: 896px;
+  --readable-width: 72rem; /* 본문 단락 최대 폭 */
+
+  /* ───────── 8. 시스템 아이콘 (16 ,  20 ,  24(기본) ,  32 ,  48) ───────── */
+  --icon-size-xs: 16px;
+  --icon-size-sm: 20px;
+  --icon-size-md: 24px;
+  --icon-size-lg: 32px;
+  --icon-size-xl: 48px;
+
+  /* ───────── 9. Motion & stacking ───────── */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --z-sticky: 100;
+  --z-header: 200;
+  --z-modal: 1000;
+}
+
+/* Tablet (601–1024px) — 8 column */
+@media (max-width: 1024px) {
+  :root {
+    --layout-columns: 8;
+  }
+}
+
+/* Mobile (≤ 600px) — 4 column, 모바일 Type scale */
+@media (max-width: 600px) {
+  :root {
+    --layout-margin: 16px;
+    --layout-gutter: 16px;
+    --layout-columns: 4;
+
+    --font-size-display-l: 4rem;
+    --font-size-display-m: 3.2rem;
+    --font-size-display-s: 2.5rem;
+    --font-size-heading-l: 4rem;
+    --font-size-heading-m: 3.2rem;
+    --font-size-heading-s: 2.5rem;
+    --font-size-title-xxl: 2.5rem;
+
+    --space-gnb-body: var(--space-4xl);
+    --space-heading-body: var(--space-4xl);
+    --space-contents: var(--space-2xl);
+    --space-body-footer: var(--space-4xl);
+    --space-title-h2: var(--space-xl);
+  }
+}
