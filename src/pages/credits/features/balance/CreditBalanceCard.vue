@@ -1,6 +1,7 @@
 <!-- 크레딧 잔액 ,  과금 기준 ,  충전 목업 (FR-11) -->
 <script setup>
 import { PRICING } from '@/shared/constants/pricing'
+import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
@@ -23,10 +24,10 @@ const session = useSessionStore()
       <li>이미지, 상세페이지 1건당 {{ PRICING.CREDITS_PER_IMAGE }}크레딧</li>
       <li>요청 전 잔액 확인 → 처리 완료 후 실제 사용량으로 차감</li>
     </ul>
-    <BaseButton v-if="session.can(PERMISSIONS.CREDITS_CHARGE)" icon="add" @click="credits.charge()">
-      {{ PRICING.MOCK_CHARGE_AMOUNT }} 크레딧 충전
+    <BaseButton v-if="session.can(PERMISSIONS.CREDITS_CHARGE)" icon="add" :to="{ name: ROUTE_NAMES.CREDITS }">
+      크레딧 충전
     </BaseButton>
-    <p class="balance__note">결제(PG) 연동은 목업입니다. 버튼을 누르면 결제 없이 충전 기록만 남습니다.</p>
+    <p class="balance__note">결제 서비스 연결 전에는 크레딧이 충전되지 않습니다.</p>
   </BaseCard>
 </template>
 
