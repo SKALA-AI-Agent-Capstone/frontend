@@ -1,6 +1,9 @@
 <!-- 헤더 우측: 배치 진행 , 크레딧 잔액 , 사용자 메뉴 , 전체메뉴 -->
 <script setup>
+import { watch } from 'vue'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
+import { PERMISSIONS } from '@/shared/constants/roles'
+import { useSessionStore } from '@/shared/stores/session'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import { useBatchStore } from '@/shared/stores/batch'
 import { useCreditsStore } from '@/shared/stores/credits'
@@ -13,7 +16,14 @@ defineProps({
 defineEmits(['toggle-menu'])
 
 const credits = useCreditsStore()
+const session = useSessionStore()
 const batch = useBatchStore()
+watch(() => session.user?.id, async (id) => {
+  credits.resetBalance()
+  if (id) {
+    try { await credits.loadBalance() } catch { /* The credits page reports balance errors. */ }
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -27,11 +37,13 @@ const batch = useBatchStore()
       <BaseIcon name="progress_activity" class="spin" />
       <span class="header-action__label">배치 {{ batch.summary.done }}/{{ batch.summary.total }}</span>
     </RouterLink>
-    <RouterLink v-if="credits.enabled" :to="{ name: ROUTE_NAMES.CREDITS }" class="header-action">
+    <RouterLink v-if="session.can(PERMISSIONS.CREDITS_CHARGE)" :to="{ name: ROUTE_NAMES.CREDITS }" class="header-action">
+      <BaseIcon name="add_circle" />
+      <span class="header-action__label">크레딧 충전</span>
+    </RouterLink>
+    <RouterLink v-if="session.user" :to="{ name: ROUTE_NAMES.CREDITS }" class="header-action" aria-label="현재 크레딧 잔액">
       <BaseIcon name="toll" />
-      <span class="header-action__label">
-        <span class="sr-only">크레딧 잔액</span>{{ formatNumber(credits.balance) }} 크레딧
-      </span>
+      <span class="header-action__label">{{ formatNumber(credits.balance) }} 크레딧</span>
     </RouterLink>
     <UserMenu />
     <button

@@ -1,7 +1,7 @@
 <!-- 예상 크레딧 ,  잔액 사전 확인 (FR-11) — 부족하면 충전 유도 -->
 <script setup>
 import { computed } from 'vue'
-import { PRICING } from '@/shared/constants/pricing'
+import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import { useCreditsStore } from '@/shared/stores/credits'
@@ -27,8 +27,8 @@ const check = computed(() => credits.precheck(props.required))
     <BaseAlert v-if="!check.ok" variant="danger" title="크레딧이 부족합니다" aria-live="polite">
       <div class="estimate__shortfall">
         <span>{{ formatNumber(check.shortfall) }} 크레딧이 더 필요합니다.</span>
-        <BaseButton variant="outline" size="sm" icon="add" @click="credits.charge()">
-          {{ PRICING.MOCK_CHARGE_AMOUNT }} 크레딧 충전 (결제 목업)
+        <BaseButton variant="outline" size="sm" icon="add" :to="{ name: ROUTE_NAMES.CREDITS }">
+          크레딧 충전하기
         </BaseButton>
       </div>
     </BaseAlert>
