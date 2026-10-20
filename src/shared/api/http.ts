@@ -1,15 +1,82 @@
 export const TOKEN_KEY = 'beauty-review:access-token'
 
-export async function request<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
+// 인증 자체를 다루는 경로는 401을 받아도 재발급하지 않는다.
+const AUTH_PATHS = new Set(['/users/signup', '/users/login', '/users/refresh', '/users/logout'])
+// 다른 탭이 회전시킨 새 쿠키가 저장될 시간을 잠시 기다린 뒤 한 번만 재시도한다.
+const ROTATED_RETRY_DELAY_MS = 300
+
+export interface AuthSession {
+  user: Record<string, unknown>
+  tenant: Record<string, unknown>
+  accessToken: string
+  expiresIn: number
+}
+
+let refreshing: Promise<AuthSession | null> | null = null
+let sessionExpired: (() => void) | null = null
+
+/** refresh 실패로 로그인 상태를 잃었을 때 호출할 함수를 등록한다. */
+export function onSessionExpired(handler: () => void) {
+  sessionExpired = handler
+}
+
+function clearToken() {
+  sessionStorage.removeItem(TOKEN_KEY)
+}
+
+async function errorOf(response: Response) {
+  const error = await response.json().catch(() => ({}))
+  return new Error(error.message || error.detail || `요청 실패 (${response.status})`)
+}
+
+async function refreshOnce(retried = false): Promise<AuthSession | null> {
+  const response = await fetch('/api/v1/users/refresh', { method: 'POST', credentials: 'same-origin', cache: 'no-store' })
+  if (response.ok) {
+    const session = await response.json() as AuthSession
+    sessionStorage.setItem(TOKEN_KEY, session.accessToken)
+    return session
+  }
+  const error = await errorOf(response)
+  if (response.status !== 401) throw error
+  if (error.message === 'REFRESH_TOKEN_ROTATED' && !retried) {
+    await new Promise(resolve => setTimeout(resolve, ROTATED_RETRY_DELAY_MS))
+    return refreshOnce(true)
+  }
+  clearToken()
+  return null
+}
+
+/** Refresh 쿠키로 Access Token을 재발급한다. 동시에 호출해도 요청은 한 번만 보낸다. 로그인 상태가 아니면 null. */
+export function refreshSession(): Promise<AuthSession | null> {
+  refreshing ??= refreshOnce().finally(() => { refreshing = null })
+  return refreshing
+}
+
+function send(path: string, init: RequestInit, token: string | null) {
+  // FormData와 문자열 body는 다시 읽을 수 있으므로 재시도 때 같은 init을 그대로 보낸다.
   const headers = new Headers(init.headers)
-  const token = sessionStorage.getItem(TOKEN_KEY)
   if (token) headers.set('Authorization', `Bearer ${token}`)
   if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json')
-  const response = await fetch(`/api/v1${path}`, { ...init, headers, cache: 'no-store' })
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}))
-    if (response.status === 401) sessionStorage.removeItem(TOKEN_KEY)
-    throw new Error(error.message || error.detail || `요청 실패 (${response.status})`)
+  return fetch(`/api/v1${path}`, { ...init, headers, cache: 'no-store' })
+}
+
+export async function request<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
+  const token = sessionStorage.getItem(TOKEN_KEY)
+  let response = await send(path, init, token)
+  if (response.status === 401 && !AUTH_PATHS.has(path.split('?')[0])) {
+    // 다른 요청이 이미 재발급했다면 새 토큰으로 바로 재시도한다.
+    const current = sessionStorage.getItem(TOKEN_KEY)
+    const next = current && current !== token ? current : (await refreshSession())?.accessToken
+    if (!next) {
+      sessionExpired?.()
+      throw await errorOf(response)
+    }
+    response = await send(path, init, next)
+    if (response.status === 401) {
+      clearToken()
+      sessionExpired?.()
+    }
   }
+  if (!response.ok) throw await errorOf(response)
   return response.json() as Promise<T>
 }
