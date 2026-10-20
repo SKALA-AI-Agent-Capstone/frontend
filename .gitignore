@@ -11,3 +11,5 @@ dist/
 *.env
 secrets/
 credentials/
+
+.taste-skill/

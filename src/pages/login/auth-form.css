@@ -1,0 +1,73 @@
+/* 로그인과 회원가입 양식. AuthShell 안에서만 쓰며 값은 tokens.css 변수를 따른다. */
+.auth-form {
+  display: grid;
+  gap: 20px;
+}
+.auth-field {
+  display: grid;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: var(--font-weight-bold);
+}
+.auth-field input {
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--krds-gray-40);
+  border-radius: var(--radius-md);
+  background: var(--krds-gray-0);
+  color: var(--krds-gray-90);
+  font: inherit;
+  font-size: 17px;
+  font-weight: var(--font-weight-regular);
+  transition: border-color var(--transition-fast);
+}
+.auth-field input:hover { border-color: var(--krds-gray-50); }
+.auth-field input:focus {
+  border-color: var(--color-primary);
+  outline: 3px solid var(--krds-primary-10);
+  outline-offset: 0;
+}
+.auth-field__hint {
+  font-size: 14px;
+  font-weight: var(--font-weight-regular);
+  color: var(--krds-gray-70);
+}
+.auth-submit {
+  height: 52px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: inherit;
+  font-size: 17px;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+.auth-submit:hover:not(:disabled) { background: var(--color-primary-hover); }
+.auth-submit:active:not(:disabled) { background: var(--color-primary-active); transform: translateY(1px); }
+.auth-submit:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.auth-submit:disabled { cursor: progress; opacity: 0.7; }
+.auth-switch {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--krds-gray-70);
+}
+.auth-switch a {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+.auth-switch a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.auth-switch {
+  text-wrap: balance;
+}
+.auth-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 600px) {
+  .auth-form-row { grid-template-columns: 1fr; gap: 20px; }
+}

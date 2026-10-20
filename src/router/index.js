@@ -7,10 +7,22 @@ import { useSessionStore } from '@/shared/stores/session'
 
 const routes = [
   {
+    path: '/welcome',
+    name: ROUTE_NAMES.LANDING,
+    component: () => import('@/pages/landing/LandingPage.vue'),
+    meta: { title: null, layout: 'blank', public: true },
+  },
+  {
     path: '/login',
     name: ROUTE_NAMES.LOGIN,
     component: () => import('@/pages/login/LoginPage.vue'),
     meta: { title: '로그인', layout: 'blank', public: true },
+  },
+  {
+    path: '/signup',
+    name: ROUTE_NAMES.SIGNUP,
+    component: () => import('@/pages/signup/SignupPage.vue'),
+    meta: { title: '회원가입', layout: 'blank', public: true },
   },
   {
     path: '/',
@@ -81,9 +93,13 @@ router.beforeEach(async (to) => {
   await session.restore()
   if (session.isAuthenticated) await useReviewsStore().load()
   if (!to.meta.public && !session.isAuthenticated) {
+    // 첫 화면으로 들어온 비로그인 방문자에게는 서비스 소개를 먼저 보여 준다.
+    if (to.name === ROUTE_NAMES.DASHBOARD) return { name: ROUTE_NAMES.LANDING }
     return { name: ROUTE_NAMES.LOGIN, query: { redirect: to.fullPath } }
   }
-  if (to.name === ROUTE_NAMES.LOGIN && session.isAuthenticated) return { name: ROUTE_NAMES.DASHBOARD }
+  if ((to.name === ROUTE_NAMES.LOGIN || to.name === ROUTE_NAMES.SIGNUP) && session.isAuthenticated) {
+    return { name: ROUTE_NAMES.DASHBOARD }
+  }
   if (to.meta.permission && !session.can(to.meta.permission)) return { name: ROUTE_NAMES.DASHBOARD }
   return true
 })
