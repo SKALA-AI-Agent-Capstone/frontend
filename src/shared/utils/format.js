@@ -1,7 +1,9 @@
 // 'YYYY-MM-DD' 또는 ISO → 'YYYY.MM.DD'
 export function formatDate(value) {
   if (!value) return '-'
-  const d = new Date(value)
+  const raw=String(value)
+  const normalized=/^\d{8}$/.test(raw) ? `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}` : value
+  const d = new Date(normalized)
   if (Number.isNaN(d.getTime())) return String(value).replaceAll('-', '.')
   const pad = (n) => String(n).padStart(2, '0')
   return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`

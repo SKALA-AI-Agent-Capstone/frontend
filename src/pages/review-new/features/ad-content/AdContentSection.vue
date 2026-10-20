@@ -32,7 +32,7 @@ const { draft, liveFindings, addFiles } = useReviewDraft()
     <BaseFormField
       class="span-full"
       label="광고 PDF 또는 이미지 파일"
-      hint="파일당 최대 10 MiB, 광고 파일 최대 5개. 분석 중 원본은 임시 보관됩니다."
+      hint="파일당 최대 25 MiB, 광고 파일 최대 5개, 전체 제출 75 MiB. 분석 중 원본은 임시 보관됩니다."
     >
       <BaseFileDropzone
         title="광고물 파일을 드래그하여 놓으세요"

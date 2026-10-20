@@ -15,6 +15,8 @@ const props = defineProps({
 defineEmits(['retry'])
 
 const VIEW = {
+  cancelled: {variant:'warning',icon:'info',title:'취하 정보가 있는 보고품목입니다. 담당자 확인이 필요합니다'},
+  ambiguous: {variant:'warning',icon:'help',title:'제품과 보고번호의 정확한 대응을 확인해야 합니다'},
   [PUBLIC_DATA_STATUS.FOUND]: { variant: 'success', icon: 'verified', title: '식약처 보고품목에서 확인되었습니다' },
   [PUBLIC_DATA_STATUS.NOT_FOUND]: {
     variant: 'warning',
@@ -42,6 +44,8 @@ const view = computed(() => VIEW[props.result.status] || {variant:'warning',icon
       <p v-else-if="result.status === PUBLIC_DATA_STATUS.ERROR">
         외부 시스템과 연결하지 못했습니다({{ result.error }}). 제품에 문제가 있다는 뜻이 아니며, 다른 검토는 계속 진행됩니다.
       </p>
+      <p v-else-if="result.status === 'cancelled'">조회한 품목에 취하 정보가 있습니다. 현재 등록 상태와 제품 자료를 직접 확인해 주세요.</p>
+      <p v-else-if="result.status === 'ambiguous'">번호 형식이나 제품명 대응이 명확하지 않거나 전체 페이지를 확인하지 못했습니다. 제품이 없다는 뜻은 아닙니다.</p>
       <p class="public-data__meta">
         보조 교차검증 , {{ result.source }}<template v-if="result.checkedAt"> , {{ formatDateTime(result.checkedAt) }} 조회</template>
       </p>

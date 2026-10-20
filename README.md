@@ -63,7 +63,7 @@ VITE_*나 소스에 키를 넣지 않는다. ChatGPT 구독은 이 서비스의 
 
 ## 협업과 검증
 
-현재 작업 브랜치는 feat/non-vector-mvp다. 기반 브랜치와 main 병합은 별개다.
+팀원의 시작 기준은 main이다. 후속 기능은 main에서 짧은 feat 브랜치를 만들어 PR로 반영한다.
 backend/docs/03-contracts.md의 실제 /api/v1 계약, 05-collaboration.md의 Git 규칙과 10-work-breakdown.md의 역할별 작업을 따른다.
 RAG 데이터 기준은 Cosmetic_RAG_AI_Handoff이며 backend/docs/04-data.md와 06-rag-start.md에서 관리한다.
 
@@ -74,3 +74,14 @@ npm run build
 
 기능 확인은 기업 작업공간 생성 → PDF 또는 이미지 제출 → 결과 확인 → 의견과 담당자 결정 → 이력과 리포트다.
 키가 없으면 문구 모델과 사진 모델은 미설정으로 표시된다. RAG 검색 미연결을 적법 판정으로 설명하지 않는다.
+
+
+## 작업 전 원문 확인
+
+[노션 기획서](https://app.notion.com/p/Agent-3fe616ab8fec80bfb92df115c66aa83d)와
+[ERD v2](https://app.notion.com/p/Data-ERD-App-State-Vector-DB-3ff616ab8fec81c7b57ac75358ced570)를 먼저 확인한다.
+Backend docs/08-project-memory.md, 03-contracts.md와 10-work-breakdown.md를 함께 읽고 현재 구현과 목표를 구분한다.
+팀원의 실행 절차는 backend/README.md를 따른다. 개인 Desktop 경로나 기존 DB가 없어도 두 저장소를 clone해 시작할 수 있다.
+광고는 파일당 25 MiB, 전체 75 MiB까지 받고 픽셀 및 페이지와 타일 제한은 별도로 적용한다.
+자료실은 근거 문서 9건과 외부 API 4종을 따로 보여준다. 실제 검증 상태는 backend/docs/07-validation.md를 따른다.
+검증 관리자 비밀번호는 각 실행자의 backend/data/demo-access.md에 생성되며 Git에는 없다.

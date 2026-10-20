@@ -18,4 +18,8 @@
 
 - 제공된 JavaScript Vue UI를 유지하고 공통 HTTP에는 TypeScript를 사용한다. 기존 시안을 전면 TypeScript로 바꾸는 작업은 이번 범위가 아니다.
 - 실제 진입은 main.ts와 router/index.js, 화면은 pages와 shared다. 초기 views와 api 경로를 현재 업무 화면으로 오해하지 않는다.
-- 단건 기능은 feat/non-vector-mvp에서 개발한다. RAG 검색, SSE, 다건과 과금은 미연결 상태를 정확히 표시한다.
+- 통합 기준은 main이고 후속 기능은 feat 브랜치와 PR로 개발한다. RAG 검색, SSE, 다건과 과금은 미연결 상태를 정확히 표시한다.
+
+- 작업 전 노션 기획서와 담당 영역의 원문을 다시 읽는다. DB와 인증은 https://app.notion.com/p/Data-ERD-App-State-Vector-DB-3ff616ab8fec81c7b57ac75358ced570 를 함께 확인한다.
+- backend/docs/08-project-memory.md와 03-contracts.md를 먼저 읽고 원격 main의 실제 구현 및 목표 차이를 확인한다.
+- 실제 키나 data/demo-access.md 비밀번호, 입력 이미지와 보고서는 Git에 올리지 않는다. 공용 관리자 비밀번호를 클라이언트에 하드코딩하지 않는다.
