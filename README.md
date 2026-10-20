@@ -50,7 +50,8 @@ docker compose --profile web up --build --wait
 백엔드 공통 문서 원본: https://github.com/SKALA-AI-Agent-Capstone/backend/tree/main/docs
 초기 PR을 검토 중이면 같은 chore/dev-foundation 브랜치의 docs를 참조한다.
 
-공통 계약은 backend/packages/shared와 backend/contracts가 기준이다.
+현재 실행 계약은 backend/packages/shared와 backend/contracts가 기준이다.
+새 업무 API와 MCP 목표 및 노션 문서 간 차이는 backend/docs/03-contracts.md를 먼저 확인한다.
 Git 작업 흐름은 backend/docs/05-collaboration.md, 기억할 결정은 backend/docs/08-project-memory.md를 읽는다.
 현재 GET /api/dev/status만 사용하며 광고 작업 접수와 승인 API는 구현되어 있지 않다.
 
@@ -95,7 +96,7 @@ chore/dev-foundation은 초기 실행환경 브랜치다. 실제 업무 기능�
 | 제품과 증빙 연결 | 제품명과 자료 역할을 건별로 묶는 방식은 Backend와 입력 계약에서 합의 |
 | 시작 버튼 | 유효한 파일이 없거나 제출 중이면 비활성화하고 중복 클릭 방지 |
 | 파일 검증 | 형식과 크기 안내를 먼저 하되 실제 유효성과 권한은 Backend가 재검증 |
-| API | 노션의 POST /api/reviews를 목표로 하며 현재는 501. multipart 필드와 PDF 지원 이름은 계약 PR에서 확정 |
+| API | 노션 API 등록부의 POST /api/v1/reviews가 목표. 현재 코드의 POST /api/reviews는 501이며 다른 경로다. multipart와 PDF 필드 및 ID 표기는 계약 PR에서 맞춤 |
 | 진행 표시 | Backend의 상태 API와 SSE 계약을 사용. 파일 크기만으로 AI 진행률을 계산하지 않음 |
 | AI와 MCP | Vue가 직접 호출하지 않음. OCR와 Vision 및 RAG는 서버의 책임 |
 | 원본 미리보기 | 처리 중 정책에 맞춰 제공. 원본 폐기 후 항상 다시 열 수 있다고 약속하지 않음 |
