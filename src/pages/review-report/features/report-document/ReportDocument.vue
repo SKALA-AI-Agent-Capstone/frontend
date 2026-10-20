@@ -1,5 +1,6 @@
 <!-- 검토 결과 리포트 본문 (FR-9) — 위반 문구,근거,리라이트,증빙 대조,특허,승인 이력 -->
 <script setup>
+import { computed } from 'vue'
 import {
   APPROVAL_LABEL,
   CLAIM_LABEL,
@@ -13,10 +14,20 @@ import { emptyBasisText, legalSearch } from '@/shared/constants/legal'
 import { SITE } from '@/shared/constants/site'
 import { formatDate, formatDateTime } from '@/shared/utils/format'
 
-defineProps({
+const props = defineProps({
   review: { type: Object, required: true },
   version: { type: Object, required: true },
 })
+
+// violations는 항상 "최신 버전" 기준이다(재검토 버전 구조 없음) — 과거 버전 리포트에선 비워 둔다.
+const isLatestVersion = computed(() => props.version.no === Math.max(...props.review.versions.map((v) => v.no)))
+function violationFor(finding) {
+  if (!isLatestVersion.value) return null
+  return props.review.violations?.find((v) => v.findingId === finding.id) ?? null
+}
+function locationLabel(finding) {
+  return finding.location?.kind === 'copy' ? '광고 카피' : finding.location?.fileName ?? '위치 정보 없음'
+}
 </script>
 
 <template>
@@ -36,36 +47,40 @@ defineProps({
     </header>
 
     <section>
-      <h2>1. 검토 원문</h2>
-      <div v-for="(t, i) in version.result.texts.filter((x) => x.text?.trim())" :key="i" class="report__text">
-        <p class="report__label">{{ t.location.kind === 'copy' ? '광고 카피' : t.location.fileName }}{{ t.mock ? ' (목업 OCR)' : '' }}</p>
-        <p>{{ t.text }}</p>
-      </div>
-    </section>
-
-    <section>
-      <h2>2. 확인할 문구 ({{ version.result.findings.length }}건)</h2>
+      <h2>1. 확인할 문구 ({{ version.result.findings.length }}건)</h2>
       <table class="report__table">
         <thead>
-          <tr><th>#</th><th>문구</th><th>판정</th><th>근거 (출처 , 버전)</th><th>대체 표현</th></tr>
+          <tr><th>#</th><th>문구</th><th>위치</th><th>판정</th><th>근거 (출처 , 버전)</th><th>최종 결정</th></tr>
         </thead>
         <tbody>
           <tr v-for="(f, i) in version.result.findings" :key="f.id">
             <td>{{ i + 1 }}</td>
             <td><strong>"{{ f.phrase }}"</strong><br />{{ f.category }}</td>
+            <td>{{ locationLabel(f) }}</td>
             <td>{{ SEVERITY_LABEL[f.severity].label }}<template v-if="f.escalation"><br />↑ {{ f.escalation.reason }}</template></td>
             <td>
               <p v-if="!f.basis.length">{{ emptyBasisText(f, version.result) }} {{ f.reason }}</p>
               <p v-for="(b, j) in f.basis" :key="j">{{ b.sourceName }} {{ b.article }} ({{ b.version }}) — {{ b.plain }}</p>
             </td>
-            <td><p v-for="(r, j) in f.rewrites" :key="j">{{ rewriteLabel(r) }}<template v-if="r.note"> — {{ r.note }}</template></p></td>
+            <td>
+              <template v-if="violationFor(f)?.finalResolution">
+                {{ violationFor(f).finalText }}
+                <br /><span class="report__label">{{ violationFor(f).decidedByName ?? '시스템' }} , {{ formatDateTime(violationFor(f).decidedAt) }}</span>
+              </template>
+              <template v-else-if="violationFor(f)">
+                미결정 — 제안: {{ violationFor(f).rewriteSuggestion ?? '없음' }}
+              </template>
+              <template v-else>
+                <p v-for="(r, j) in f.rewrites" :key="j">{{ rewriteLabel(r) }}<template v-if="r.note"> — {{ r.note }}</template></p>
+              </template>
+            </td>
           </tr>
         </tbody>
       </table>
     </section>
 
     <section>
-      <h2>3. 증빙 대조</h2>
+      <h2>2. 증빙 대조</h2>
       <ul>
         <li v-for="(flag, i) in version.result.evidence.flags" :key="i">[{{ SEVERITY_LABEL[flag.severity].short }}] {{ flag.message }}</li>
         <li v-if="!version.result.evidence.flags.length">증빙 자동 대조가 완료됐다는 뜻은 아닙니다. 추출 상태와 담당자 확인이 필요합니다.</li>
@@ -87,7 +102,7 @@ defineProps({
     </section>
 
     <section>
-      <h2>4. 특허 확인</h2>
+      <h2>3. 특허 확인</h2>
       <ul>
         <li v-for="p in version.result.patents" :key="p.id">
           {{ p.confirmedNumber ?? p.number }} — {{ PATENT_STATUS_LABEL[p.status].label }}
@@ -105,7 +120,7 @@ defineProps({
       <p v-for="warning in version.result.warnings" :key="warning">{{warning}}</p>
     </section>
     <section>
-      <h2>5. 승인 이력 (v{{ version.no }})</h2>
+      <h2>4. 승인 이력 (v{{ version.no }})</h2>
       <ul>
         <li v-for="(h, i) in version.approval.history" :key="i">
           {{ formatDateTime(h.at) }} {{ h.by }} — {{ APPROVAL_LABEL[h.action].label }}{{ h.comment ? `: ${h.comment}` : '' }}
@@ -165,9 +180,6 @@ defineProps({
   padding: var(--space-sm) var(--space-md);
   border: var(--border-width) solid var(--color-warning-border);
   background: var(--color-warning-surface);
-}
-.report__text {
-  margin-bottom: var(--space-sm);
 }
 .report__label {
   margin-top: var(--space-sm);

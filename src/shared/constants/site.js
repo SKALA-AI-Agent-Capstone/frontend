@@ -50,6 +50,6 @@ export const LANGUAGES = Object.freeze([
 export const FOOTER = Object.freeze({
  contacts: [{term:'운영',desc:'캡스톤 기업 내부 사전검토 개발환경'}],
  utilityLinks: [], policyLinks: [],
- retentionNotice:'검토 결과와 승인 이력은 서버에 저장됩니다. 업로드 원본은 분석 후 폐기되며 사진 분석 결과는 실제 효능 판정이 아닙니다.',
+ retentionNotice:'검토 결과와 승인 이력, 업로드 원본은 서버에 보존됩니다. 사진 분석 결과는 실제 효능 판정이 아닙니다.',
  copyright:'Beauty Review Capstone', kogl:'', identifier:'정부 또는 협회가 운영하는 공식 서비스가 아닙니다.',
 })

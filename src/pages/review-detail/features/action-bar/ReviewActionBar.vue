@@ -11,14 +11,14 @@ import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 
-const { review, version, isLatest, findings, revisions, reviseAndRecheck } = useReviewDetail()
+const { review, version, isLatest, findings, decidedFindingIds, reviseAndRecheck } = useReviewDetail()
 const reviews = useReviewsStore()
 const session = useSessionStore()
 const router = useRouter()
 const confirmOpen = ref(false)
 const error = ref(null)
 
-const revisedCount = computed(() => findings.value.filter((f) => revisions[f.id] !== undefined).length)
+const revisedCount = computed(() => findings.value.filter((f) => decidedFindingIds.value.has(f.id)).length)
 const ready = computed(() => findings.value.length > 0 && revisedCount.value === findings.value.length)
 // 한 화면 최상위 강조 버튼은 1개 — 승인 권한자는 승인 패널의 '승인'이 강조 버튼
 const recheckVariant = computed(() => (session.can(PERMISSIONS.REVIEW_APPROVE) ? 'secondary' : 'primary'))

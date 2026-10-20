@@ -52,6 +52,19 @@ export const SEVERITY_LABEL = Object.freeze({
   [SEVERITY.LOW]: { label: '검토 권고', short: '권고', variant: STATUS.INFO, icon: 'info' },
 })
 
+// 문구 단위 HITL 최종 결정 (2026-10-20 HITL 재설계: violation 단위 kept/rewritten/rewritten_manual)
+export const VIOLATION_RESOLUTION = Object.freeze({
+  KEPT: 'kept',
+  REWRITTEN: 'rewritten',
+  REWRITTEN_MANUAL: 'rewritten_manual',
+})
+
+export const VIOLATION_RESOLUTION_LABEL = Object.freeze({
+  [VIOLATION_RESOLUTION.KEPT]: { label: '원문 유지', variant: STATUS.NEUTRAL },
+  [VIOLATION_RESOLUTION.REWRITTEN]: { label: '수정안 채택', variant: STATUS.SUCCESS },
+  [VIOLATION_RESOLUTION.REWRITTEN_MANUAL]: { label: '직접 수정', variant: STATUS.SUCCESS },
+})
+
 // 광고 주장 유형 — 증빙 대조(FR-3)와 필요 서류 안내(FR-10)의 기준 키
 export const CLAIM_TYPES = Object.freeze({
   DRUG: 'drug',

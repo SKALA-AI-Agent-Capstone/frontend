@@ -7,7 +7,6 @@ export const useReviewsStore = defineStore('reviews', () => {
   const session = useSessionStore()
   const items = ref([])
   const error = ref(null)
-  const previews = ref({})
   let pollTimer = null
   const list = computed(() => items.value.filter(r => r.tenantId === session.tenant?.id))
   const latest = review => review.versions[review.versions.length - 1]
@@ -46,7 +45,6 @@ export const useReviewsStore = defineStore('reviews', () => {
   async function submit(path, input) {
     const review = upsert(await request(path, { method: 'POST', body: form(input) }))
     const version = latest(review)
-    previews.value[`${review.id}:${version.no}`] = input.files.map(f => ({ name: f.name, type: f.file.type, url: URL.createObjectURL(f.file) }))
     poll()
     return { reviewId: review.id, versionNo: version.no }
   }
@@ -55,22 +53,25 @@ export const useReviewsStore = defineStore('reviews', () => {
   async function decide(id, versionNo, state, comment) {
     return upsert(await request(`/reviews/${id}/decision`, { method: 'POST', body: JSON.stringify({ versionNo, state, comment }) }))
   }
+  async function decideViolation(id, violationId, body) {
+    return upsert(await request(`/reviews/${id}/violations/${violationId}/decision`, { method: 'POST', body: JSON.stringify(body) }))
+  }
+  async function requestRewrite(id, violationId, body = {}) {
+    return upsert(await request(`/reviews/${id}/violations/${violationId}/rewrite-requests`, { method: 'POST', body: JSON.stringify(body) }))
+  }
   const canDelete = review => review.authorId === session.user?.id || session.user?.role === 'admin'
   async function deleteReview(id) {
     await request(`/reviews/${id}`, { method: 'DELETE' })
     items.value = items.value.filter(r => r.id !== id)
-    for (const key of Object.keys(previews.value).filter(k => k.startsWith(`${id}:`))) {
-      previews.value[key].forEach(p => URL.revokeObjectURL(p.url)); delete previews.value[key]
-    }
     return true
   }
   async function deleteAll() { const result = await request('/reviews', { method: 'DELETE' }); await load(); return result.deleted }
   async function unavailable() { throw new Error('이 재시도 기능은 후속 구현 대상입니다. 원본 파일로 새 버전을 신청해 주세요.') }
   watch(() => session.user?.id, async () => {
     clearTimeout(pollTimer)
-    Object.values(previews.value).flat().forEach(p => URL.revokeObjectURL(p.url))
-    previews.value = {}; items.value = []; await load(); poll()
+    items.value = []; await load(); poll()
   })
-  return { list, error, previews, byId, latest, pendingApprovals, createReview, createVersion, decide, canDelete,
+  return { list, error, byId, latest, pendingApprovals, createReview, createVersion, decide,
+    decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })
