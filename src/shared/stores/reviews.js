@@ -55,6 +55,12 @@ export const useReviewsStore = defineStore('reviews', () => {
   async function decide(id, versionNo, state, comment) {
     return upsert(await request(`/reviews/${id}/decision`, { method: 'POST', body: JSON.stringify({ versionNo, state, comment }) }))
   }
+  async function decideViolation(id, violationId, body) {
+    return upsert(await request(`/reviews/${id}/violations/${violationId}/decision`, { method: 'POST', body: JSON.stringify(body) }))
+  }
+  async function requestRewrite(id, violationId, body = {}) {
+    return upsert(await request(`/reviews/${id}/violations/${violationId}/rewrite-requests`, { method: 'POST', body: JSON.stringify(body) }))
+  }
   const canDelete = review => review.authorId === session.user?.id || session.user?.role === 'admin'
   async function deleteReview(id) {
     await request(`/reviews/${id}`, { method: 'DELETE' })
@@ -71,6 +77,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     Object.values(previews.value).flat().forEach(p => URL.revokeObjectURL(p.url))
     previews.value = {}; items.value = []; await load(); poll()
   })
-  return { list, error, previews, byId, latest, pendingApprovals, createReview, createVersion, decide, canDelete,
+  return { list, error, previews, byId, latest, pendingApprovals, createReview, createVersion, decide,
+    decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })

@@ -1,7 +1,7 @@
 /*
  * 심의 결과 화면 상태 — 선택 버전(FR-13), 활성 위반 지점, 수정안 반영(FR-5), 연동 재시도를 하위 feature 에 공유한다.
  */
-import { computed, inject, provide, reactive, ref, watch } from 'vue'
+import { computed, inject, provide, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -26,6 +26,23 @@ export function provideReviewDetail() {
   const result = computed(() => version.value?.result ?? null)
   const findings = computed(() => result.value?.findings ?? [])
 
+  // ── 문구별 위반과 HITL 결정 (violations는 항상 "최신 버전" 기준, 재검토 버전 구조 없음) ──
+  const violations = computed(() => review.value?.violations ?? [])
+  const hitl = computed(() => review.value?.hitl ?? null)
+  const latestFindings = computed(() => (review.value ? reviews.latest(review.value).result?.findings ?? [] : []))
+  function findingFor(violation) {
+    return latestFindings.value.find((f) => f.id === violation.findingId) ?? null
+  }
+  async function decideViolation(violationId, resolution, extra = {}) {
+    await reviews.decideViolation(review.value.id, violationId, { resolution, ...extra })
+  }
+  async function requestViolationRewrite(violationId, retryNote) {
+    await reviews.requestRewrite(review.value.id, violationId, retryNote ? { retryNote } : {})
+  }
+  // 어떤 문구(findingId)가 이미 결정됐는지 — ad-viewer/action-bar의 "반영됨" 표시가 실제 저장된
+  // 결정을 반영하도록, 로컬로만 켜지는 플래그 대신 이걸 기준으로 삼는다.
+  const decidedFindingIds = computed(() => new Set(violations.value.filter((v) => v.finalResolution).map((v) => v.findingId)))
+
   // ── 위반 지점 선택 (뷰어 ↔ 카드) ──
   const activeFindingId = ref(null)
   function focusFinding(id, { scrollTo = 'card' } = {}) {
@@ -34,19 +51,9 @@ export function provideReviewDetail() {
     document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: scrollTo === 'viewer' ? 'start' : 'center' })
   }
 
-  // ── 수정안 반영 (FR-5 → FR-13 재심의 초안) ──
-  const revisions = reactive({}) // findingId → 반영한 제안 index
   watch(versionNo, () => {
     activeFindingId.value = findings.value[0]?.id ?? null
-    for (const key of Object.keys(revisions)) delete revisions[key]
   }, { immediate: true })
-
-  function applyRevision(findingId, index) {
-    revisions[findingId] = index
-  }
-  function clearRevision(findingId) {
-    delete revisions[findingId]
-  }
 
   // PDF와 이미지는 사용자가 편집한 새 원본으로 재검토한다.
   function reviseAndRecheck() {
@@ -62,11 +69,14 @@ export function provideReviewDetail() {
     isDone,
     result,
     findings,
+    violations,
+    hitl,
+    findingFor,
+    decideViolation,
+    requestViolationRewrite,
+    decidedFindingIds,
     activeFindingId,
     focusFinding,
-    revisions,
-    applyRevision,
-    clearRevision,
     reviseAndRecheck,
     retryPatent: (patentId) => reviews.retryPatent(review.value.id, version.value.no, patentId),
     confirmPatent: (patentId, number) => reviews.confirmPatent(review.value.id, version.value.no, patentId, number),

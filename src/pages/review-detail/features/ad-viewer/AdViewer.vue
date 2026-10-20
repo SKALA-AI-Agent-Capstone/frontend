@@ -13,7 +13,7 @@ import { useReviewDetail } from '../../composables/useReviewDetail'
 import ViewerToolbar from './ViewerToolbar.vue'
 import ZoomDetailCard from './ZoomDetailCard.vue'
 
-const { review, version, findings, activeFindingId, focusFinding, revisions } = useReviewDetail()
+const { review, version, findings, activeFindingId, focusFinding, decidedFindingIds } = useReviewDetail()
 
 const zoom = ref(100)
 const overlay = ref(true)
@@ -57,7 +57,7 @@ const legend = computed(() =>
         v-if="overlay && active"
         :finding="active"
         :number="numberOf(active)"
-        :revised="revisions[active.id] !== undefined"
+        :revised="decidedFindingIds.has(active.id)"
       />
       <div class="viewer__canvas">
         <figure class="poster" :style="{ fontSize: `${zoom}%` }" :aria-label="`${review.productName} 광고물`">

@@ -1,6 +1,10 @@
 <!--
-  위반 지점 카드 (시안 krds_3 — 빨강 테두리: 위반 소지 높음 / 초록: 수정안 반영)
-  근거(FR-2,NFR-8,11) , 판정 상향(FR-3) , 보조 사례(FR-2) , 대체 표현(FR-5)
+  위반 지점 카드 (시안 krds_3 — 빨강 테두리: 위반 소지 높음 / 초록: 확정됨)
+  근거(FR-2,NFR-8,11) , 판정 상향(FR-3) , 보조 사례(FR-2) , violation 단위 HITL 결정(FR-5, 2026-10-20 재설계)
+
+  finding(광고 원문 블록, basis/reason/category 등 판독 당시 정보)과 violation(결정 상태가 저장되는
+  app.violations 행)은 서로 다른 출처다 — finding은 "최신 버전" JSONB에, violation은 그걸로 생성된
+  DB 행이다. violation.findingId로 짝지어 둘을 함께 보여준다.
 -->
 <script setup>
 import { computed } from 'vue'
@@ -15,50 +19,68 @@ import { useReviewDetail } from '../../composables/useReviewDetail'
 import RevisionOptions from './RevisionOptions.vue'
 
 const props = defineProps({
-  finding: { type: Object, required: true },
+  violation: { type: Object, required: true },
+  finding: { type: Object, default: null },
   number: { type: Number, required: true },
 })
 
-const { activeFindingId, focusFinding, revisions, applyRevision, clearRevision } = useReviewDetail()
+const { activeFindingId, focusFinding, decideViolation, requestViolationRewrite } = useReviewDetail()
 
-const severity = computed(() => SEVERITY_LABEL[props.finding.severity])
-const applied = computed(() => revisions[props.finding.id] ?? null) // 반영한 제안 index
-const variant = computed(() => (applied.value !== null ? 'success' : props.finding.severity === SEVERITY.HIGH ? 'danger' : 'default'))
-const locationLabel = computed(() =>
-  props.finding.location.kind === 'copy' ? '광고 카피' : `이미지 , ${props.finding.location.fileName}`,
-)
+const severity = computed(() => SEVERITY_LABEL[props.finding?.severity ?? SEVERITY.LOW])
+const decided = computed(() => Boolean(props.violation.finalResolution))
+const variant = computed(() => (decided.value ? 'success' : props.finding?.severity === SEVERITY.HIGH ? 'danger' : 'default'))
+const locationLabel = computed(() => {
+  const location = props.finding?.location
+  if (!location) return '원문 위치 정보 없음'
+  return location.kind === 'copy' ? '광고 카피' : `이미지 , ${location.fileName}`
+})
+
+function decide(resolution, extra) {
+  return decideViolation(props.violation.id, resolution, extra)
+}
+function retry(note) {
+  return requestViolationRewrite(props.violation.id, note)
+}
 </script>
 
 <template>
   <BaseCard
-    :id="`finding-${finding.id}`"
+    :id="`finding-${violation.findingId ?? violation.id}`"
     tag="article"
     class="violation"
-    :class="{ 'violation--active': activeFindingId === finding.id }"
+    :class="{ 'violation--active': finding && activeFindingId === finding.id }"
     :variant="variant"
-    :aria-labelledby="`finding-${finding.id}-title`"
+    :aria-labelledby="`finding-${violation.id}-title`"
   >
     <header class="violation__head">
-      <span class="violation__no" :class="applied !== null ? 'violation__no--success' : `violation__no--${finding.severity}`" aria-hidden="true">
-        <BaseIcon v-if="applied !== null" name="check" size="sm" />
+      <span class="violation__no" :class="decided ? 'violation__no--success' : `violation__no--${finding?.severity ?? SEVERITY.LOW}`" aria-hidden="true">
+        <BaseIcon v-if="decided" name="check" size="sm" />
         <template v-else>{{ number }}</template>
       </span>
       <div class="violation__title-wrap">
         <p class="violation__meta">
-          <BaseBadge :variant="applied !== null ? 'success' : severity.variant" :solid="applied !== null">
-            {{ applied !== null ? '수정안 반영' : severity.label }}
+          <BaseBadge :variant="decided ? 'success' : severity.variant" :solid="decided">
+            {{ decided ? '확정됨' : severity.label }}
           </BaseBadge>
-          <span>{{ finding.basis[0]?.article }} , {{ locationLabel }}</span>
+          <span>{{ finding?.basis?.[0]?.article }} , {{ locationLabel }}</span>
         </p>
-        <h3 :id="`finding-${finding.id}-title`" class="violation__title">{{ finding.category || finding.title }} ("{{ finding.phrase }}")</h3>
+        <h3 :id="`finding-${violation.id}-title`" class="violation__title">
+          {{ finding?.category || finding?.title || '확인할 문구' }} ("{{ violation.textExcerpt }}")
+        </h3>
       </div>
-      <BaseButton variant="outline" size="sm" icon="location_searching" @click="focusFinding(finding.id, { scrollTo: 'viewer' })">
+      <BaseButton
+        v-if="finding"
+        variant="outline"
+        size="sm"
+        icon="location_searching"
+        @click="focusFinding(finding.id, { scrollTo: 'viewer' })"
+      >
         문제지점 보기
       </BaseButton>
     </header>
 
     <BaseAlert
-      v-if="finding.escalation"
+      v-if="finding?.escalation"
       :variant="severity.variant"
       icon="trending_up"
       title="증빙 대조 결과 판정 상향"
@@ -66,14 +88,14 @@ const locationLabel = computed(() =>
       {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}: {{ finding.escalation.reason }}
     </BaseAlert>
 
-    <p>{{ finding.reason }}</p>
-    <p v-if="!finding.basis.length">법령 검색 미연결: 인용 근거가 없는 예비검토 항목입니다.</p>
-    <section v-if="finding.basis.length" class="violation__basis" aria-label="위반 근거">
+    <p v-if="finding">{{ finding.reason }}</p>
+    <p v-if="!finding?.basis?.length">법령 검색 미연결: 인용 근거가 없는 예비검토 항목입니다.</p>
+    <section v-if="finding?.basis?.length" class="violation__basis" aria-label="위반 근거">
       <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> 화장품 표시,광고 관리 기준 위반 근거</p>
       <BasisItem v-for="(basis, i) in finding.basis" :key="`${basis.sourceId}-${i}`" :basis="basis" />
     </section>
 
-    <section v-if="finding.references?.length" class="violation__refs" aria-label="참고 사례">
+    <section v-if="finding?.references?.length" class="violation__refs" aria-label="참고 사례">
       <p class="violation__refs-title">과거 적발,심의 사례 (보조 참고)</p>
       <p v-for="ref in finding.references" :key="ref.id" class="violation__ref">
         <BaseBadge v-if="!ref.verified" variant="warning">출처 미검증</BaseBadge>
@@ -81,12 +103,7 @@ const locationLabel = computed(() =>
       </p>
     </section>
 
-    <RevisionOptions
-      :rewrites="finding.rewrites"
-      :applied-index="applied"
-      @apply="applyRevision(finding.id, $event)"
-      @cancel="clearRevision(finding.id)"
-    />
+    <RevisionOptions :violation="violation" @decide="decide" @retry="retry" />
   </BaseCard>
 </template>
 
