@@ -1,0 +1,1 @@
+<template><section><h1>캠페인 다건 처리</h1><p>이번 최소 기능은 단건 경로입니다. RabbitMQ 서버 준비와 실제 업무 배치 Worker 구현은 별개이며, 현재 화면에서 다건 접수를 실행하지 않습니다.</p></section></template>
