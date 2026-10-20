@@ -1,7 +1,9 @@
 <!-- 선택한 위반 지점의 확대 정밀 분석 카드 (시안 krds_3) -->
 <script setup>
 import { computed } from 'vue'
+import { emptyBasisText } from '@/shared/constants/legal'
 import { SEVERITY_LABEL } from '@/shared/constants/review'
+import { useReviewDetail } from '../../composables/useReviewDetail'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 
 const props = defineProps({
@@ -11,6 +13,8 @@ const props = defineProps({
 })
 
 const severity = computed(() => SEVERITY_LABEL[props.finding.severity])
+const { result } = useReviewDetail()
+const basis = computed(() => props.finding.basis?.[0] ?? null)
 </script>
 
 <template>
@@ -23,8 +27,11 @@ const severity = computed(() => SEVERITY_LABEL[props.finding.severity])
       검출 문구: <mark>"{{ finding.phrase }}"</mark>
     </p>
     <p class="zoom-card__summary">
-      {{ finding.basis[0]?.sourceName }} {{ finding.basis[0]?.article }}에 따른 <strong>{{ finding.category }}</strong>로 판별되었습니다.
-      {{ finding.basis[0]?.plain }}
+      <template v-if="basis">
+        <strong>{{ finding.category }}</strong>, 관련 조문 후보: {{ basis.sourceName }} {{ basis.article }}.
+        {{ basis.plain }}
+      </template>
+      <template v-else><strong>{{ finding.category }}</strong>. {{ emptyBasisText(finding, result) }}</template>
     </p>
   </div>
 </template>

@@ -1,6 +1,7 @@
 <!-- 위반사항 분석 및 보완 (시안 krds_3) -->
 <script setup>
 import { computed } from 'vue'
+import { legalSearch } from '@/shared/constants/legal'
 import { APPROVAL_LABEL, REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
@@ -23,6 +24,7 @@ import StatusSummary from './features/status-summary/StatusSummary.vue'
 import ViolationReviewList from './features/violation-review/ViolationReviewList.vue'
 
 const { review, version, versionNo, isDone } = provideReviewDetail()
+const legal = computed(() => legalSearch(version.value?.result))
 
 const breadcrumbs = computed(() => [
   { label: '심의 이력', to: { name: ROUTE_NAMES.HISTORY } },
@@ -53,7 +55,7 @@ const versionTabs = computed(() =>
   <div v-else-if="version" class="supplement-page">
     <PageHeading
       title="문구와 사진 검토 결과"
-      :description="`${review.productName} — 문구 확인 후보와 사진 관찰, 증빙 추출 상태를 확인하세요. 법령 근거 대조는 아직 연결되지 않았습니다.`"
+      :description="`${review.productName} — 문구 확인 후보와 법령 조문 후보, 사진 관찰, 증빙 추출 상태를 확인하세요.`"
       :breadcrumbs="breadcrumbs"
     >
       <template #top-aside>
@@ -75,7 +77,7 @@ const versionTabs = computed(() =>
     </BaseAlert>
 
     <template v-if="isDone">
-      <BaseAlert variant="warning" title="법령 검색 미연결, 예비검토 결과">
+      <BaseAlert :variant="legal.variant" :title="legal.alertTitle">
         <ul><li v-for="warning in version.result.warnings" :key="warning">{{warning}}</li></ul>
       </BaseAlert>
       <StatusSummary />
