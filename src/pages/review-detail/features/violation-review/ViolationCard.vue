@@ -4,6 +4,7 @@
 -->
 <script setup>
 import { computed } from 'vue'
+import { emptyBasisText } from '@/shared/constants/legal'
 import { SEVERITY, SEVERITY_LABEL } from '@/shared/constants/review'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
@@ -19,7 +20,7 @@ const props = defineProps({
   number: { type: Number, required: true },
 })
 
-const { activeFindingId, focusFinding, revisions, applyRevision, clearRevision } = useReviewDetail()
+const { activeFindingId, focusFinding, revisions, applyRevision, clearRevision, result } = useReviewDetail()
 
 const severity = computed(() => SEVERITY_LABEL[props.finding.severity])
 const applied = computed(() => revisions[props.finding.id] ?? null) // 반영한 제안 index
@@ -67,9 +68,9 @@ const locationLabel = computed(() =>
     </BaseAlert>
 
     <p>{{ finding.reason }}</p>
-    <p v-if="!finding.basis.length">법령 검색 미연결: 인용 근거가 없는 예비검토 항목입니다.</p>
+    <p v-if="!finding.basis.length">{{ emptyBasisText(finding, result) }}</p>
     <section v-if="finding.basis.length" class="violation__basis" aria-label="위반 근거">
-      <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> 화장품 표시,광고 관리 기준 위반 근거</p>
+      <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> 관련 법령 조문 후보 (검색 결과, 위반 판정 아님)</p>
       <BasisItem v-for="(basis, i) in finding.basis" :key="`${basis.sourceId}-${i}`" :basis="basis" />
     </section>
 

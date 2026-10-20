@@ -9,6 +9,7 @@ import {
   SEVERITY_LABEL,
 } from '@/shared/constants/review'
 import { rewriteLabel } from '@/shared/api/engine/detect'
+import { emptyBasisText, legalSearch } from '@/shared/constants/legal'
 import { SITE } from '@/shared/constants/site'
 import { formatDate, formatDateTime } from '@/shared/utils/format'
 
@@ -30,7 +31,7 @@ defineProps({
         <div><dt>승인 상태</dt><dd>{{ APPROVAL_LABEL[version.approval.state].label }}</dd></div>
       </dl>
       <p class="report__notice">
-        법령 검색은 미연결 상태입니다. 적법 여부를 판단하지 않은 예비검토 리포트입니다. 게재 여부의 최종 판단과 책임은 승인 담당자에게 있습니다.
+        {{ legalSearch(version.result).reportNotice }} 게재 여부의 최종 판단과 책임은 승인 담당자에게 있습니다.
       </p>
     </header>
 
@@ -54,7 +55,7 @@ defineProps({
             <td><strong>"{{ f.phrase }}"</strong><br />{{ f.category }}</td>
             <td>{{ SEVERITY_LABEL[f.severity].label }}<template v-if="f.escalation"><br />↑ {{ f.escalation.reason }}</template></td>
             <td>
-              <p v-if="!f.basis.length">법령 근거 미연결, {{f.reason}}</p>
+              <p v-if="!f.basis.length">{{ emptyBasisText(f, version.result) }} {{ f.reason }}</p>
               <p v-for="(b, j) in f.basis" :key="j">{{ b.sourceName }} {{ b.article }} ({{ b.version }}) — {{ b.plain }}</p>
             </td>
             <td><p v-for="(r, j) in f.rewrites" :key="j">{{ rewriteLabel(r) }}<template v-if="r.note"> — {{ r.note }}</template></p></td>
@@ -114,7 +115,7 @@ defineProps({
     </section>
 
     <footer class="report__footer">
-      적용 기준: {{ version.result.standardsSnapshot.map((s) => `${s.name} ${s.version}(${formatDate(s.revisedAt)})`).join(' / ') || '미연결, 적용 법령 버전을 확정하지 않았습니다.' }}
+      적용 기준: {{ version.result.standardsSnapshot.map((s) => `${s.name} ${s.version}(${formatDate(s.revisedAt)})`).join(' / ') || '조문 후보가 없어 적용 법령 버전을 기록하지 않았습니다.' }}
     </footer>
   </article>
 </template>

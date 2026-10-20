@@ -55,7 +55,7 @@ async function submit() {
     <BaseCard padding="xl">
       <PageHeading
         :title="baseReview ? '광고 새 버전 검토' : '화장품 광고 사전검토 신청'"
-        description="PDF 또는 이미지를 올리면 문구와 사진을 각각 분석합니다. 법령 검색 미연결 상태에서는 적법 여부를 판단하지 않습니다."
+        description="PDF 또는 이미지를 올리면 문구와 사진을 각각 분석하고, 문구마다 관련 법령 조문 후보를 찾습니다. 적법 여부는 담당자가 판단합니다."
         badge="기업 내부 사전검토"
         :breadcrumbs="breadcrumbs"
       >
