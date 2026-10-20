@@ -16,10 +16,10 @@ export const SITE = Object.freeze({
   // 공식 배너 문구 — KRDS: 텍스트와 스타일을 변형하지 않는다
   mastheadText: '기업 내부 광고 사전검토 개발환경입니다.',
   mastheadToggle: '공식 누리집 확인방법',
-  adminLinkText: '법령 검색 미연결',
+  adminLinkText: '법령 조문 후보 검색',
   helpdeskPhone: '1577-1255',
   supportEmail: 'cosmetic@korea.kr',
-  demoNotice: '로컬 최소 기능: 실제 파일과 서버 연결, 법령 검색과 과금은 미연결입니다.',
+  demoNotice: '로컬 개발환경: 법령 검색은 적재된 자료(화장품법 조문)만 대상으로 하며 결제는 테스트 모드입니다.',
 })
 
 // 메인 메뉴 — permission 이 있으면 해당 권한 보유자에게만 표시

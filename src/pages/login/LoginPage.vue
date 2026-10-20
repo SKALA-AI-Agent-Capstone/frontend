@@ -21,7 +21,7 @@ async function submit() {
  <main class="login-page"><BaseCard padding="xl" class="login-card">
   <p>BEAUTY REVIEW / LOCAL MVP</p><h1>화장품 광고 사전검토</h1>
   <p>기업별 작업공간에서 PDF와 이미지를 등록하고 문구와 사진을 각각 검토합니다.</p>
-  <BaseAlert variant="info" title="로컬 서버 연결">법령 벡터 검색과 과금은 아직 연결되지 않았습니다. AI 결과는 내부 검토 초안입니다.</BaseAlert>
+  <BaseAlert variant="info" title="로컬 서버 연결">법령 조문 후보는 적재된 자료에서 검색하며, 검토 사용량 과금은 아직 연결되지 않았습니다. AI 결과는 내부 검토 초안입니다.</BaseAlert>
   <form @submit.prevent="submit" class="login-form">
    <template v-if="mode === 'signup'">
     <label>기업명<input v-model="tenantName" required maxlength="120" autocomplete="organization"></label>
