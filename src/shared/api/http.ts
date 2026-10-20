@@ -60,7 +60,7 @@ function send(path: string, init: RequestInit, token: string | null) {
   return fetch(`/api/v1${path}`, { ...init, headers, cache: 'no-store' })
 }
 
-export async function request<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
+async function requestRaw(path: string, init: RequestInit = {}): Promise<Response> {
   const token = sessionStorage.getItem(TOKEN_KEY)
   let response = await send(path, init, token)
   if (response.status === 401 && !AUTH_PATHS.has(path.split('?')[0])) {
@@ -78,5 +78,15 @@ export async function request<T = unknown>(path: string, init: RequestInit = {})
     }
   }
   if (!response.ok) throw await errorOf(response)
-  return response.json() as Promise<T>
+  return response
+}
+
+export async function request<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
+  return (await requestRaw(path, init)).json() as Promise<T>
+}
+
+/** 원본 이미지/PDF처럼 JSON이 아닌 응답을 받는다. img src는 Authorization 헤더를 못 보내므로
+ * fetch로 받아 blob URL을 만들어 쓴다 — 쓰고 나면 반드시 URL.revokeObjectURL로 해제해야 한다. */
+export async function requestBlob(path: string): Promise<Blob> {
+  return (await requestRaw(path)).blob()
 }

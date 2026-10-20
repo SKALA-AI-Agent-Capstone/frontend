@@ -42,7 +42,8 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '' } = {}
     draft.product = { ...baseVersion.input.product }
     draft.copy = ''
     draft.media = [...baseVersion.input.media]
-    // 증빙은 메타데이터만 이어받는다 (원본은 이전 판정 후 폐기됨)
+    // 이전 버전 원본은 서버에 보존되지만, 재검토 업로드가 이전 asset을 참조해 재사용하는
+    // 기능은 아직 없다 — 증빙은 새로 선택해야 한다.
     draft.evidence = []
   } else if (initialCopy) {
     draft.copy = ''

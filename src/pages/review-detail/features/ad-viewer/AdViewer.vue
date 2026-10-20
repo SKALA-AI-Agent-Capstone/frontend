@@ -1,6 +1,7 @@
 <!--
   광고물 위반 위치 인터랙티브 뷰어 (시안 krds_3)
-  원본 이미지는 판정 후 폐기되므로(NFR-3) 보존된 카피,추출 문구를 광고물 프레임에 표시하고 위반 지점에 번호 핀을 단다.
+  2026-10-20 설계 변경으로 원본은 이제 보존된다 — 추출 문구를 광고물 프레임에 재구성해 보여주고
+  위반 지점에 번호 핀을 단다. 실제 원본 이미지는 ViolationCard가 문구별로 보여준다.
 -->
 <script setup>
 import { computed, ref } from 'vue'
@@ -75,9 +76,6 @@ const legend = computed(() =>
               @select="focusFinding"
             />
           </div>
-          <figcaption v-if="version.originalsDiscardedAt && version.input.files.length" class="poster__note">
-            원본 이미지는 판정 완료 후 폐기되어 추출 문구만 표시합니다.
-          </figcaption>
         </figure>
       </div>
     </div>
@@ -143,10 +141,6 @@ const legend = computed(() =>
 .poster :deep(.highlighted) {
   font-size: 1em;
   line-height: 1.9;
-}
-.poster__note {
-  font-size: var(--font-size-detail-s);
-  color: var(--color-text-secondary);
 }
 .legend {
   display: grid;
