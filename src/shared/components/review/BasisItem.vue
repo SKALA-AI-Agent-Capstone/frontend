@@ -25,6 +25,11 @@ defineProps({
       <blockquote class="basis__original">{{ basis.original }}</blockquote>
     </BaseDisclosure>
     <p v-else class="basis__no-original">{{ $t('ui.basis.noOriginal') }}</p>
+    <ul v-if="basis.related?.length" class="basis__related">
+      <li v-for="(link, i) in basis.related" :key="i">
+        {{ $t(`checks.relation.${link.relation}`) }}: {{ link.sourceName }} {{ link.article }}
+      </li>
+    </ul>
     <p class="basis__meta">{{ $t('ui.basis.meta', { version: basis.version, date: formatDate(basis.revisedAt) }) }}</p>
   </div>
 </template>
@@ -56,6 +61,7 @@ defineProps({
   margin: 0;
   color: var(--color-text);
 }
+.basis__related { margin: 4px 0; padding-left: 18px; font-size: 13px; color: var(--color-text-subtle, #555); }
 .basis__no-original,
 .basis__meta {
   font-size: var(--font-size-detail-s);
