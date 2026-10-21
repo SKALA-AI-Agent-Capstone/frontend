@@ -12,6 +12,7 @@ const props = defineProps({
   label: { type: String, default: '예상 사용' },
   breakdown: { type: String, default: '' },
   note: { type: String, default: '처리 완료 후 실제 사용량으로 확정 차감됩니다.' },
+  showRemaining: { type: Boolean, default: false },
 })
 
 const credits = useCreditsStore()
@@ -23,6 +24,7 @@ const check = computed(() => credits.precheck(props.required))
     <dl class="estimate__list">
       <div><dt>{{ label }}</dt><dd>{{ formatNumber(required) }} 크레딧</dd></div>
       <div><dt>현재 잔액</dt><dd>{{ formatNumber(check.balance) }} 크레딧</dd></div>
+      <div v-if="showRemaining"><dt>검사 후 예상 잔액</dt><dd>{{ check.ok ? formatNumber(check.balance - required) : '—' }}{{ check.ok ? ' 크레딧' : '' }}</dd></div>
     </dl>
     <p v-if="breakdown" class="estimate__breakdown">{{ breakdown }}</p>
     <p class="estimate__note">{{ note }}</p>

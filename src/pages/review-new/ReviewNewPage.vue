@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
+import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import ApplicationStepper from '@/shared/components/navigation/ApplicationStepper.vue'
 import CreditEstimate from '@/shared/components/review/CreditEstimate.vue'
@@ -35,6 +36,8 @@ const { draft, canSubmit, clearSaved } = provideReviewDraft({
 
 const breadcrumbs = computed(() => [{ label: t('reviewNew.crumbs.section') }, { label: t('reviewNew.crumbs.page') }])
 const submitting = ref(false)
+const checkingBalance = ref(false)
+const confirmOpen = ref(false)
 const error = ref('')
 const balanceLoaded = ref(false)
 const reviewCost = 100
@@ -44,6 +47,19 @@ onMounted(async () => {
   catch { error.value = '크레딧 잔액을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.' }
 })
 
+async function prepareSubmit() {
+  if (checkingBalance.value || submitting.value || !canSubmit.value) return
+  checkingBalance.value = true
+  error.value = ''
+  try {
+    await credits.loadBalance()
+    balanceLoaded.value = true
+    if (credits.balance < reviewCost) throw new Error('검사에 100크레딧이 필요합니다. 먼저 크레딧을 충전해 주세요.')
+    confirmOpen.value = true
+  } catch (e) { error.value = e.message }
+  finally { checkingBalance.value = false }
+}
+
 async function submit() {
   if (submitting.value || !canSubmit.value) return // 중복 제출 방지
   submitting.value = true
@@ -52,12 +68,13 @@ async function submit() {
     await credits.loadBalance()
     balanceLoaded.value = true
     if (credits.balance < reviewCost) throw new Error('검사에 100크레딧이 필요합니다. 먼저 크레딧을 충전해 주세요.')
+    confirmOpen.value = false
     const { reviewId } = baseReview.value
       ? await reviews.createVersion(baseReview.value.id, draft)
       : await reviews.createReview(draft)
     clearSaved()
     await credits.loadBalance().catch(() => {})
-    await router.push({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: reviewId } })
+    await router.push({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: reviewId }, query: { charged: '100' } })
   } catch (e) {
     error.value = /INSUFFICIENT_CREDITS/.test(e.message)
       ? '크레딧이 부족합니다. 잔액을 확인하고 충전해 주세요.' : e.message
@@ -83,15 +100,17 @@ async function submit() {
       {{ $t('reviewNew.versionAlert.text', { name: baseReview.productName, from: baseVersion.no, to: nextVersionLabel }) }}
     </BaseAlert>
 
-    <form class="apply-page__form" @submit.prevent="submit">
+    <form class="apply-page__form" @submit.prevent="prepareSubmit">
       <ApplicantInfoSection />
       <ProductInfoSection />
       <AdContentSection />
       <EvidenceDocsSection />
-      <CreditEstimate :required="reviewCost" label="검사 비용" note="검사 시작 시 100크레딧이 차감됩니다. 분석이 실패하면 자동으로 반환됩니다." />
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
-      <ReviewFormActions :submitting="submitting" :version-label="nextVersionLabel" :can-afford="canAfford" />
+      <ReviewFormActions :submitting="submitting || checkingBalance" :version-label="nextVersionLabel" :can-afford="canAfford" />
     </form>
+    <BaseConfirmDialog v-model:open="confirmOpen" title="검사를 시작할까요?" confirm-label="100크레딧 차감하고 검사 시작" :busy="submitting" @confirm="submit">
+      <CreditEstimate :required="reviewCost" label="검사 시 차감" note="검사를 시작하면 차감됩니다. 분석이 실패하면 자동으로 반환됩니다." show-remaining />
+    </BaseConfirmDialog>
   </div>
 </template>
 

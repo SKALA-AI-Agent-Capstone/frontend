@@ -106,6 +106,9 @@ onMounted(async () => {
           </label>
         </fieldset>
         <dl class="credits-page__summary">
+          <div><dt>{{ $t('credits.purchaseCredits') }}</dt><dd>{{ $t('credits.amount', { count: selectedPackage.credits.toLocaleString('ko-KR') }) }}</dd></div>
+          <div><dt>{{ $t('credits.balanceBefore') }}</dt><dd>{{ $t('credits.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</dd></div>
+          <div><dt>{{ $t('credits.balanceAfter') }}</dt><dd>{{ $t('credits.amount', { count: (credits.balance + selectedPackage.credits).toLocaleString('ko-KR') }) }}</dd></div>
           <div><dt>{{ $t('credits.method') }}</dt><dd>{{ $t('credits.tossPay') }}</dd></div>
           <div><dt>{{ $t('credits.total') }}</dt><dd>{{ formatWon(selectedPackage.price) }}</dd></div>
         </dl>
