@@ -137,6 +137,11 @@
     "resumePending": "The decision was saved, but resuming the run is still pending. Automatic retry is not connected yet."
   },
   "modal": {
+    "preparing": "Submitting your review",
+    "checkingBalance": "Checking your credit balance.",
+    "uploading": "Uploading files and submitting your review.",
+    "submissionFailed": "Review submission failed",
+    "submissionRetryHint": "Your inputs and files are kept. Close this window and try again.",
     "running": "Analyzing your ad",
     "done": "Analysis complete",
     "failed": "Analysis failed",
@@ -251,6 +256,7 @@
     "region": "Analyzed region y={from}~{to}%. This does not confirm exact wrinkle positions or actual efficacy."
   },
   "credit": {
+    "reserved": "{count} credits reserved (returned if analysis fails)",
     "released": "{count} credits returned after analysis failed",
     "charged": "{count} credits used for this review",
     "balance": "Current balance:",

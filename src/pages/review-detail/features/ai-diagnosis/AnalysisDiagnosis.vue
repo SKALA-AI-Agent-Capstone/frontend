@@ -26,8 +26,10 @@ const phase = computed(() => {
   if (running.value) return 'running'
   return version.value.status === REVIEW_STATUS.FAILED ? 'failed' : 'done'
 })
-const open = ref(running.value)
-const dismissed = ref(false)
+// 접수 모달을 닫은 선택을 상세 화면에서도 이어 받고, 빠르게 끝난 검토도 결과 모달로 이어 준다.
+const initialOpen = window.history.state?.diagnosisOpen
+const open = ref(initialOpen ?? running.value)
+const dismissed = ref(initialOpen === false)
 
 // 분석 중인 버전으로 들어오면 모달을 연다
 watch(

@@ -15,7 +15,8 @@ const props = defineProps({
   review: { type: Object, required: true },
   version: { type: Object, required: true },
   subject: { type: Object, required: true }, // { title, meta }
-  phase: { type: String, required: true }, // running | done | failed
+  phase: { type: String, required: true }, // preparing | submission_failed | running | done | failed
+  preparingMessage: { type: String, default: '' },
   steps: { type: Array, required: true }, // [{ id, title, description, state }]
   activity: { type: Object, default: () => ({}) }, // SSE: { tool, state, retry, live }
 })
@@ -24,6 +25,8 @@ const emit = defineEmits(['history', 'background', 'view-result'])
 
 const doneCount = computed(() => props.steps.filter((s) => s.state === 'done').length)
 const HEAD = {
+  preparing: { icon: 'progress_activity', title: 'reviewDetail.modal.preparing', tone: 'running' },
+  submission_failed: { icon: 'error', title: 'reviewDetail.modal.submissionFailed', tone: 'failed' },
   running: { icon: 'progress_activity', title: 'reviewDetail.modal.running', tone: 'running' },
   done: { icon: 'check_circle', title: 'reviewDetail.modal.done', tone: 'done' },
   failed: { icon: 'error', title: 'reviewDetail.modal.failed', tone: 'failed' },
@@ -41,7 +44,7 @@ function background() {
   <BaseModal v-model:open="open" labelledby="ai-diagnosis-title" @close="emit('background')">
     <template #header="{ close }">
       <div class="head" :class="`head--${head.tone}`">
-        <span class="head__icon" :class="{ 'is-spinning': phase === 'running' }"><BaseIcon :name="head.icon" size="md" /></span>
+        <span class="head__icon" :class="{ 'is-spinning': phase === 'running' || phase === 'preparing' }"><BaseIcon :name="head.icon" size="md" /></span>
         <div class="head__text">
           <h2 id="ai-diagnosis-title">{{ $t(head.title) }}</h2>
           <p>{{ review.productName }} v{{ version.no }}</p>
@@ -92,7 +95,11 @@ function background() {
         </li>
       </ol>
 
-      <p v-if="phase === 'failed'" class="note note--failed" role="alert">
+      <p v-if="phase === 'submission_failed'" class="note note--failed" role="alert">
+        {{ version.error }} {{ $t('reviewDetail.modal.submissionRetryHint') }}
+      </p>
+      <p v-else-if="phase === 'preparing'" class="note" role="status">{{ preparingMessage }}</p>
+      <p v-else-if="phase === 'failed'" class="note note--failed" role="alert">
         {{ version.error || $t('reviewDetail.modal.error') }} {{ $t('reviewDetail.modal.retryHint') }}
       </p>
       <p v-else-if="phase === 'running'" class="note">{{ $t('reviewDetail.modal.runningNote') }}</p>
@@ -100,7 +107,10 @@ function background() {
     </div>
 
     <template #footer>
-      <template v-if="phase === 'done'">
+      <template v-if="phase === 'preparing' || phase === 'submission_failed'">
+        <BaseButton @click="background">{{ $t(phase === 'preparing' ? 'reviewDetail.modal.closeContinue' : 'reviewDetail.modal.close') }}</BaseButton>
+      </template>
+      <template v-else-if="phase === 'done'">
         <BaseButton variant="outline" @click="background">{{ $t('reviewDetail.modal.close') }}</BaseButton>
         <BaseButton icon-right="arrow_forward" @click="emit('view-result')">{{ $t('reviewDetail.modal.viewResult') }}</BaseButton>
       </template>

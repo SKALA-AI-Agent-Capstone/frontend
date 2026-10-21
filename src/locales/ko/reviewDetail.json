@@ -137,6 +137,11 @@
     "resumePending": "결정은 저장됐지만 실행 재개는 대기 중입니다. 자동 재시도는 아직 연결되지 않았습니다."
   },
   "modal": {
+    "preparing": "검토를 접수하고 있습니다",
+    "checkingBalance": "크레딧 잔액을 확인하고 있습니다.",
+    "uploading": "파일을 업로드하고 검토를 접수하고 있습니다.",
+    "submissionFailed": "검토를 접수하지 못했습니다",
+    "submissionRetryHint": "입력한 내용과 파일은 유지됩니다. 창을 닫고 다시 시도해 주세요.",
     "running": "광고를 분석하고 있습니다",
     "done": "분석이 끝났습니다",
     "failed": "분석하지 못했습니다",
@@ -251,6 +256,7 @@
     "region": "원본 분석 구간 y={from}~{to}%. 정밀한 주름 위치나 실제 효능을 확정한 결과가 아닙니다."
   },
   "credit": {
+    "reserved": "검사 비용 {count}크레딧 예약 (실패 시 반환)",
     "released": "검사 실패로 {count}크레딧 반환",
     "charged": "검사 비용 {count}크레딧 차감",
     "balance": "현재 잔액:",

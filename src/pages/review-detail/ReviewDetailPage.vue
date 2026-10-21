@@ -92,7 +92,7 @@ const versionTabs = computed(() =>
       <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
 
-    <BaseAlert v-if="charge" variant="info" :title="$t(charge.status === 'released' ? 'reviewDetail.credit.released' : 'reviewDetail.credit.charged', { count: charge.credits })">
+    <BaseAlert v-if="charge" variant="info" :title="$t(`reviewDetail.credit.${charge.status}`, { count: charge.credits })">
       <span v-if="balanceLoaded">{{ $t('reviewDetail.credit.balance') }} <strong>{{ $t('credits.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></span>
       <span v-else>{{ $t('reviewDetail.credit.loading') }}</span>
     </BaseAlert>

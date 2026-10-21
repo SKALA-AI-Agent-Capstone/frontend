@@ -47,7 +47,7 @@ export const useReviewsStore = defineStore('reviews', () => {
   }
   function onEvent(id, event) {
     const data = event.data
-    if (event.type === 'snapshot') { upsert(data); return }
+    if (event.type === 'snapshot') { setActivity(id, { live: true }); upsert(data); return }
     const review = byId(id)
     const version = review && latest(review)
     if (!version || data.versionNo !== version.no) return
@@ -67,7 +67,7 @@ export const useReviewsStore = defineStore('reviews', () => {
   }
   function follow(id) {
     if (streams.has(id) || fallback.has(id) || streams.size >= MAX_STREAMS) return streams.has(id)
-    setActivity(id, { live: true })
+    setActivity(id, { live: false })
     streams.set(id, openReviewStream(id, {
       onEvent: event => onEvent(id, event),
       onClose: reason => {
