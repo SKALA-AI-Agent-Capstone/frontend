@@ -1,0 +1,58 @@
+/* 개인정보 처리방침/이용약관 본문 — 모달과 전용 페이지가 공유하는 프로즈 스타일. */
+.legal {
+  line-height: 1.7;
+  color: var(--color-text);
+  font-size: var(--font-size-detail-l);
+}
+.legal h3 {
+  margin: var(--space-xl) 0 var(--space-sm);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+.legal h3:first-of-type {
+  margin-top: var(--space-md);
+}
+.legal p,
+.legal ul,
+.legal ol {
+  margin: 0 0 var(--space-md);
+}
+.legal ul,
+.legal ol {
+  padding-left: var(--space-lg);
+  display: grid;
+  gap: var(--space-xs);
+}
+.legal__meta {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-detail-m);
+}
+.legal__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-sm) 0 var(--space-md);
+  font-size: var(--font-size-detail-m);
+}
+.legal__table th,
+.legal__table td {
+  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-xs) var(--space-sm);
+  text-align: left;
+}
+.legal__table th {
+  background: var(--color-bg-muted);
+}
+.legal__disclaimer {
+  margin-top: var(--space-xl);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-detail-m);
+}
+.legal a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -18,6 +18,7 @@ import BaseCard from '@/shared/components/base/BaseCard.vue'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import BasisItem from '@/shared/components/review/BasisItem.vue'
 import { useReviewDetail } from '../../composables/useReviewDetail'
+import CheckList from './CheckList.vue'
 import RevisionOptions from './RevisionOptions.vue'
 import { t } from '@/shared/i18n'
 
@@ -27,7 +28,7 @@ const props = defineProps({
   number: { type: Number, required: true },
 })
 
-const { review, hitl, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result } = useReviewDetail()
+const { review, hitl, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result, tileMode } = useReviewDetail()
 
 // 원본 이미지는 보존한다(2026-10-20 설계 변경) — 문구가 속한 이미지/페이지 원본을 함께 보여준다.
 const assetId = computed(() => props.finding?.location?.fileId ?? null)
@@ -72,7 +73,7 @@ function retry(note) {
           <span>{{ [finding?.basis?.[0]?.article, locationLabel].filter(Boolean).join(', ') }}</span>
         </p>
         <h3 :id="`finding-${violation.id}-title`" class="violation__title">
-          {{ finding?.category || finding?.title || $t('reviewDetail.card.untitled') }} ("{{ violation.textExcerpt }}")
+          "{{ decided ? violation.finalText : violation.textExcerpt }}"
         </h3>
       </div>
       <BaseButton
@@ -95,7 +96,8 @@ function retry(note) {
       {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}: {{ finding.escalation.reason }}
     </BaseAlert>
 
-    <img v-if="assetImageUrl" :src="assetImageUrl" :alt="$t('reviewDetail.original.alt', { name: locationLabel })" class="violation__image" />
+    <!-- 타일 뷰어가 원본을 구간별로 보여 줄 때는 카드에 원본 전체를 다시 넣지 않는다. -->
+    <img v-if="assetImageUrl && !tileMode" :src="assetImageUrl" :alt="$t('reviewDetail.original.alt', { name: locationLabel })" class="violation__image" />
 
     <p v-if="finding">{{ finding.reason }}</p>
     <p v-if="!finding?.basis?.length">{{ emptyBasisText(finding, result) }}</p>
@@ -103,6 +105,8 @@ function retry(note) {
       <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> {{ $t('reviewDetail.card.basisTitle') }}</p>
       <BasisItem v-for="(basis, i) in finding.basis" :key="`${basis.sourceId}-${i}`" :basis="basis" />
     </section>
+
+    <CheckList v-if="finding?.checks?.length || finding?.rules?.length" :checks="finding.checks ?? []" :rules="finding.rules ?? []" />
 
     <section v-if="finding?.references?.length" class="violation__refs" :aria-label="$t('reviewDetail.card.refsLabel')">
       <p class="violation__refs-title">{{ $t('reviewDetail.card.refsTitle') }}</p>

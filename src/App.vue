@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import BlankLayout from '@/shared/layouts/BlankLayout.vue'
 import DefaultLayout from '@/shared/layouts/DefaultLayout.vue'
+import LegalDocumentModal from '@/shared/components/legal/LegalDocumentModal.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
 
 const route = useRoute()
@@ -16,4 +17,5 @@ const layout = computed(() => (route.meta.layout === 'blank' ? BlankLayout : Def
   <component :is="layout">
     <RouterView />
   </component>
+  <LegalDocumentModal />
 </template>

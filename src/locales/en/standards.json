@@ -7,7 +7,9 @@
   "route": {
     "legalize": "legalize-kr articles",
     "legalizePdf": "legalize-kr articles + PDF",
-    "pdf": "PDF"
+    "pdf": "PDF",
+    "lawapi": "Law API (LAW_OC)",
+    "legalizeLawapi": "legalize-kr articles + Law API annex"
   },
   "banner": {
     "indexed": {
@@ -16,7 +18,7 @@
     },
     "notIndexed": {
       "title": "Legal sources not loaded",
-      "text": "Nothing is loaded yet, so review results have no legal grounds. An admin needs to load them with scripts/ingest_rag.py."
+      "text": "No legal source is loaded yet, so reviews get no legal basis. Restarting docker compose runs rag-ingest automatically; to load by hand run scripts/ingest_rag.py all."
     },
     "unavailable": {
       "title": "Legal search service unavailable",
@@ -28,7 +30,9 @@
     "articlesMissing": "Articles not loaded",
     "pdf": "PDF, {chunks} chunks",
     "pdfMissing": "PDF not loaded",
-    "missing": "Not loaded"
+    "missing": "Not loaded",
+    "lawapi": "{version}, {chunks} provisions",
+    "lawapiMissing": "API not loaded"
   },
   "apiRole": {
     "realtime": "Queried live during reviews",

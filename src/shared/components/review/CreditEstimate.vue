@@ -1,4 +1,4 @@
-<!-- 차감할 크레딧과 잔액 확인 (FR-11). 부족하면 충전을 안내한다 (hideShortfall이면 부모가 안내한다) -->
+<!-- 예상 크레딧 ,  잔액 사전 확인 (FR-11) — 부족하면 충전 유도 -->
 <script setup>
 import { computed } from 'vue'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -9,11 +9,11 @@ import { formatNumber } from '@/shared/utils/format'
 
 const props = defineProps({
   required: { type: Number, required: true },
-  label: { type: String, default: null },
+  label: { type: String, default: '' },
   breakdown: { type: String, default: '' },
-  note: { type: String, default: null },
+  note: { type: String, default: '' },
   showRemaining: { type: Boolean, default: false },
-  hideShortfall: { type: Boolean, default: false },
+  hideShortfall: { type: Boolean, default: false }, // 부모가 따로 충전을 안내하면 숨긴다
 })
 
 const credits = useCreditsStore()
@@ -23,17 +23,17 @@ const check = computed(() => credits.precheck(props.required))
 <template>
   <div class="estimate">
     <dl class="estimate__list" :class="{ 'estimate__list--three': showRemaining }">
-      <div><dt>{{ label ?? $t('ui.credit.required') }}</dt><dd>{{ $t('ui.credit.amount', { count: formatNumber(required) }) }}</dd></div>
-      <div><dt>{{ $t('ui.credit.balance') }}</dt><dd>{{ $t('ui.credit.amount', { count: formatNumber(check.balance) }) }}</dd></div>
-      <div v-if="showRemaining"><dt>{{ $t('ui.credit.after') }}</dt><dd>{{ check.ok ? $t('ui.credit.amount', { count: formatNumber(check.balance - required) }) : '-' }}</dd></div>
+      <div><dt>{{ label || $t('common.creditEstimate.expected') }}</dt><dd>{{ $t('credits.amount', { count: formatNumber(required) }) }}</dd></div>
+      <div><dt>{{ $t('common.creditEstimate.balance') }}</dt><dd>{{ $t('credits.amount', { count: formatNumber(check.balance) }) }}</dd></div>
+      <div v-if="showRemaining"><dt>{{ $t('common.creditEstimate.remaining') }}</dt><dd>{{ check.ok ? $t('credits.amount', { count: formatNumber(check.balance - required) }) : '—' }}</dd></div>
     </dl>
     <p v-if="breakdown" class="estimate__breakdown">{{ breakdown }}</p>
-    <p class="estimate__note">{{ note ?? $t('ui.credit.note') }}</p>
-    <BaseAlert v-if="!check.ok && !hideShortfall" variant="danger" :title="$t('ui.credit.shortTitle')" aria-live="polite">
+    <p class="estimate__note">{{ note || $t('common.creditEstimate.note') }}</p>
+    <BaseAlert v-if="!check.ok && !hideShortfall" variant="danger" :title="$t('common.creditEstimate.shortageTitle')" aria-live="polite">
       <div class="estimate__shortfall">
-        <span>{{ $t('ui.credit.shortfall', { count: formatNumber(check.shortfall) }) }}</span>
+        <span>{{ $t('common.creditEstimate.shortage', { count: formatNumber(check.shortfall) }) }}</span>
         <BaseButton variant="outline" size="sm" icon="add" :to="{ name: ROUTE_NAMES.CREDITS }">
-          {{ $t('ui.credit.topUp') }}
+          {{ $t('common.creditEstimate.topUp') }}
         </BaseButton>
       </div>
     </BaseAlert>

@@ -6,7 +6,6 @@ import { request } from '@/shared/api/http'
 import { useSessionStore } from '@/shared/stores/session'
 import { useCreditsStore } from '@/shared/stores/credits'
 import { PERMISSIONS } from '@/shared/constants/roles'
-import { CREDIT_PACKAGES } from '@/shared/constants/pricing'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import ScreenTitle from '@/shared/components/layout/ScreenTitle.vue'
 import CreditCoins from './CreditCoins.vue'
@@ -14,19 +13,23 @@ import CreditCoins from './CreditCoins.vue'
 const session = useSessionStore()
 const credits = useCreditsStore()
 const step = ref('select')
-const packageCredits = ref(100)
-const config = ref({ tossEnabled: false, tossClientKey: '', tossMode: 'legacy' })
+const packageCredits = ref(null)
+const config = ref({ tossEnabled: false, tossClientKey: '', tossMode: 'legacy', packages: [] })
 const busy = ref(false)
 const tossConsent = ref(false)
 const error = ref('')
-const selectedPackage = computed(() => CREDIT_PACKAGES.find((item) => item.credits === packageCredits.value))
+const selectedPackage = computed(() => config.value.packages.find((item) => item.credits === packageCredits.value))
 const formatWon = (amount) => t('credits.won', { amount: amount.toLocaleString('ko-KR') })
 const enabled = computed(() => config.value.tossEnabled)
 const formatCount = (count) => count.toLocaleString('ko-KR')
-// 금액권 가격을 크레딧 수로 나눈 1크레딧 값 (pricing.js의 가격에서 계산)
-// 크레딧당 값이 가장 낮은 금액권에 '가장 저렴' 표시를 붙인다
-const bestCredits = CREDIT_PACKAGES.reduce((best, item) => (item.price / item.credits < best.price / best.credits ? item : best)).credits
+// 금액권 가격을 크레딧 수로 나눈 1크레딧 값 (서버가 준 금액권 가격에서 계산)
 const perCredit = (item) => (item.price / item.credits).toLocaleString('ko-KR', { maximumFractionDigits: 1 })
+// 크레딧당 값이 가장 낮은 금액권에 '가장 저렴' 표시를 붙인다
+const bestCredits = computed(() => {
+  const list = config.value.packages
+  if (list.length < 2) return null
+  return list.reduce((best, item) => (item.price / item.credits < best.price / best.credits ? item : best)).credits
+})
 
 async function beginPayment() {
   error.value = ''
@@ -66,6 +69,7 @@ async function beginPayment() {
 onMounted(async () => {
   try {
     config.value = await request('/billing/config')
+    packageCredits.value = config.value.packages[0]?.credits ?? null
     await credits.loadBalance()
     const params = new URLSearchParams(window.location.search)
     const provider = params.get('provider')
@@ -112,13 +116,13 @@ onMounted(async () => {
     <template v-else>
       <p v-if="error" role="alert" class="credits-page__error">{{ error }}</p>
 
-      <div v-if="step === 'select'" class="checkout">
+      <div v-if="step === 'select' && selectedPackage" class="checkout">
         <section class="panel" aria-labelledby="packages-title">
           <h2 id="packages-title" class="panel__title">{{ $t('credits.packages') }}</h2>
           <fieldset class="packages">
             <legend class="sr-only">{{ $t('credits.packagesLegend') }}</legend>
             <label
-              v-for="item in CREDIT_PACKAGES"
+              v-for="item in config.packages"
               :key="item.credits"
               class="package"
               :class="{ 'is-selected': packageCredits === item.credits }"
@@ -166,7 +170,7 @@ onMounted(async () => {
         </aside>
       </div>
 
-      <section v-else class="panel done" aria-live="polite">
+      <section v-else-if="step === 'done'" class="panel done" aria-live="polite">
         <div class="done__art"><CreditCoins /></div>
         <h2 class="panel__title">{{ $t('credits.done') }}</h2>
         <p>{{ $t('credits.current') }} <strong>{{ $t('credits.amount', { count: formatCount(credits.balance) }) }}</strong></p>

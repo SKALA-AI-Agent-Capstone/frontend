@@ -4,6 +4,7 @@ import { t } from '@/shared/i18n'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
+import { request } from '@/shared/api/http'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
 import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
@@ -41,11 +42,16 @@ const confirmOpen = ref(false)
 const topUpOpen = ref(false) // 잔액이 모자랄 때 충전을 안내하는 창
 const error = ref('')
 const balanceLoaded = ref(false)
-const reviewCost = 100
-const shortfall = computed(() => Math.max(0, reviewCost - credits.balance))
+const reviewCost = ref(null)
+const shortfall = computed(() => Math.max(0, (reviewCost.value ?? 0) - credits.balance))
 onMounted(async () => {
-  try { await credits.loadBalance(); balanceLoaded.value = true }
-  catch { error.value = t('reviewNew.credit.balanceFailed') }
+  try {
+    const config = await request('/billing/config')
+    reviewCost.value = config.reviewCost
+    await credits.loadBalance()
+    balanceLoaded.value = true
+  }
+  catch { error.value = t('reviewNew.credit.loadFailed') }
 })
 
 async function prepareSubmit() {
@@ -55,10 +61,12 @@ async function prepareSubmit() {
   try {
     await credits.loadBalance()
     balanceLoaded.value = true
+    // 검토 비용을 서버에서 받지 못했으면 금액 없이 확인 창을 열지 않는다
+    if (!reviewCost.value) throw new Error(t('reviewNew.credit.loadFailed'))
     // 시작 버튼은 막지 않고, 누른 때 잔액에 따라 차감 확인 창이나 충전 안내 창을 연다
-    if (credits.balance < reviewCost) topUpOpen.value = true
+    if (credits.balance < reviewCost.value) topUpOpen.value = true
     else confirmOpen.value = true
-  } catch { error.value = t('reviewNew.credit.balanceFailed') }
+  } catch (e) { error.value = e.message }
   finally { checkingBalance.value = false }
 }
 
@@ -69,7 +77,7 @@ async function submit() {
   try {
     await credits.loadBalance()
     balanceLoaded.value = true
-    if (credits.balance < reviewCost) {
+    if (credits.balance < reviewCost.value) {
       confirmOpen.value = false
       topUpOpen.value = true
       return
@@ -80,7 +88,7 @@ async function submit() {
       : await reviews.createReview(draft)
     clearSaved()
     await credits.loadBalance().catch(() => {})
-    await router.push({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: reviewId }, query: { charged: '100' } })
+    await router.push({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: reviewId } })
   } catch (e) {
     await credits.loadBalance().catch(() => {})
     // 확인 창을 연 사이 잔액이 줄었으면 서버가 거절한다. 이때도 충전 안내 창으로 보낸다.
@@ -120,17 +128,10 @@ function goTopUp() {
       <AdContentSection />
       <EvidenceDocsSection />
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
-      <ReviewFormActions :submitting="submitting || checkingBalance" :version-label="nextVersionLabel"  />
+      <ReviewFormActions :submitting="submitting || checkingBalance" :version-label="nextVersionLabel" />
     </form>
-    <!-- 잔액이 충분할 때: 차감 확인 -->
-    <BaseConfirmDialog
-      v-model:open="confirmOpen"
-      :title="$t('reviewNew.credit.confirmTitle')"
-      :confirm-label="$t('reviewNew.credit.confirmAction', { cost: reviewCost })"
-      :busy="submitting"
-      @confirm="submit"
-    >
-      <CreditEstimate :required="reviewCost" :label="$t('reviewNew.credit.cost')" :note="$t('reviewNew.credit.confirmNote')" show-remaining />
+    <BaseConfirmDialog v-model:open="confirmOpen" :title="$t('reviewNew.credit.confirmTitle')" :confirm-label="$t('reviewNew.credit.confirmButton', { count: reviewCost })" :busy="submitting" @confirm="submit">
+      <CreditEstimate :required="reviewCost" :label="$t('reviewNew.credit.cost')" :note="$t('reviewNew.credit.note')" show-remaining />
     </BaseConfirmDialog>
 
     <!-- 잔액이 모자랄 때: 충전 안내 -->
@@ -141,7 +142,7 @@ function goTopUp() {
       @confirm="goTopUp"
     >
       <p class="topup__lead">{{ $t('reviewNew.credit.topUpText', { cost: reviewCost, shortfall }) }}</p>
-      <CreditEstimate :required="reviewCost" :note="$t('reviewNew.credit.topUpNote')" hide-shortfall />
+      <CreditEstimate :required="reviewCost ?? 0" :note="$t('reviewNew.credit.topUpNote')" hide-shortfall />
     </BaseConfirmDialog>
   </div>
 </template>

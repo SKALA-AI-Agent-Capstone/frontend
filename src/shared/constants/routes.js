@@ -12,6 +12,8 @@ export const ROUTE_NAMES = Object.freeze({
   APPROVALS: 'approvals',
   CREDITS: 'credits',
   STANDARDS: 'standards',
+  PRIVACY_POLICY: 'privacy-policy',
+  TERMS: 'terms',
 })
 
 // GNB 활성 메뉴 판별용 키 (route.meta.navKey)

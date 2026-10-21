@@ -67,14 +67,16 @@
     "reportNoPlaceholder": "Review or report number from your documents"
   },
   "credit": {
-    "balanceFailed": "Could not load your credit balance. Please try again shortly.",
-    "confirmTitle": "Start this review?",
-    "confirmAction": "Use {cost} credits and start",
-    "cost": "Deducted for this review",
-    "confirmNote": "Credits are deducted as soon as the review starts. If analysis fails, they are returned automatically.",
     "topUpTitle": "Not enough credits",
     "topUpText": "Each review needs {cost} credits. Top up {shortfall} more credits to continue.",
     "topUpAction": "Go to top up",
-    "topUpNote": "Your product details are saved as a draft. Upload your files again after topping up."
+    "topUpNote": "Your product details are saved as a draft. Upload your files again after topping up.",
+    "loadFailed": "Could not load credit information. Please try again shortly.",
+    "insufficient": "This review requires {count} credits. Please top up first.",
+    "insufficientUpdated": "You do not have enough credits. Check your balance and top up.",
+    "confirmTitle": "Start this review?",
+    "confirmButton": "Use {count} credits and start review",
+    "cost": "Credits to use",
+    "note": "Credits are deducted when the review starts and returned automatically if analysis fails."
   }
 }

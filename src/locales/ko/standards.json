@@ -7,7 +7,9 @@
   "route": {
     "legalize": "legalize-kr 조문",
     "legalizePdf": "legalize-kr 조문 + PDF",
-    "pdf": "PDF"
+    "pdf": "PDF",
+    "lawapi": "법제처 API (LAW_OC)",
+    "legalizeLawapi": "legalize-kr 조문 + 법제처 API 별표"
   },
   "banner": {
     "indexed": {
@@ -16,7 +18,7 @@
     },
     "notIndexed": {
       "title": "법령 자료 미적재",
-      "text": "아직 적재된 자료가 없어 검토 결과에 법령 근거가 붙지 않습니다. 관리자가 scripts/ingest_rag.py로 적재해야 합니다."
+      "text": "아직 적재된 자료가 없어 검토 결과에 법령 근거가 붙지 않습니다. docker compose를 다시 올리면 rag-ingest가 자동으로 적재하고, 직접 하려면 scripts/ingest_rag.py all을 실행합니다."
     },
     "unavailable": {
       "title": "법령 검색 서비스 확인 불가",
@@ -28,7 +30,9 @@
     "articlesMissing": "조문 미적재",
     "pdf": "PDF {chunks}개 조각",
     "pdfMissing": "PDF 미적재",
-    "missing": "미적재"
+    "missing": "미적재",
+    "lawapi": "{version}, {chunks}개 조항",
+    "lawapiMissing": "API 미적재"
   },
   "apiRole": {
     "realtime": "검토 중 실시간 조회",

@@ -1,8 +1,8 @@
 <!-- 위반사항 분석 및 보완 (시안 krds_3) -->
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
 import { useCreditsStore } from '@/shared/stores/credits'
+import { request } from '@/shared/api/http'
 import { legalSearch } from '@/shared/constants/legal'
 import { APPROVAL_LABEL, REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -25,21 +25,27 @@ import EvidenceCheckSection from './features/evidence-check/EvidenceCheckSection
 import PatentCheckSection from './features/patent-check/PatentCheckSection.vue'
 import StatusSummary from './features/status-summary/StatusSummary.vue'
 import ViolationReviewList from './features/violation-review/ViolationReviewList.vue'
+import TileReview from './features/tile-review/TileReview.vue'
 
-const { review, version, versionNo, isDone } = provideReviewDetail()
-const route = useRoute()
+const { review, version, versionNo, isDone, tileMode } = provideReviewDetail()
 const credits = useCreditsStore()
-const showCharge = computed(() => route.query.charged === '100')
+const charge = ref(null)
 const balanceLoaded = ref(false)
-onMounted(async () => {
-  if (!showCharge.value) return
-  try { await credits.loadBalance(); balanceLoaded.value = true } catch { /* Header can retry on navigation. */ }
-})
-watch(() => version.value?.status, async (status) => {
-  if (showCharge.value && status === REVIEW_STATUS.FAILED) {
-    try { await credits.loadBalance(); balanceLoaded.value = true } catch { balanceLoaded.value = false }
-  }
-})
+watch([() => review.value?.id, versionNo, () => version.value?.status], async ([id, no], _, onCleanup) => {
+  if (!id || !no) return
+  let stale = false
+  onCleanup(() => { stale = true })
+  try {
+    const result = await request(`/billing/reviews/${encodeURIComponent(id)}/charge?versionNo=${no}`)
+    if (stale) return
+    charge.value = result.charged ? result : null
+    if (charge.value) {
+      balanceLoaded.value = false
+      await credits.loadBalance()
+      if (!stale) balanceLoaded.value = true
+    }
+  } catch { if (!stale) { charge.value = null; balanceLoaded.value = false } }
+}, { immediate: true })
 const legal = computed(() => legalSearch(version.value?.result))
 
 const breadcrumbs = computed(() => [
@@ -85,9 +91,9 @@ const versionTabs = computed(() =>
       <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
 
-    <BaseAlert v-if="showCharge" variant="info" :title="$t(version.status === REVIEW_STATUS.FAILED ? 'reviewDetail.charge.refunded' : 'reviewDetail.charge.deducted', { cost: 100 })">
-      <span v-if="balanceLoaded">{{ $t('reviewDetail.charge.balance') }} <strong>{{ $t('ui.credit.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></span>
-      <span v-else>{{ $t('reviewDetail.charge.loading') }}</span>
+    <BaseAlert v-if="charge" variant="info" :title="$t(charge.status === 'released' ? 'reviewDetail.credit.released' : 'reviewDetail.credit.charged', { count: charge.credits })">
+      <span v-if="balanceLoaded">{{ $t('reviewDetail.credit.balance') }} <strong>{{ $t('credits.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></span>
+      <span v-else>{{ $t('reviewDetail.credit.loading') }}</span>
     </BaseAlert>
 
     <AnalysisDiagnosis />
@@ -104,7 +110,16 @@ const versionTabs = computed(() =>
       <StatusSummary />
       <OriginalPreview />
 
-      <div class="supplement-page__body">
+      <!-- 타일 좌표가 있는 최신 이미지 결과는 타일별로, 이전 결과와 PDF는 추출 문구 뷰어로 보여 준다. -->
+      <template v-if="tileMode">
+        <TileReview class="supplement-page__tiles" />
+        <div class="supplement-page__extras">
+          <EvidenceCheckSection />
+          <PatentCheckSection />
+          <ApprovalPanel />
+        </div>
+      </template>
+      <div v-else class="supplement-page__body">
         <AdViewer class="supplement-page__viewer" />
         <div class="supplement-page__side">
           <ViolationReviewList />
@@ -132,6 +147,14 @@ const versionTabs = computed(() =>
   align-items: start;
   gap: var(--layout-gutter);
   margin-top: var(--space-lg);
+}
+.supplement-page__tiles {
+  margin-top: var(--space-lg);
+}
+.supplement-page__extras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
 }
 .supplement-page__side {
   display: flex;

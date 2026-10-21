@@ -191,10 +191,22 @@
     "adjacent": "Context from nearby sections or the comparison image is needed.",
     "region": "Analyzed region y={from}~{to}%. This does not confirm exact wrinkle positions or actual efficacy."
   },
-  "charge": {
-    "deducted": "{cost} credits were deducted for this review",
-    "refunded": "Analysis failed, so {cost} credits were returned",
+  "credit": {
+    "released": "{count} credits returned after analysis failed",
+    "charged": "{count} credits used for this review",
     "balance": "Current balance:",
     "loading": "Checking your balance."
+  },
+  "tiles": {
+    "title": "Review by tile",
+    "total": "{text} copy, {visual} photo",
+    "empty": "No findings. This does not mean the ad is compliant.",
+    "textCount": "Copy {count}",
+    "visualCount": "Photo {count}",
+    "visualBadge": "Photo finding",
+    "boxLabel": "Location of finding {n}",
+    "loading": "Loading the original image.",
+    "imageError": "Could not load the original image.",
+    "unassignedTitle": "Findings without a location"
   }
 }

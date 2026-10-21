@@ -6,22 +6,6 @@ export const PRICING = Object.freeze({
   CREDITS_PER_IMAGE: 3,
 })
 
-// 충전 금액권. 가격은 서버 BillingController의 PRICES와 같아야 한다 (결제 금액은 서버가 정한다).
-// 많이 살수록 크레딧당 값이 크게 내려가도록 잡았다. 할인율은 정가(크레딧당 50원) 대비로 계산한다.
-const LIST_PRICE_PER_CREDIT = 50
-export const CREDIT_PACKAGES = Object.freeze(
-  [
-    { credits: 100, price: 5000 },
-    { credits: 500, price: 23000 },
-    { credits: 1000, price: 42000 },
-    { credits: 2000, price: 70000 },
-  ].map(({ credits, price }) => Object.freeze({
-    credits,
-    price,
-    discountPercent: Math.round((1 - price / (credits * LIST_PRICE_PER_CREDIT)) * 100),
-  }))
-)
-
 export const LEDGER_TYPE = Object.freeze({
   CHARGE: 'charge',
   USAGE: 'usage',
