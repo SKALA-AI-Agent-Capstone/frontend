@@ -903,6 +903,23 @@ function start() {
 /* ───────── 휴대폰 ───────── */
 @media (max-width: 600px) {
   .landing { --frame: 20px; --size-body: 16px; }
+  /* 좁은 화면에서는 왼쪽 로고와 오른쪽 언어, 로그인 메뉴가 한 줄에 들어가도록 줄인다 */
+  .hero__copy .wordmark { top: 34px; font-size: 1.5rem; gap: 8px; }
+  .wordmark__logo { width: 28px; height: 28px; }
+  .hero__top { gap: 8px; }
+}
+@media (max-width: 420px) {
+  /* 언어 메뉴는 지구본 아이콘만 보인다. 글자는 화면 읽기 프로그램을 위해 남겨 둔다 */
+  .hero__top :deep(.lang-menu__label) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 600px) {
   .hero__title { font-size: 7.6vw; }
   .hero__copy { padding-bottom: 40px; }
   .flow { padding-block: 72px; }
