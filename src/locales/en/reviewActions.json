@@ -1,0 +1,36 @@
+{
+  "label": {
+    "revise": "Revise",
+    "evidence": "Needs evidence",
+    "hold": "On hold",
+    "note": "For reference"
+  },
+  "hint": {
+    "revise": "The wording itself is risky and should change",
+    "evidence": "Usable if supporting material exists",
+    "hold": "A lookup failed, so no judgment was made",
+    "note": "General wording that can usually stay"
+  },
+  "next": {
+    "revise": "Next: use the suggestion below or rewrite it yourself.",
+    "evidence": "Next: check {materials}. Without it, change the wording.",
+    "hold": "Next: retry the lookup or check the source material yourself.",
+    "note": "Next: check the tone only; keeping the original is fine."
+  },
+  "material": {
+    "test": "test or substantiation data",
+    "compare": "submitted evidence against the phrase",
+    "report": "the functional report number or review notice",
+    "amount": "ingredient amount data",
+    "gmp": "the manufacturer's GMP record",
+    "endorsement": "proof of the certification, review or endorsement"
+  },
+  "filter": {
+    "all": "All {count}",
+    "label": "Show"
+  },
+  "bulkKeep": "Keep all {count} reference phrases as written",
+  "bulkKeepBusy": "Deciding {done}/{count}",
+  "notes": "{count} reference phrases (can stay as written)",
+  "photo": "Images in this section"
+}

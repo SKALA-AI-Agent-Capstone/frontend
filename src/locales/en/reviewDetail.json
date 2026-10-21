@@ -19,8 +19,8 @@
     "loading": "Checking your balance."
   },
   "bar": {
-    "progress": "{done} of {total} possible violations have a revision applied",
-    "ready": "{done} of {total} possible violations have a revision applied. Ready for re-review",
+    "progress": "{done} of {total} phrases decided",
+    "ready": "All {total} phrases decided; approve or re-review next",
     "none": "No items flagged. This is not a confirmation of legal compliance.",
     "delete": "Delete",
     "report": "Review report",
@@ -60,10 +60,14 @@
     "basis": "candidate article:"
   },
   "summary": {
-    "title": "Copy and image analysis",
-    "counts": "{text} copy items / {visual} image items",
-    "paths": "Copy path: {text} / Image path: {visual}",
-    "withBasis": "{count} of {total} copy items have candidate legal articles"
+    "title": "Review summary",
+    "sections": "{files} file(s) split into {sections} content sections.",
+    "partial": "Some sections were not fully analyzed. See the processing notices below.",
+    "progress": "{done}/{total} decided.",
+    "materials": "Material needed",
+    "phrases": "{count} phrase(s)",
+    "unanalyzed": "Not judged",
+    "holdCount": "{count} phrase(s) on hold because a lookup failed. This is not a problem in the ad; retry or check directly."
   },
   "revision": {
     "manualRequired": "Enter the copy you want to use.",
@@ -84,7 +88,11 @@
     "suggestionLabel": "AI suggested revision",
     "edit": "Change decision",
     "current": "Currently saved:",
-    "cancelEdit": "Cancel"
+    "cancelEdit": "Cancel",
+    "notVerified": "No suggestion passed verification. Keep the original if you have supporting evidence; otherwise remove or rewrite the expression.",
+    "lastReason": "Why the last suggestion failed: {reason}",
+    "fallbackLabel": "AI suggestion if the material is missing",
+    "draftSaved": "Your draft is kept in this browser until you save or send it."
   },
   "card": {
     "noLocation": "No source location",
@@ -92,12 +100,17 @@
     "decided": "Decided",
     "untitled": "Copy to check",
     "locate": "Show in ad",
-    "escalated": "Raised after checking evidence",
+    "escalated": "Priority adjusted",
     "basisLabel": "Basis",
     "basisTitle": "Candidate legal articles (search results, not a violation verdict)",
     "refsLabel": "Reference cases",
     "refsTitle": "Past enforcement and review cases (reference only)",
-    "unverified": "Unverified source"
+    "unverified": "Unverified source",
+    "basisNone": "Basis: no linked provision",
+    "basisOne": "Basis: {first}",
+    "basisMany": "Basis: {first} and {count} more",
+    "whyRule": "This phrase was classified as '{rules}', so it was compared with the provisions below. A linked provision is not a violation finding; the reviewer decides whether it applies.",
+    "whySearch": "No rule type matched, so the closest standard was found by search. Reference only."
   },
   "list": {
     "description": "Review why each item was flagged. {summary}",
@@ -198,7 +211,7 @@
     "region": "Analyzed region y={from}~{to}%. This does not confirm exact wrinkle positions or actual efficacy."
   },
   "tiles": {
-    "title": "Review by tile",
+    "title": "Review by section",
     "total": "{text} copy, {visual} photo",
     "empty": "No findings. This does not mean the ad is compliant.",
     "textCount": "Copy {count}",
@@ -207,6 +220,31 @@
     "boxLabel": "Location of finding {n}",
     "loading": "Loading the original image.",
     "imageError": "Could not load the original image.",
-    "unassignedTitle": "Findings without a location"
+    "unassignedTitle": "Findings without a location",
+    "section": "Section {n}",
+    "howTo": "The detail page is split where its content changes. Provisions are standards compared by phrase type, not violation findings."
+  },
+  "warnings": {
+    "OCR_CORRECTION_FAILED": "Spacing correction failed in {count} section(s); text is used as read.",
+    "OCR_PROVIDER_FAILED": "Supplementary text reading failed in {count} section(s). Check those phrases in the original.",
+    "OCR_NOT_AVAILABLE": "Text could not be read in {count} section(s).",
+    "UNREADABLE_TEXT": "{count} section(s) contain hard-to-read text.",
+    "VISUAL_UNREADABLE": "Images were hard to read in {count} section(s).",
+    "VISION_PROVIDER_FAILED": "Image review failed in {count} section(s).",
+    "TEXT_REVIEW_PROVIDER_FAILED": "The text review model failed, so some phrases were not reviewed.",
+    "TEXT_REVIEW_INPUT_TRUNCATED": "The text was too long; only the first part was reviewed.",
+    "NO_READABLE_TEXT": "No readable text was found.",
+    "TEXT_MODEL_NOT_CONFIGURED": "The text review model is not configured.",
+    "VISION_MODEL_NOT_CONFIGURED": "The image review model is not configured.",
+    "LEGAL_SEARCH_PARTIAL": "Legal search failed for some phrases.",
+    "LEGAL_SEARCH_FAILED": "Legal search failed.",
+    "LEGAL_SEARCH_UNAVAILABLE": "Could not reach the legal search service.",
+    "LEGAL_CORPUS_NOT_INDEXED": "Legal sources are not loaded.",
+    "LEGAL_RULE_PROVISION_NOT_LOADED": "Some provisions named by the rules are not loaded yet.",
+    "EVIDENCE_TOOL_UNAVAILABLE": "Could not reach the evidence analysis tool.",
+    "FUNCTIONAL_TOOL_UNAVAILABLE": "Could not reach the functional report lookup.",
+    "PATENT_TOOL_UNAVAILABLE": "Could not reach the patent lookup.",
+    "CROSS_CHECK_UNAVAILABLE": "Could not reach the official record checks.",
+    "other": "Other processing notice {code}: {count}"
   }
 }
