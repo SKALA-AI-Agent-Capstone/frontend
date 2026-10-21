@@ -22,7 +22,9 @@
     "contactTerm": "Operated by",
     "contactDesc": "Capstone internal pre-review development environment",
     "retentionNotice": "Review results, approval history and uploaded originals are kept on the server. Photo analysis is not a real efficacy ruling.",
-    "identifier": "This is not an official service run by the government or an industry association."
+    "identifier": "This is not an official service run by the government or an industry association.",
+    "storageNotice": "Review results, approval history and uploaded originals are kept on the server.",
+    "photoNotice": "Photo analysis is not a real efficacy ruling."
   },
   "roles": {
     "writer": "Writer",
@@ -40,11 +42,26 @@
     "usage": "Usage"
   },
   "analysis": {
-    "prepare": { "title": "Prepare files", "description": "Stores the originals and splits long images into sections to analyze." },
-    "text": { "title": "Extract and check copy", "description": "Reads the copy in PDFs and images and finds wording that may violate the rules." },
-    "visual": { "title": "Check photos", "description": "Looks at comparison photos and visual claims separately from the copy." },
-    "business": { "title": "Legal grounds and official APIs", "description": "Finds related statutes for each phrase and checks submitted documents and official APIs." },
-    "approval": { "title": "Save results", "description": "Saves the results and waits for reviewer approval." }
+    "prepare": {
+      "title": "Prepare files",
+      "description": "Stores the originals and splits long images into sections to analyze."
+    },
+    "text": {
+      "title": "Extract and check copy",
+      "description": "Reads the copy in PDFs and images and finds wording that may violate the rules."
+    },
+    "visual": {
+      "title": "Check photos",
+      "description": "Looks at comparison photos and visual claims separately from the copy."
+    },
+    "business": {
+      "title": "Legal grounds and official APIs",
+      "description": "Finds related statutes for each phrase and checks submitted documents and official APIs."
+    },
+    "approval": {
+      "title": "Save results",
+      "description": "Saves the results and waits for reviewer approval."
+    }
   },
   "product": {
     "functional": "Functional cosmetics",
@@ -53,11 +70,26 @@
     "custom": "Customized cosmetics"
   },
   "media": {
-    "live": { "label": "Live commerce", "description": "Scripts for live shopping streams" },
-    "detailPage": { "label": "Online product page", "description": "Own store and marketplaces" },
-    "print": { "label": "Print / outdoor", "description": "Catalogs, leaflets, billboards" },
-    "sns": { "label": "SNS / short-form", "description": "Instagram, YouTube, TikTok" },
-    "broadcast": { "label": "TV / radio", "description": "Broadcast and cable" }
+    "live": {
+      "label": "Live commerce",
+      "description": "Scripts for live shopping streams"
+    },
+    "detailPage": {
+      "label": "Online product page",
+      "description": "Own store and marketplaces"
+    },
+    "print": {
+      "label": "Print / outdoor",
+      "description": "Catalogs, leaflets, billboards"
+    },
+    "sns": {
+      "label": "SNS / short-form",
+      "description": "Instagram, YouTube, TikTok"
+    },
+    "broadcast": {
+      "label": "TV / radio",
+      "description": "Broadcast and cable"
+    }
   },
   "sourceType": {
     "law": "Law",
