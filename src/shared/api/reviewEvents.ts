@@ -80,9 +80,9 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
           if (event.type !== 'snapshot') { progressed = true; failures = 0 }
           if (event.id) lastEventId = event.id
           handlers.onEvent(event)
-          if (event.type === 'completed' || event.type === 'failed') terminal = true
-          // 실행 중이 아닌 건은 서버가 스냅샷만 보내고 닫는다.
-          if (event.type === 'snapshot' && !['queued', 'analyzing'].includes(latestStatus(event.data))) terminal = true
+          if (TERMINAL.has(event.type)) terminal = true
+          // 실행 중도 재개 대기도 아닌 건은 서버가 스냅샷만 보내고 닫는다.
+          if (event.type === 'snapshot' && !waiting(event.data)) terminal = true
         }
       }
     } catch {
@@ -101,7 +101,10 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
   return () => close('finished')
 }
 
-function latestStatus(review: Record<string, any>): string {
+const TERMINAL = new Set(['completed', 'failed', 'resume_completed', 'resume_failed'])
+
+function waiting(review: Record<string, any>): boolean {
   const versions = review?.versions ?? []
-  return versions[versions.length - 1]?.status ?? ''
+  const latest = versions[versions.length - 1]
+  return ['queued', 'analyzing'].includes(latest?.status ?? '') || latest?.approval?.agentResume === 'pending'
 }
