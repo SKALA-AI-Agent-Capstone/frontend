@@ -9,7 +9,9 @@ import { formatNumber } from '@/shared/utils/format'
 
 const props = defineProps({
   required: { type: Number, required: true },
+  label: { type: String, default: '예상 사용' },
   breakdown: { type: String, default: '' },
+  note: { type: String, default: '처리 완료 후 실제 사용량으로 확정 차감됩니다.' },
 })
 
 const credits = useCreditsStore()
@@ -19,11 +21,11 @@ const check = computed(() => credits.precheck(props.required))
 <template>
   <div class="estimate">
     <dl class="estimate__list">
-      <div><dt>예상 사용</dt><dd>{{ formatNumber(required) }} 크레딧</dd></div>
+      <div><dt>{{ label }}</dt><dd>{{ formatNumber(required) }} 크레딧</dd></div>
       <div><dt>현재 잔액</dt><dd>{{ formatNumber(check.balance) }} 크레딧</dd></div>
     </dl>
     <p v-if="breakdown" class="estimate__breakdown">{{ breakdown }}</p>
-    <p class="estimate__note">처리 완료 후 실제 사용량(텍스트 분량, 이미지 수)으로 확정 차감됩니다.</p>
+    <p class="estimate__note">{{ note }}</p>
     <BaseAlert v-if="!check.ok" variant="danger" title="크레딧이 부족합니다" aria-live="polite">
       <div class="estimate__shortfall">
         <span>{{ formatNumber(check.shortfall) }} 크레딧이 더 필요합니다.</span>

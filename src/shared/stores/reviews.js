@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { request } from '@/shared/api/http'
 import { useSessionStore } from './session'
+import { useCreditsStore } from './credits'
 import { t } from '@/shared/i18n'
 
 export const useReviewsStore = defineStore('reviews', () => {
@@ -28,7 +29,11 @@ export const useReviewsStore = defineStore('reviews', () => {
     clearTimeout(pollTimer)
     const running = list.value.filter(r => ['queued', 'analyzing'].includes(latest(r).status))
     await Promise.allSettled(running.map(r => refresh(r.id)))
-    if (running.length && session.isAuthenticated) pollTimer = setTimeout(poll, 1500)
+    if (running.length && session.isAuthenticated) {
+      if (running.some(r => { const current = byId(r.id); return current && !['queued', 'analyzing'].includes(latest(current).status) }))
+        await useCreditsStore().loadBalance().catch(() => {})
+      pollTimer = setTimeout(poll, 1500)
+    }
   }
   function form(input) {
     const data = new FormData()
