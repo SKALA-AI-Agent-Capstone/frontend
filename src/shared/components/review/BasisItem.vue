@@ -2,13 +2,16 @@
   대조한 조항 1건 (FR-2, NFR-8, 11)
   출처와 조항 번호를 한 줄로 보여 주고, 조문 원문과 바로 이어지는 조항은 펼쳐서 본다.
   규칙으로 붙은 조항의 설명은 카드에서 한 번만 보여 주므로 여기서는 검색으로 찾은 조항의 설명만 쓴다.
+  조항이 속한 문서 전체는 '전체 원문 보기'로 연다(rag-mcp Resource).
 -->
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
+import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseDisclosure from '@/shared/components/base/BaseDisclosure.vue'
 import { SOURCE_TYPE_LABEL } from '@/shared/data/standards.data'
 import { formatDate } from '@/shared/utils/format'
+import SourceDocumentModal from './SourceDocumentModal.vue'
 
 const props = defineProps({
   basis: { type: Object, required: true },
@@ -16,6 +19,9 @@ const props = defineProps({
 // 위임(하위 규정)과 인용만 이 조항을 읽는 데 필요하다. 이 조항을 인용하는 다른 조항은 목록만 길게 만든다.
 const DIRECT = new Set(['cites', 'implements', 'implemented_by', 'annex'])
 const related = computed(() => (props.basis.related ?? []).filter((link) => DIRECT.has(link.relation)))
+// 근거에 문서 키와 버전이 있어야 같은 버전의 적재 원문을 찾을 수 있다.
+const canOpenDocument = computed(() => Boolean(props.basis.sourceId && props.basis.version))
+const documentOpen = ref(false)
 </script>
 
 <template>
@@ -34,8 +40,12 @@ const related = computed(() => (props.basis.related ?? []).filter((link) => DIRE
         </li>
       </ul>
       <p class="basis__meta">{{ $t('ui.basis.meta', { version: basis.version, date: formatDate(basis.revisedAt) }) }}</p>
+      <BaseButton v-if="canOpenDocument" variant="ghost" size="sm" icon="article" class="basis__document" @click="documentOpen = true">
+        {{ $t('ui.basis.showDocument') }}
+      </BaseButton>
     </BaseDisclosure>
     <p v-else class="basis__no-original">{{ $t('ui.basis.noOriginal') }}</p>
+    <SourceDocumentModal v-if="canOpenDocument" v-model:open="documentOpen" :basis="basis" />
   </div>
 </template>
 
@@ -74,6 +84,10 @@ const related = computed(() => (props.basis.related ?? []).filter((link) => DIRE
   list-style: disc;
   font-size: var(--font-size-detail-s);
   color: var(--color-text-secondary);
+}
+.basis__document {
+  align-self: flex-start;
+  margin-top: var(--space-2xs);
 }
 .basis__no-original,
 .basis__meta {
