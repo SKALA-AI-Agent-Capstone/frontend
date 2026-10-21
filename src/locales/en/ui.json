@@ -62,8 +62,16 @@
   "basis": {
     "standard": "Standard",
     "showOriginal": "Show original article",
+    "showDocument": "Show full document",
     "noOriginal": "Original text not registered. Register it in reference management.",
     "meta": "Standard version {version}, revised {date}"
+  },
+  "sourceDocument": {
+    "meta": "Standard version {version}, effective {date}",
+    "loading": "Loading the original text.",
+    "loadError": "Could not load the original text.",
+    "note": "The stored original used for the review. The cited article is highlighted. Check the source for the current official text.",
+    "official": "Open official source"
   },
   "requirement": {
     "prohibited": "Wording not allowed even with evidence, the copy must change",
