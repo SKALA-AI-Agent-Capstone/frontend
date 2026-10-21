@@ -63,20 +63,25 @@ export const useReviewsStore = defineStore('reviews', () => {
     else if (event.type === 'retry_scheduled') setActivity(id, { retry: data.attempt })
     else if (event.type === 'completed' || event.type === 'failed') {
       setActivity(id, { tool: null, state: null })
-      // 위반 0건 자동 승인이면 이어서 재개를 기다리므로 새 상태로 다시 구독한다.
-      refresh(id).then(() => poll()).catch(() => {})
       useCreditsStore().loadBalance().catch(() => {})
-    } else if (event.type === 'resume_completed' || event.type === 'resume_failed') refresh(id).catch(() => {})
+    }
   }
   function follow(id) {
     if (streams.has(id) || fallback.has(id) || streams.size >= MAX_STREAMS) return streams.has(id)
     setActivity(id, { live: false })
     streams.set(id, openReviewStream(id, {
       onEvent: event => onEvent(id, event),
-      onClose: reason => {
+      onClose: async reason => {
         streams.delete(id)
         setActivity(id, { live: false })
-        if (reason === 'fallback') { fallback.add(id); poll() }
+        if (reason === 'cancelled') return
+        if (reason === 'fallback') fallback.add(id)
+        else {
+          // Remove the old subscription before fetching the phase that follows it.
+          try { await refresh(id) }
+          catch { fallback.add(id) }
+        }
+        if (session.isAuthenticated) poll()
       },
     }))
     return true

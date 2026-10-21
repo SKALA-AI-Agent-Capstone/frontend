@@ -14,8 +14,8 @@ export interface ReviewEvent {
 
 export interface StreamHandlers {
   onEvent: (event: ReviewEvent) => void
-  /** 다시 붙지 않고 끝낼 때 한 번 부른다. fallback이면 폴링으로 바꿔야 한다. */
-  onClose: (reason: 'finished' | 'fallback') => void
+  /** finished는 상태 재조회, fallback은 폴링, cancelled는 명시적인 구독 해제다. */
+  onClose: (reason: 'finished' | 'fallback' | 'cancelled') => void
 }
 
 const RETRY_DELAYS_MS = [1000, 3000, 6000]
@@ -49,7 +49,7 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
   let finished = false
   let timer: ReturnType<typeof setTimeout> | null = null
 
-  function close(reason: 'finished' | 'fallback') {
+  function close(reason: 'finished' | 'fallback' | 'cancelled') {
     if (finished) return
     finished = true
     if (timer) clearTimeout(timer)
@@ -58,7 +58,8 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
   }
 
   async function connect() {
-    let terminal = false
+    let phase: 'analysis' | 'resume' | null = null
+    let versionNo: number | null = null
     let progressed = false
     const startedAt = Date.now()
     try {
@@ -77,12 +78,24 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
           const event = parseBlock(buffer.slice(0, end))
           buffer = buffer.slice(end + 2)
           if (!event) continue
-          if (event.type !== 'snapshot') { progressed = true; failures = 0 }
           if (event.id) lastEventId = event.id
+          if (event.type === 'snapshot') {
+            const versions = event.data.versions ?? []
+            const latest = versions[versions.length - 1]
+            versionNo = latest?.no ?? null
+            phase = ['queued', 'analyzing'].includes(latest?.status) ? 'analysis'
+              : latest?.approval?.agentResume === 'pending' ? 'resume' : null
+            handlers.onEvent(event)
+            if (!phase) return close('finished')
+            continue
+          }
+          // Replay can contain events from an older version or the completed analysis phase.
+          if (event.data.versionNo !== versionNo) continue
+          const resumeEvent = event.type === 'resume_completed' || event.type === 'resume_failed'
+          if (phase === 'resume' ? !resumeEvent : resumeEvent) continue
+          progressed = true; failures = 0
           handlers.onEvent(event)
-          if (TERMINAL.has(event.type)) terminal = true
-          // 실행 중도 재개 대기도 아닌 건은 서버가 스냅샷만 보내고 닫는다.
-          if (event.type === 'snapshot' && !waiting(event.data)) terminal = true
+          if (TERMINAL.has(event.type)) return close('finished')
         }
       }
     } catch {
@@ -91,20 +104,13 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
     // 진행 이벤트 없이 금방 끊긴 연결은 실패로 센다. 프록시가 곧바로 끊는 환경에서 무한 재접속을 막는다.
     if (!progressed && Date.now() - startedAt < 20000) failures += 1
     if (finished) return
-    if (terminal) return close('finished')
     // 서버 타임아웃이나 프록시가 끊은 연결은 다시 붙는다.
     if (failures >= RETRY_DELAYS_MS.length) return close('fallback')
     timer = setTimeout(connect, RETRY_DELAYS_MS[Math.max(0, failures - 1)])
   }
 
   connect()
-  return () => close('finished')
+  return () => close('cancelled')
 }
 
 const TERMINAL = new Set(['completed', 'failed', 'resume_completed', 'resume_failed'])
-
-function waiting(review: Record<string, any>): boolean {
-  const versions = review?.versions ?? []
-  const latest = versions[versions.length - 1]
-  return ['queued', 'analyzing'].includes(latest?.status ?? '') || latest?.approval?.agentResume === 'pending'
-}
