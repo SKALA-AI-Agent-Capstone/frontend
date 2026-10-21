@@ -12,6 +12,12 @@
   "versions": "심의 버전",
   "failedTitle": "분석에 실패했습니다",
   "resubmit": "원본 파일을 다시 제출해 새 버전 검토",
+  "credit": {
+    "released": "검사 실패로 {count}크레딧 반환",
+    "charged": "검사 비용 {count}크레딧 차감",
+    "balance": "현재 잔액:",
+    "loading": "잔액을 확인하고 있습니다."
+  },
   "bar": {
     "progress": "위반 소지 {total}건 중 {done}건 수정안 반영",
     "ready": "위반 소지 {total}건 중 {done}건 수정안 반영 — 재심의를 진행할 수 있습니다",

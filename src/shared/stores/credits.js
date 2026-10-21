@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { t } from '@/shared/i18n'
 import { request } from '@/shared/api/http'
 
-// 검사 시작 시 서버가 100크레딧을 차감한다. 화면 잔액은 안내용이며 서버가 최종 검사한다.
+// 화면 잔액은 안내용이며 검사 비용과 최종 차감은 서버가 결정한다.
 export const useCreditsStore = defineStore('credits', () => {
   const balance = ref(0)
   async function loadBalance() {
@@ -17,7 +17,7 @@ export const useCreditsStore = defineStore('credits', () => {
     balance, loadBalance, setBalance, resetBalance,
     ledger: computed(() => []),
     enabled: true,
-    precheck: (required = 100) => ({
+    precheck: (required) => ({
       ok: balance.value >= required,
       enabled: true,
       balance: balance.value,

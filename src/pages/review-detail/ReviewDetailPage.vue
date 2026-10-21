@@ -1,8 +1,8 @@
 <!-- 위반사항 분석 및 보완 (시안 krds_3) -->
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
 import { useCreditsStore } from '@/shared/stores/credits'
+import { request } from '@/shared/api/http'
 import { legalSearch } from '@/shared/constants/legal'
 import { APPROVAL_LABEL, REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -27,19 +27,24 @@ import StatusSummary from './features/status-summary/StatusSummary.vue'
 import ViolationReviewList from './features/violation-review/ViolationReviewList.vue'
 
 const { review, version, versionNo, isDone } = provideReviewDetail()
-const route = useRoute()
 const credits = useCreditsStore()
-const showCharge = computed(() => route.query.charged === '100')
+const charge = ref(null)
 const balanceLoaded = ref(false)
-onMounted(async () => {
-  if (!showCharge.value) return
-  try { await credits.loadBalance(); balanceLoaded.value = true } catch { /* Header can retry on navigation. */ }
-})
-watch(() => version.value?.status, async (status) => {
-  if (showCharge.value && status === REVIEW_STATUS.FAILED) {
-    try { await credits.loadBalance(); balanceLoaded.value = true } catch { balanceLoaded.value = false }
-  }
-})
+watch([() => review.value?.id, versionNo, () => version.value?.status], async ([id, no], _, onCleanup) => {
+  if (!id || !no) return
+  let stale = false
+  onCleanup(() => { stale = true })
+  try {
+    const result = await request(`/billing/reviews/${encodeURIComponent(id)}/charge?versionNo=${no}`)
+    if (stale) return
+    charge.value = result.charged ? result : null
+    if (charge.value) {
+      balanceLoaded.value = false
+      await credits.loadBalance()
+      if (!stale) balanceLoaded.value = true
+    }
+  } catch { if (!stale) { charge.value = null; balanceLoaded.value = false } }
+}, { immediate: true })
 const legal = computed(() => legalSearch(version.value?.result))
 
 const breadcrumbs = computed(() => [
@@ -85,9 +90,9 @@ const versionTabs = computed(() =>
       <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
 
-    <BaseAlert v-if="showCharge" variant="info" :title="version.status === REVIEW_STATUS.FAILED ? '검사 실패로 100크레딧 반환' : '검사 비용 100크레딧 차감'">
-      <span v-if="balanceLoaded">현재 잔액: <strong>{{ credits.balance.toLocaleString('ko-KR') }}크레딧</strong></span>
-      <span v-else>잔액을 확인하고 있습니다.</span>
+    <BaseAlert v-if="charge" variant="info" :title="$t(charge.status === 'released' ? 'reviewDetail.credit.released' : 'reviewDetail.credit.charged', { count: charge.credits })">
+      <span v-if="balanceLoaded">{{ $t('reviewDetail.credit.balance') }} <strong>{{ $t('credits.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></span>
+      <span v-else>{{ $t('reviewDetail.credit.loading') }}</span>
     </BaseAlert>
 
     <AnalysisDiagnosis />

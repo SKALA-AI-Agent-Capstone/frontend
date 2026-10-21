@@ -41,6 +41,15 @@
     "charge": "충전",
     "usage": "사용 차감"
   },
+  "creditEstimate": {
+    "expected": "예상 사용",
+    "note": "처리 완료 후 실제 사용량으로 확정 차감됩니다.",
+    "balance": "현재 잔액",
+    "remaining": "검사 후 예상 잔액",
+    "shortageTitle": "크레딧이 부족합니다",
+    "shortage": "{count}크레딧이 더 필요합니다.",
+    "topUp": "크레딧 충전하기"
+  },
   "analysis": {
     "prepare": {
       "title": "파일 준비",
