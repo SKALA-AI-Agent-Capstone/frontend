@@ -181,27 +181,5 @@
       "alt": "달밤의 난간에 앉은 분홍 드레스의 여성과 피에로를 그린 향수 광고."
     },
     "unknownCreator": "작자 미상"
-  },
-  "reader": {
-    "portrait": "세로형, 가로의 {ratio}배",
-    "landscape": "가로형, 세로의 {ratio}배",
-    "square": "정사각형에 가까움",
-    "sampleError": "예시 이미지를 불러오지 못했습니다. 잠시 후 다시 골라 주세요.",
-    "typeError": "PDF, JPG, PNG, WEBP 파일만 올릴 수 있습니다.",
-    "readError": "이미지를 읽지 못했습니다. 파일이 손상되지 않았는지 확인해 주세요.",
-    "title": "광고 파일 읽기",
-    "file": "파일",
-    "format": "형식",
-    "size": "용량",
-    "pages": "페이지",
-    "pagesValue": "서버에서 확인",
-    "ratio": "비율",
-    "pixels": "픽셀",
-    "copy": "문구",
-    "copyText": "위반 소지를 판단하고 근거 조문을 찾습니다.",
-    "photo": "사진",
-    "photoText": "문구와 따로 표현을 살핍니다. 실제 효능을 판정하지 않습니다.",
-    "pick": "내 광고 파일 고르기",
-    "samples": "옛 화장품 광고 예시"
   }
 }

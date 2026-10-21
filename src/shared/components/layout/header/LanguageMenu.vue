@@ -34,7 +34,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
       @click="open = !open"
     >
       <BaseIcon name="language" size="sm" />
-      Language
+      <span class="lang-menu__label">Language</span>
       <BaseIcon :name="open ? 'expand_less' : 'expand_more'" size="xs" />
     </button>
     <ul v-show="open" id="lang-menu-list" class="lang-menu__list">
