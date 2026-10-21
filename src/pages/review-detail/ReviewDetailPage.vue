@@ -1,6 +1,8 @@
 <!-- 위반사항 분석 및 보완 (시안 krds_3) -->
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useCreditsStore } from '@/shared/stores/credits'
 import { legalSearch } from '@/shared/constants/legal'
 import { APPROVAL_LABEL, REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -25,6 +27,19 @@ import StatusSummary from './features/status-summary/StatusSummary.vue'
 import ViolationReviewList from './features/violation-review/ViolationReviewList.vue'
 
 const { review, version, versionNo, isDone } = provideReviewDetail()
+const route = useRoute()
+const credits = useCreditsStore()
+const showCharge = computed(() => route.query.charged === '100')
+const balanceLoaded = ref(false)
+onMounted(async () => {
+  if (!showCharge.value) return
+  try { await credits.loadBalance(); balanceLoaded.value = true } catch { /* Header can retry on navigation. */ }
+})
+watch(() => version.value?.status, async (status) => {
+  if (showCharge.value && status === REVIEW_STATUS.FAILED) {
+    try { await credits.loadBalance(); balanceLoaded.value = true } catch { balanceLoaded.value = false }
+  }
+})
 const legal = computed(() => legalSearch(version.value?.result))
 
 const breadcrumbs = computed(() => [
@@ -69,6 +84,11 @@ const versionTabs = computed(() =>
       </template>
       <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
+
+    <BaseAlert v-if="showCharge" variant="info" :title="version.status === REVIEW_STATUS.FAILED ? '검사 실패로 100크레딧 반환' : '검사 비용 100크레딧 차감'">
+      <span v-if="balanceLoaded">현재 잔액: <strong>{{ credits.balance.toLocaleString('ko-KR') }}크레딧</strong></span>
+      <span v-else>잔액을 확인하고 있습니다.</span>
+    </BaseAlert>
 
     <AnalysisDiagnosis />
 

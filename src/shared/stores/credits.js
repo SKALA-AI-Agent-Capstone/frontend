@@ -3,20 +3,26 @@ import { computed, ref } from 'vue'
 import { t } from '@/shared/i18n'
 import { request } from '@/shared/api/http'
 
-// 검토 사용량 과금은 아직 연결되지 않았다. 잔액은 서버의 충전 내역에서 조회한다.
+// 검사 시작 시 서버가 100크레딧을 차감한다. 화면 잔액은 안내용이며 서버가 최종 검사한다.
 export const useCreditsStore = defineStore('credits', () => {
   const balance = ref(0)
   async function loadBalance() {
     const response = await request('/billing/balance')
     balance.value = response.balance
+    return balance.value
   }
   function setBalance(value) { balance.value = value }
   function resetBalance() { balance.value = 0 }
   return {
     balance, loadBalance, setBalance, resetBalance,
     ledger: computed(() => []),
-    enabled: false,
-    precheck: () => ({ ok: true, enabled: false, balance: 0, shortfall: 0 }),
+    enabled: true,
+    precheck: (required = 100) => ({
+      ok: balance.value >= required,
+      enabled: true,
+      balance: balance.value,
+      shortfall: Math.max(0, required - balance.value),
+    }),
     charge: () => { throw new Error(t('ui.errors.billingNotConnected')) },
   }
 })
