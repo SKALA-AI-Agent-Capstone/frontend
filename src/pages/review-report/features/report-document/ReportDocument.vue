@@ -56,7 +56,7 @@ function locationLabel(finding) {
         <tbody>
           <tr v-for="(f, i) in version.result.findings" :key="f.id">
             <td>{{ i + 1 }}</td>
-            <td><strong>"{{ f.phrase }}"</strong><br />{{ f.category }}</td>
+            <td><strong>"{{ f.phrase }}"</strong></td>
             <td>{{ locationLabel(f) }}</td>
             <td>{{ SEVERITY_LABEL[f.severity].label }}<template v-if="f.escalation"><br />↑ {{ f.escalation.reason }}</template></td>
             <td>

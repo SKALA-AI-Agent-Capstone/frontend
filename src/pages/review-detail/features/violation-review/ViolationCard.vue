@@ -72,7 +72,7 @@ function retry(note) {
           <span>{{ [finding?.basis?.[0]?.article, locationLabel].filter(Boolean).join(', ') }}</span>
         </p>
         <h3 :id="`finding-${violation.id}-title`" class="violation__title">
-          {{ finding?.category || finding?.title || $t('reviewDetail.card.untitled') }} ("{{ violation.textExcerpt }}")
+          "{{ decided ? violation.finalText : violation.textExcerpt }}"
         </h3>
       </div>
       <BaseButton
