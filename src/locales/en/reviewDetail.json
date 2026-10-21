@@ -61,7 +61,11 @@
     "materials": "Material needed",
     "phrases": "{count} phrase(s)",
     "unanalyzed": "Not judged",
-    "holdCount": "{count} phrase(s) on hold because a lookup failed. This is not a problem in the ad; retry or check directly."
+    "holdCount": "{count} phrase(s) on hold because a lookup failed. This is not a problem in the ad; retry or check directly.",
+    "chartLabel": "Bar chart of phrases by next action, {total} in total",
+    "filterLabel": "Filter by next action",
+    "all": "All",
+    "allHint": "Click a bar or button to show only that action in the list below."
   },
   "revision": {
     "manualRequired": "Enter the copy you want to use.",
