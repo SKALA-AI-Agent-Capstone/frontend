@@ -196,5 +196,17 @@
     "concern": "To check: {concern}",
     "adjacent": "Context from nearby sections or the comparison image is needed.",
     "region": "Analyzed region y={from}~{to}%. This does not confirm exact wrinkle positions or actual efficacy."
+  },
+  "tiles": {
+    "title": "Review by tile",
+    "total": "{text} copy, {visual} photo",
+    "empty": "No findings. This does not mean the ad is compliant.",
+    "textCount": "Copy {count}",
+    "visualCount": "Photo {count}",
+    "visualBadge": "Photo finding",
+    "boxLabel": "Location of finding {n}",
+    "loading": "Loading the original image.",
+    "imageError": "Could not load the original image.",
+    "unassignedTitle": "Findings without a location"
   }
 }

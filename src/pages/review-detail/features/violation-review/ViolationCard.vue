@@ -28,7 +28,7 @@ const props = defineProps({
   number: { type: Number, required: true },
 })
 
-const { review, hitl, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result } = useReviewDetail()
+const { review, hitl, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result, tileMode } = useReviewDetail()
 
 // 원본 이미지는 보존한다(2026-10-20 설계 변경) — 문구가 속한 이미지/페이지 원본을 함께 보여준다.
 const assetId = computed(() => props.finding?.location?.fileId ?? null)
@@ -96,7 +96,8 @@ function retry(note) {
       {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}: {{ finding.escalation.reason }}
     </BaseAlert>
 
-    <img v-if="assetImageUrl" :src="assetImageUrl" :alt="$t('reviewDetail.original.alt', { name: locationLabel })" class="violation__image" />
+    <!-- 타일 뷰어가 원본을 구간별로 보여 줄 때는 카드에 원본 전체를 다시 넣지 않는다. -->
+    <img v-if="assetImageUrl && !tileMode" :src="assetImageUrl" :alt="$t('reviewDetail.original.alt', { name: locationLabel })" class="violation__image" />
 
     <p v-if="finding">{{ finding.reason }}</p>
     <p v-if="!finding?.basis?.length">{{ emptyBasisText(finding, result) }}</p>

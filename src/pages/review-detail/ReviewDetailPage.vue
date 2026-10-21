@@ -25,8 +25,9 @@ import EvidenceCheckSection from './features/evidence-check/EvidenceCheckSection
 import PatentCheckSection from './features/patent-check/PatentCheckSection.vue'
 import StatusSummary from './features/status-summary/StatusSummary.vue'
 import ViolationReviewList from './features/violation-review/ViolationReviewList.vue'
+import TileReview from './features/tile-review/TileReview.vue'
 
-const { review, version, versionNo, isDone } = provideReviewDetail()
+const { review, version, versionNo, isDone, tileMode } = provideReviewDetail()
 const credits = useCreditsStore()
 const charge = ref(null)
 const balanceLoaded = ref(false)
@@ -109,7 +110,16 @@ const versionTabs = computed(() =>
       <StatusSummary />
       <OriginalPreview />
 
-      <div class="supplement-page__body">
+      <!-- 타일 좌표가 있는 최신 이미지 결과는 타일별로, 이전 결과와 PDF는 추출 문구 뷰어로 보여 준다. -->
+      <template v-if="tileMode">
+        <TileReview class="supplement-page__tiles" />
+        <div class="supplement-page__extras">
+          <EvidenceCheckSection />
+          <PatentCheckSection />
+          <ApprovalPanel />
+        </div>
+      </template>
+      <div v-else class="supplement-page__body">
         <AdViewer class="supplement-page__viewer" />
         <div class="supplement-page__side">
           <ViolationReviewList />
@@ -137,6 +147,14 @@ const versionTabs = computed(() =>
   align-items: start;
   gap: var(--layout-gutter);
   margin-top: var(--space-lg);
+}
+.supplement-page__tiles {
+  margin-top: var(--space-lg);
+}
+.supplement-page__extras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
 }
 .supplement-page__side {
   display: flex;
