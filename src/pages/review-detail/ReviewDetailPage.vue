@@ -24,6 +24,7 @@ import ApprovalPanel from './features/approval/ApprovalPanel.vue'
 import EvidenceCheckSection from './features/evidence-check/EvidenceCheckSection.vue'
 import PatentCheckSection from './features/patent-check/PatentCheckSection.vue'
 import StatusSummary from './features/status-summary/StatusSummary.vue'
+import { warningLines } from '@/shared/utils/warnings'
 import ViolationReviewList from './features/violation-review/ViolationReviewList.vue'
 import TileReview from './features/tile-review/TileReview.vue'
 
@@ -105,7 +106,7 @@ const versionTabs = computed(() =>
 
     <template v-if="isDone">
       <BaseAlert :variant="legal.variant" :title="legal.alertTitle">
-        <ul><li v-for="warning in version.result.warnings" :key="warning">{{warning}}</li></ul>
+        <ul><li v-for="line in warningLines(version.result.warnings)" :key="line">{{ line }}</li></ul>
       </BaseAlert>
       <StatusSummary />
       <OriginalPreview />

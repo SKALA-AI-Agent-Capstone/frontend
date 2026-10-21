@@ -20,12 +20,32 @@ const props = defineProps({
   retry: { type: Function, required: true },
   // 담당자 승인 전에만 저장한 결정을 다시 바꿀 수 있다 (서버도 같은 규칙)
   editable: { type: Boolean, default: true },
+  // 자동 수정안이 검증을 통과하지 못한 마지막 이유. 제안이 없을 때 왜 없는지 보여 준다.
+  note: { type: String, default: null },
+  // 자료 확인이 먼저인 문구는 수정안을 "자료가 없을 때의 대안"으로 부른다.
+  suggestionLabel: { type: String, default: null },
 })
 
-const retryNote = ref('')
-const showRetryNote = ref(false)
-const manualText = ref('')
-const showManualInput = ref(false)
+// 작성 중인 직접 수정 문구와 다시쓰기 메모는 저장 전까지 이 브라우저에 임시 보관한다.
+// 화면을 나갔다 와도 이어서 쓸 수 있고, 저장이나 요청이 성공하면 지운다.
+const draftKey = `revision-draft:${props.violation.id}`
+function readDraft() {
+  try { return JSON.parse(localStorage.getItem(draftKey) ?? '{}') } catch { return {} }
+}
+function writeDraft() {
+  try {
+    if (manualText.value.trim() || retryNote.value.trim())
+      localStorage.setItem(draftKey, JSON.stringify({ manual: manualText.value, retry: retryNote.value }))
+    else localStorage.removeItem(draftKey)
+  } catch { /* 저장소를 못 쓰면 임시 보관만 빠진다 */ }
+}
+const draft = readDraft()
+const retryNote = ref(draft.retry ?? '')
+const showRetryNote = ref(Boolean(draft.retry))
+const manualText = ref(draft.manual ?? '')
+const showManualInput = ref(Boolean(draft.manual))
+const hasDraft = computed(() => Boolean(manualText.value.trim() || retryNote.value.trim()))
+watch([manualText, retryNote], writeDraft)
 const editing = ref(false) // 저장한 결정을 다시 고치는 중
 const busy = ref(null) // 진행 중인 동작 키
 const error = ref(null)
@@ -63,7 +83,7 @@ function toggleManual() {
   showManualInput.value = !showManualInput.value
   // 처음 열 때는 지금 문구에서 시작해 조금만 고치면 되게 한다
   if (showManualInput.value && !manualText.value.trim()) {
-    manualText.value = (decided.value ? props.violation.finalText : props.violation.rewriteSuggestion) ?? ''
+    manualText.value = (decided.value ? props.violation.finalText : props.violation.rewriteSuggestion) ?? props.violation.textExcerpt ?? ''
   }
 }
 function submitManual() {
@@ -71,9 +91,10 @@ function submitManual() {
     error.value = t('reviewDetail.revision.manualRequired')
     return
   }
-  run(VIOLATION_RESOLUTION.REWRITTEN_MANUAL, () =>
-    props.decide(VIOLATION_RESOLUTION.REWRITTEN_MANUAL, { finalText: manualText.value.trim() }),
-  )
+  run(VIOLATION_RESOLUTION.REWRITTEN_MANUAL, async () => {
+    await props.decide(VIOLATION_RESOLUTION.REWRITTEN_MANUAL, { finalText: manualText.value.trim() })
+    manualText.value = ''
+  })
 }
 async function submitRetry() {
   if (await run('retry', () => props.retry(retryNote.value.trim() || undefined))) {
@@ -83,8 +104,8 @@ async function submitRetry() {
 }
 function startEdit() {
   error.value = null
-  manualText.value = props.violation.finalText ?? ''
-  showManualInput.value = false
+  if (!manualText.value.trim()) manualText.value = props.violation.finalText ?? ''
+  showManualInput.value = Boolean(readDraft().manual)
   editing.value = true
 }
 function cancelEdit() {
@@ -111,12 +132,13 @@ function cancelEdit() {
 
     <template v-else>
       <div v-if="violation.rewriteSuggestion" class="revision__suggestion">
-        <p class="revision__suggestion-label">{{ $t('reviewDetail.revision.suggestionLabel') }}</p>
+        <p class="revision__suggestion-label">{{ suggestionLabel ?? $t('reviewDetail.revision.suggestionLabel') }}</p>
         <p class="revision__suggestion-text">{{ violation.rewriteSuggestion }}</p>
       </div>
-      <p v-else class="revision__empty">
-        {{ $t('reviewDetail.revision.noSuggestion') }}
-      </p>
+      <div v-else class="revision__empty">
+        <p>{{ $t(note ? 'reviewDetail.revision.notVerified' : 'reviewDetail.revision.noSuggestion') }}</p>
+        <p v-if="note" class="revision__note">{{ $t('reviewDetail.revision.lastReason', { reason: note }) }}</p>
+      </div>
 
       <p v-if="editing" class="revision__current">
         {{ $t('reviewDetail.revision.current') }} <strong>{{ violation.finalText }}</strong>
@@ -156,6 +178,7 @@ function cancelEdit() {
         <BaseTextarea v-model="retryNote" :rows="2" :placeholder="$t('reviewDetail.revision.retryPlaceholder')" />
         <BaseButton size="sm" :busy="busy === 'retry'" @click="submitRetry">{{ $t('reviewDetail.revision.retrySend') }}</BaseButton>
       </div>
+      <p v-if="hasDraft && (showManualInput || showRetryNote)" class="revision__draft">{{ $t('reviewDetail.revision.draftSaved') }}</p>
 
       <p v-if="retryExhausted" class="revision__limit">
         {{ $t('reviewDetail.revision.retryLimit', { limit: violation.humanRetryLimit }) }}
@@ -204,8 +227,17 @@ function cancelEdit() {
   overflow-wrap: anywhere;
 }
 .revision__empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-page);
   font-size: var(--font-size-body-s);
   color: var(--color-text-secondary);
+}
+.revision__note {
+  font-size: var(--font-size-detail-s);
 }
 .revision__final {
   font-size: var(--font-size-body-m);
@@ -235,6 +267,10 @@ function cancelEdit() {
   border-radius: var(--radius-md);
   border: var(--border-width) solid var(--color-border);
   background: var(--color-bg-page);
+}
+.revision__draft {
+  font-size: var(--font-size-detail-s);
+  color: var(--color-text-secondary);
 }
 .revision__limit {
   font-size: var(--font-size-detail-s);

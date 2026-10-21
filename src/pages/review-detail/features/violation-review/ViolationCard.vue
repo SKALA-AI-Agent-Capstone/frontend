@@ -10,11 +10,12 @@
 import { computed } from 'vue'
 import { emptyBasisText } from '@/shared/constants/legal'
 import { SEVERITY, SEVERITY_LABEL } from '@/shared/constants/review'
+import { ACTION, ACTION_VARIANT, actionFor, actionLabel, nextStepFor } from '@/shared/constants/reviewActions'
 import { useAssetImage } from '@/shared/composables/useAssetImage'
-import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
+import BaseDisclosure from '@/shared/components/base/BaseDisclosure.vue'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import BasisItem from '@/shared/components/review/BasisItem.vue'
 import { useReviewDetail } from '../../composables/useReviewDetail'
@@ -31,7 +32,8 @@ const props = defineProps({
 const { review, hitl, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result, tileMode } = useReviewDetail()
 
 // 원본 이미지는 보존한다(2026-10-20 설계 변경) — 문구가 속한 이미지/페이지 원본을 함께 보여준다.
-const assetId = computed(() => props.finding?.location?.fileId ?? null)
+// 구간 화면은 원본을 구간 줄에서 한 번만 받는다. 카드마다 같은 원본을 다시 내려받지 않는다.
+const assetId = computed(() => (tileMode.value ? null : props.finding?.location?.fileId ?? null))
 const { url: assetImageUrl } = useAssetImage(computed(() => review.value?.id), assetId)
 
 const severity = computed(() => SEVERITY_LABEL[props.finding?.severity ?? SEVERITY.LOW])
@@ -41,6 +43,24 @@ const locationLabel = computed(() => {
   const location = props.finding?.location
   if (!location) return t('reviewDetail.card.noLocation')
   return location.kind === 'copy' ? t('reviewDetail.viewer.copy') : t('reviewDetail.card.image', { name: location.fileName })
+})
+
+// 카드 본문에는 판단 이유, 확인이 필요한 대조 결과, 수정안만 둔다. 조항과 나머지 대조 결과는 펼쳐서 본다.
+const basis = computed(() => props.finding?.basis ?? [])
+const action = computed(() => actionFor(props.finding))
+const nextStep = computed(() => nextStepFor(props.finding))
+const checks = computed(() => props.finding?.checks ?? [])
+const ruleLabels = computed(() => [...new Set((props.finding?.rules ?? []).map((r) => r.label))])
+const basisLabel = computed(() => {
+  if (!basis.value.length) return t('reviewDetail.card.basisNone')
+  const first = [basis.value[0].sourceName, basis.value[0].article].filter(Boolean).join(' ')
+  return basis.value.length > 1 ? t('reviewDetail.card.basisMany', { first, count: basis.value.length - 1 }) : t('reviewDetail.card.basisOne', { first })
+})
+// 왜 이 조항들이 붙었는지(또는 왜 없는지)를 카드마다 한 번만 설명한다.
+const basisWhy = computed(() => {
+  if (ruleLabels.value.length) return t('reviewDetail.card.whyRule', { rules: ruleLabels.value.join(', ') })
+  if (basis.value.length) return t('reviewDetail.card.whySearch')
+  return emptyBasisText(props.finding, result.value)
 })
 
 function decide(resolution, extra) {
@@ -67,10 +87,11 @@ function retry(note) {
       </span>
       <div class="violation__title-wrap">
         <p class="violation__meta">
-          <BaseBadge :variant="decided ? 'success' : severity.variant" :solid="decided">
-            {{ decided ? $t('reviewDetail.card.decided') : severity.label }}
+          <BaseBadge :variant="decided ? 'success' : ACTION_VARIANT[action]" :solid="decided || action === ACTION.REVISE">
+            {{ decided ? $t('reviewDetail.card.decided') : actionLabel(action) }}
           </BaseBadge>
-          <span>{{ [finding?.basis?.[0]?.article, locationLabel].filter(Boolean).join(', ') }}</span>
+          <span v-if="!decided && finding?.severity && finding.severity !== SEVERITY.LOW">{{ severity.label }}</span>
+          <span>{{ [ruleLabels[0], locationLabel].filter(Boolean).join(', ') }}</span>
         </p>
         <h3 :id="`finding-${violation.id}-title`" class="violation__title">
           "{{ decided ? violation.finalText : violation.textExcerpt }}"
@@ -87,41 +108,40 @@ function retry(note) {
       </BaseButton>
     </header>
 
-    <BaseAlert
-      v-if="finding?.escalation"
-      :variant="severity.variant"
-      icon="trending_up"
-      :title="$t('reviewDetail.card.escalated')"
-    >
-      {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}: {{ finding.escalation.reason }}
-    </BaseAlert>
 
     <!-- 타일 뷰어가 원본을 구간별로 보여 줄 때는 카드에 원본 전체를 다시 넣지 않는다. -->
     <img v-if="assetImageUrl && !tileMode" :src="assetImageUrl" :alt="$t('reviewDetail.original.alt', { name: locationLabel })" class="violation__image" />
 
-    <p v-if="finding">{{ finding.reason }}</p>
-    <p v-if="!finding?.basis?.length">{{ emptyBasisText(finding, result) }}</p>
-    <section v-if="finding?.basis?.length" class="violation__basis" :aria-label="$t('reviewDetail.card.basisLabel')">
-      <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> {{ $t('reviewDetail.card.basisTitle') }}</p>
-      <BasisItem v-for="(basis, i) in finding.basis" :key="`${basis.sourceId}-${i}`" :basis="basis" />
-    </section>
-
-    <CheckList v-if="finding?.checks?.length || finding?.rules?.length" :checks="finding.checks ?? []" :rules="finding.rules ?? []" />
-
-    <section v-if="finding?.references?.length" class="violation__refs" :aria-label="$t('reviewDetail.card.refsLabel')">
-      <p class="violation__refs-title">{{ $t('reviewDetail.card.refsTitle') }}</p>
-      <p v-for="ref in finding.references" :key="ref.id" class="violation__ref">
-        <BaseBadge v-if="!ref.verified" variant="warning">{{ $t('reviewDetail.card.unverified') }}</BaseBadge>
-        {{ ref.summary }}
-      </p>
-    </section>
-
+    <p v-if="finding" class="violation__reason">{{ finding.reason }}</p>
+    <p v-if="finding && !decided" class="violation__next" :class="`violation__next--${action}`">{{ nextStep }}</p>
     <RevisionOptions
       :violation="violation"
       :decide="decide"
       :retry="retry"
       :editable="(hitl?.status ?? 'pending') === 'pending'"
+      :note="finding?.rewriteNote ?? null"
+      :suggestion-label="action === ACTION.EVIDENCE ? $t('reviewDetail.revision.fallbackLabel') : null"
     />
+
+    <BaseDisclosure v-if="finding" :label="basisLabel" class="violation__more">
+      <div class="violation__basis">
+        <p class="violation__why"><BaseIcon name="gavel" size="sm" /> {{ basisWhy }}</p>
+        <!-- 우선순위가 바뀐 이유는 검토 순서에 관한 정보라 근거 안에 둔다. -->
+        <p v-if="finding.escalation" class="violation__why">
+          <BaseIcon name="trending_up" size="sm" />
+          {{ $t('reviewDetail.card.escalated') }}: {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}. {{ finding.escalation.reason }}
+        </p>
+        <BasisItem v-for="(item, i) in basis" :key="`${item.sourceId}-${i}`" :basis="item" />
+        <CheckList v-if="checks.length" :checks="checks" />
+        <section v-if="finding.references?.length" class="violation__refs" :aria-label="$t('reviewDetail.card.refsLabel')">
+          <p class="violation__refs-title">{{ $t('reviewDetail.card.refsTitle') }}</p>
+          <p v-for="ref in finding.references" :key="ref.id" class="violation__ref">
+            <BaseBadge v-if="!ref.verified" variant="warning">{{ $t('reviewDetail.card.unverified') }}</BaseBadge>
+            {{ ref.summary }}
+          </p>
+        </section>
+      </div>
+    </BaseDisclosure>
   </BaseCard>
 </template>
 
@@ -178,22 +198,33 @@ function retry(note) {
   font-weight: var(--font-weight-bold);
   overflow-wrap: anywhere;
 }
+.violation__reason {
+  font-size: var(--font-size-body-s);
+  color: var(--color-text-secondary);
+}
+.violation__next {
+  padding: var(--space-xs) var(--space-md);
+  border-left: 3px solid var(--color-info-text);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-bold);
+}
+.violation__next--revise { border-left-color: var(--color-danger-text); }
+.violation__next--evidence { border-left-color: var(--color-warning-text); }
+.violation__next--hold { border-left-color: var(--color-text-secondary); }
+.violation__more :deep(.disclosure__panel) {
+  padding: var(--space-sm) var(--space-md);
+}
 .violation__basis {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-  border: var(--border-width) solid var(--color-danger-border);
-  background: var(--color-danger-surface);
+  gap: var(--space-sm);
 }
-.violation__basis-title {
+.violation__why {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-xs);
-  font-size: var(--font-size-label-s);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-danger-text);
+  font-size: var(--font-size-body-s);
+  color: var(--color-text-secondary);
 }
 .violation__image {
   max-width: 100%;

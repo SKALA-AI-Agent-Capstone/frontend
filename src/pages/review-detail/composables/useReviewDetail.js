@@ -3,7 +3,8 @@
  */
 import { computed, inject, provide, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { REVIEW_STATUS } from '@/shared/constants/review'
+import { REVIEW_STATUS, VIOLATION_RESOLUTION } from '@/shared/constants/review'
+import { ACTION, actionFor } from '@/shared/constants/reviewActions'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { useReviewsStore } from '@/shared/stores/reviews'
 
@@ -42,6 +43,29 @@ export function provideReviewDetail() {
   async function requestViolationRewrite(violationId, retryNote) {
     await reviews.requestRewrite(review.value.id, violationId, retryNote ? { retryNote } : {})
   }
+  // ── 다음 행동 분류 (수정 권고, 자료 확인, 분석 보류, 표현 참고)와 목록 필터 ──
+  const actionFilter = ref('all')
+  const actionOf = (violation) => actionFor(findingFor(violation))
+  const actionCounts = computed(() => {
+    const counts = Object.fromEntries(Object.values(ACTION).map((a) => [a, 0]))
+    for (const v of violations.value) counts[actionOf(v)] += 1
+    return counts
+  })
+  // 표현 참고 문구는 원문 유지로 한 번에 결정할 수 있다. 서버 결정 API를 문구마다 그대로 호출한다.
+  const bulkProgress = ref(null)
+  async function keepAllNotes() {
+    const targets = violations.value.filter((v) => !v.finalResolution && actionOf(v) === ACTION.NOTE)
+    bulkProgress.value = { done: 0, count: targets.length }
+    try {
+      for (const v of targets) {
+        await decideViolation(v.id, VIOLATION_RESOLUTION.KEPT)
+        bulkProgress.value = { ...bulkProgress.value, done: bulkProgress.value.done + 1 }
+      }
+    } finally {
+      bulkProgress.value = null
+    }
+  }
+
   // 어떤 문구(findingId)가 이미 결정됐는지 — ad-viewer/action-bar의 "반영됨" 표시가 실제 저장된
   // 결정을 반영하도록, 로컬로만 켜지는 플래그 대신 이걸 기준으로 삼는다.
   const decidedFindingIds = computed(() => new Set(violations.value.filter((v) => v.finalResolution).map((v) => v.findingId)))
@@ -51,6 +75,8 @@ export function provideReviewDetail() {
   // ── 타일 단위 검토 (backend docs/03-contracts.md의 result.tiles와 tileId) ──
   // tiles가 없는 이전 결과와 PDF 원본은 기존 추출 문구 뷰어로 보여 준다.
   const tiles = computed(() => result.value?.tiles ?? [])
+  // 규칙 sweep으로 추가된 문구는 예전 결과에서 finding.tileId가 비어 있다. OCR이 읽은 구간(location.tileId)으로 대신한다.
+  const tileOf = (finding) => finding?.tileId ?? finding?.location?.tileId ?? null
   function isPdfFile(fileId) {
     const file = version.value?.input?.files?.find((f) => f.id === fileId)
     return file?.mime === 'application/pdf' || /\.pdf$/i.test(file?.name ?? '')
@@ -64,7 +90,7 @@ export function provideReviewDetail() {
   const activeFindingId = ref(null)
   function focusFinding(id, { scrollTo = 'card' } = {}) {
     activeFindingId.value = id
-    const tileId = tileMode.value ? findings.value.find((f) => f.id === id)?.tileId : null
+    const tileId = tileMode.value ? tileOf(findings.value.find((f) => f.id === id)) : null
     const target = scrollTo === 'viewer' ? (tileId ? `tile-${tileId}` : 'ad-viewer') : `finding-${id}`
     document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: scrollTo === 'viewer' ? 'start' : 'center' })
   }
@@ -94,7 +120,13 @@ export function provideReviewDetail() {
     requestViolationRewrite,
     decidedFindingIds,
     violationNumbers,
+    actionFilter,
+    actionOf,
+    actionCounts,
+    keepAllNotes,
+    bulkProgress,
     tiles,
+    tileOf,
     tileMode,
     activeFindingId,
     focusFinding,

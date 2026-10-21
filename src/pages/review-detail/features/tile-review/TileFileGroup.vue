@@ -9,6 +9,8 @@ import { computed, ref, toRef } from 'vue'
 import { SEVERITY } from '@/shared/constants/review'
 import { useAssetImage } from '@/shared/composables/useAssetImage'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
+import BaseDisclosure from '@/shared/components/base/BaseDisclosure.vue'
+import { ACTION, ACTION_ORDER } from '@/shared/constants/reviewActions'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 import ViolationCard from '../violation-review/ViolationCard.vue'
 import VisualItem from './VisualItem.vue'
@@ -20,7 +22,8 @@ const props = defineProps({
   tiles: { type: Array, required: true },
 })
 
-const { findings, result, violations, findingFor, activeFindingId, focusFinding, violationNumbers, decidedFindingIds } = useReviewDetail()
+const { findings, result, violations, findingFor, activeFindingId, focusFinding, violationNumbers, decidedFindingIds, actionOf, actionFilter, tileOf } =
+  useReviewDetail()
 const { url, error } = useAssetImage(toRef(props, 'reviewId'), toRef(props, 'fileId'))
 const natural = ref(null)
 
@@ -33,16 +36,21 @@ const clamp = (value) => Math.min(1, Math.max(0, value))
 
 const rows = computed(() =>
   props.tiles
-    .map((tile) => {
+    .map((tile, position) => {
       const [x0, y0, x1, y1] = tile.region
       const w = x1 - x0
       const h = y1 - y0
-      const cards = violations.value
-        .map((violation, i) => ({ violation, finding: findingFor(violation), number: i + 1 }))
-        .filter((row) => row.finding?.tileId === tile.id)
-      const visual = (result.value?.visualFindings ?? []).filter((f) => f.tileId === tile.id)
+      // 구간 안에서는 해야 할 일이 큰 순서(수정 권고, 자료 확인, 보류)로 놓고, 표현 참고는 접어 둔다.
+      const all = violations.value
+        .map((violation, i) => ({ violation, finding: findingFor(violation), number: i + 1, action: actionOf(violation) }))
+        .filter((row) => tileOf(row.finding) === tile.id)
+        .filter((row) => actionFilter.value === 'all' || row.action === actionFilter.value)
+        .sort((a, b) => ACTION_ORDER.indexOf(a.action) - ACTION_ORDER.indexOf(b.action) || a.number - b.number)
+      const cards = all.filter((row) => row.action !== ACTION.NOTE || actionFilter.value === ACTION.NOTE)
+      const notes = all.filter((row) => row.action === ACTION.NOTE && actionFilter.value !== ACTION.NOTE)
+      const visual = actionFilter.value === 'all' ? (result.value?.visualFindings ?? []).filter((f) => f.tileId === tile.id) : []
       const boxes = findings.value
-        .filter((f) => f.tileId === tile.id && Array.isArray(f.location?.bbox))
+        .filter((f) => tileOf(f) === tile.id && Array.isArray(f.location?.bbox))
         .map((f) => {
           const [bx0, by0, bx1, by1] = f.location.bbox
           const top = clamp((by0 - y0) / h)
@@ -63,7 +71,9 @@ const rows = computed(() =>
       const ratio = natural.value ? (natural.value.width * w) / (natural.value.height * h) : 3 / 4
       return {
         tile,
+        number: position + 1,
         cards,
+        notes,
         visual,
         boxes,
         frameStyle: { aspectRatio: String(ratio), width: `min(100%, calc((100vh - 6rem) * ${ratio}))` },
@@ -71,7 +81,7 @@ const rows = computed(() =>
       }
     })
     // 확인 항목이 있는 타일만 보여 준다.
-    .filter((row) => row.cards.length + row.visual.length > 0),
+    .filter((row) => row.cards.length + row.notes.length + row.visual.length > 0),
 )
 </script>
 
@@ -87,7 +97,11 @@ const rows = computed(() =>
     >
       <div class="tile-row__media">
         <header class="tile-row__head">
-          <BaseBadge v-if="row.cards.length" variant="danger">{{ $t('reviewDetail.tiles.textCount', { count: row.cards.length }) }}</BaseBadge>
+          <p class="tile-row__name">
+            <span class="tile-row__index">{{ $t('reviewDetail.tiles.section', { n: row.number }) }}</span>
+            <strong v-if="row.tile.title">{{ row.tile.title }}</strong>
+          </p>
+          <BaseBadge v-if="row.cards.length + row.notes.length" variant="danger">{{ $t('reviewDetail.tiles.textCount', { count: row.cards.length + row.notes.length }) }}</BaseBadge>
           <BaseBadge v-if="row.visual.length" variant="warning">{{ $t('reviewDetail.tiles.visualCount', { count: row.visual.length }) }}</BaseBadge>
         </header>
         <div class="tile-row__frame" :style="row.frameStyle">
@@ -116,7 +130,21 @@ const rows = computed(() =>
           :finding="card.finding"
           :number="card.number"
         />
-        <VisualItem v-for="item in row.visual" :key="item.id" :item="item" />
+        <BaseDisclosure v-if="row.notes.length" :label="$t('reviewActions.notes', { count: row.notes.length })" class="tile-row__notes">
+          <div class="tile-row__note-list">
+            <ViolationCard
+              v-for="card in row.notes"
+              :key="card.violation.id"
+              :violation="card.violation"
+              :finding="card.finding"
+              :number="card.number"
+            />
+          </div>
+        </BaseDisclosure>
+        <template v-if="row.visual.length">
+          <p class="tile-row__photo-title">{{ $t('reviewActions.photo') }}</p>
+          <VisualItem v-for="item in row.visual" :key="item.id" :item="item" />
+        </template>
       </div>
     </article>
   </section>
@@ -153,6 +181,28 @@ const rows = computed(() =>
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-xs);
+}
+.tile-row__note-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.tile-row__photo-title {
+  font-size: var(--font-size-label-s);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+}
+.tile-row__name {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  width: 100%;
+  font-size: var(--font-size-label-m, var(--font-size-label-s));
+}
+.tile-row__index {
+  font-size: var(--font-size-detail-s);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
 }
 .tile-row__frame {
   position: relative;

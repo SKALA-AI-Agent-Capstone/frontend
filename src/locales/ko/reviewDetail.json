@@ -13,8 +13,8 @@
   "failedTitle": "분석에 실패했습니다",
   "resubmit": "원본 파일을 다시 제출해 새 버전 검토",
   "bar": {
-    "progress": "위반 소지 {total}건 중 {done}건 수정안 반영",
-    "ready": "위반 소지 {total}건 중 {done}건 수정안 반영 — 재심의를 진행할 수 있습니다",
+    "progress": "확인 문구 {total}건 중 {done}건 결정",
+    "ready": "확인 문구 {total}건 모두 결정, 승인이나 재검토를 진행할 수 있습니다",
     "none": "검토 후보가 없습니다. 법령 적합성을 확인한 결과는 아닙니다.",
     "delete": "삭제",
     "report": "심의 리포트",
@@ -54,10 +54,14 @@
     "basis": "관련 조문 후보:"
   },
   "summary": {
-    "title": "문구와 사진 분석 현황",
-    "counts": "문구 확인 항목 {text}건 / 사진 확인 항목 {visual}건",
-    "paths": "문구 경로: {text} / 사진 경로: {visual}",
-    "withBasis": "법령 조문 후보가 붙은 문구 {count}건 / 전체 {total}건"
+    "title": "검토 요약",
+    "sections": "원본 {files}개를 내용 단위 {sections}구간으로 나눠 분석했습니다.",
+    "partial": "일부 구간을 끝까지 분석하지 못했습니다. 아래 처리 알림을 확인하세요.",
+    "progress": "결정 {done}/{total}건.",
+    "materials": "필요한 자료",
+    "phrases": "문구 {count}건",
+    "unanalyzed": "판단하지 못한 범위",
+    "holdCount": "조회가 실패해 판단을 보류한 문구 {count}건. 광고의 문제가 아니라 다시 조회하거나 직접 확인할 항목입니다."
   },
   "revision": {
     "manualRequired": "직접 수정할 문구를 입력해 주세요.",
@@ -78,7 +82,11 @@
     "suggestionLabel": "AI 수정 제안",
     "edit": "다시 수정",
     "current": "지금 저장된 문구:",
-    "cancelEdit": "수정 취소"
+    "cancelEdit": "수정 취소",
+    "notVerified": "검증을 통과한 수정안이 없습니다. 근거 자료가 있으면 원문을 유지하고, 없으면 표현을 빼거나 직접 고치세요.",
+    "lastReason": "마지막 수정안이 떨어진 이유: {reason}",
+    "fallbackLabel": "자료가 없을 때 쓸 수 있는 AI 수정안",
+    "draftSaved": "작성 중인 내용은 이 브라우저에 임시 저장됩니다. 저장하거나 요청을 보내면 지워집니다."
   },
   "card": {
     "noLocation": "원문 위치 정보 없음",
@@ -86,12 +94,17 @@
     "decided": "확정됨",
     "untitled": "확인할 문구",
     "locate": "문제지점 보기",
-    "escalated": "증빙 대조 결과 판정 상향",
+    "escalated": "검토 순서 조정",
     "basisLabel": "위반 근거",
     "basisTitle": "관련 법령 조문 후보 (검색 결과, 위반 판정 아님)",
     "refsLabel": "참고 사례",
     "refsTitle": "과거 적발, 심의 사례 (보조 참고)",
-    "unverified": "출처 미검증"
+    "unverified": "출처 미검증",
+    "basisNone": "근거 보기: 연결된 조항 없음",
+    "basisOne": "근거 보기: {first}",
+    "basisMany": "근거 보기: {first} 외 {count}건",
+    "whyRule": "이 문구는 '{rules}' 유형으로 분류되어 아래 조항과 대조했습니다. 조항이 붙었다고 위반이라는 뜻은 아니며, 적용 여부는 담당자가 판단합니다.",
+    "whySearch": "규칙 표에 해당하는 유형이 없어 검색으로 가장 가까운 기준을 찾았습니다. 참고용 후보입니다."
   },
   "list": {
     "description": "각 항목의 확인 이유를 검토하세요. {summary}",
@@ -198,7 +211,7 @@
     "loading": "잔액을 확인하고 있습니다."
   },
   "tiles": {
-    "title": "타일별 검토",
+    "title": "구간별 검토",
     "total": "문구 {text}건, 사진 {visual}건",
     "empty": "확인 항목이 없습니다. 적합 판정을 의미하지 않습니다.",
     "textCount": "문구 {count}",
@@ -207,6 +220,31 @@
     "boxLabel": "{n}번 확인 문구 위치",
     "loading": "원본 이미지를 불러오는 중입니다.",
     "imageError": "원본 이미지를 불러오지 못했습니다.",
-    "unassignedTitle": "위치를 정하지 못한 항목"
+    "unassignedTitle": "위치를 정하지 못한 항목",
+    "section": "구간 {n}",
+    "howTo": "상세페이지를 내용이 바뀌는 지점마다 나눠 구간별로 보여 줍니다. 조항은 위반 판정이 아니라 문구 유형에 따라 대조한 기준입니다."
+  },
+  "warnings": {
+    "OCR_CORRECTION_FAILED": "구간 {count}곳은 글자 띄어쓰기 보정을 하지 못해 인식한 그대로 썼습니다.",
+    "OCR_PROVIDER_FAILED": "구간 {count}곳은 글자 보충 인식에 실패했습니다. 해당 구간 문구를 원본에서 확인하세요.",
+    "OCR_NOT_AVAILABLE": "구간 {count}곳은 글자를 읽지 못했습니다.",
+    "UNREADABLE_TEXT": "구간 {count}곳에 읽기 어려운 글자가 있습니다.",
+    "VISUAL_UNREADABLE": "구간 {count}곳은 사진을 판독하기 어려웠습니다.",
+    "VISION_PROVIDER_FAILED": "구간 {count}곳은 사진 검토에 실패했습니다.",
+    "TEXT_REVIEW_PROVIDER_FAILED": "문구 검토 모델 호출이 실패해 일부 문구를 검토하지 못했습니다.",
+    "TEXT_REVIEW_INPUT_TRUNCATED": "문구가 너무 길어 앞부분만 검토했습니다.",
+    "NO_READABLE_TEXT": "읽을 수 있는 문구가 없습니다.",
+    "TEXT_MODEL_NOT_CONFIGURED": "문구 검토 모델이 설정되지 않았습니다.",
+    "VISION_MODEL_NOT_CONFIGURED": "사진 검토 모델이 설정되지 않았습니다.",
+    "LEGAL_SEARCH_PARTIAL": "일부 문구는 법령 검색에 실패했습니다.",
+    "LEGAL_SEARCH_FAILED": "법령 검색에 실패했습니다.",
+    "LEGAL_SEARCH_UNAVAILABLE": "법령 검색 서비스에 연결하지 못했습니다.",
+    "LEGAL_CORPUS_NOT_INDEXED": "법령 자료가 적재되지 않았습니다.",
+    "LEGAL_RULE_PROVISION_NOT_LOADED": "규칙이 가리키는 조항 중 아직 적재되지 않은 것이 있습니다.",
+    "EVIDENCE_TOOL_UNAVAILABLE": "증빙 서류 분석 도구에 연결하지 못했습니다.",
+    "FUNCTIONAL_TOOL_UNAVAILABLE": "기능성 보고 조회 도구에 연결하지 못했습니다.",
+    "PATENT_TOOL_UNAVAILABLE": "특허 조회 도구에 연결하지 못했습니다.",
+    "CROSS_CHECK_UNAVAILABLE": "공식 기록 대조 도구에 연결하지 못했습니다.",
+    "other": "기타 처리 알림 {code} {count}건"
   }
 }
