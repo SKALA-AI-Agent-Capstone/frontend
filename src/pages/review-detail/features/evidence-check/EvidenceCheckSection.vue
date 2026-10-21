@@ -104,7 +104,7 @@ const { version, result } = useReviewDetail()
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  word-break: break-all;
+  overflow-wrap: anywhere; /* break-all은 영어 단어를 중간에서 자른다 */
 }
 
 @media (max-width: 1024px) {

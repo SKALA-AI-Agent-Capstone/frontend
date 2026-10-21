@@ -65,7 +65,8 @@ export function setLocale(locale: Locale) {
  * 예: translated({ variant: 'info' }, { label: 'review.status.queued' })
  */
 export function translated<T extends object, K extends string>(base: T, keys: Record<K, string>): Readonly<T & Record<K, string>> {
-  const target = { ...base } as T & Record<K, string>
+  // 값 대신 속성 정의를 복사해 base에 둔 getter도 그대로 살린다
+  const target = Object.defineProperties({}, Object.getOwnPropertyDescriptors(base)) as T & Record<K, string>
   for (const [prop, key] of Object.entries(keys) as [string, string][]) {
     Object.defineProperty(target, prop, { get: () => t(key), enumerable: true })
   }

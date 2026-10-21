@@ -6,7 +6,7 @@ export const PRICING = Object.freeze({
   CREDITS_PER_IMAGE: 3,
 })
 
-// 충전 금액권. 결제 승인 및 크레딧 적립은 서버 연동 후 처리한다.
+// 충전 금액권. 서버의 BillingController 가격표와 같은 할인율을 사용한다.
 export const CREDIT_PACKAGES = Object.freeze(
   [
     { credits: 100, discountPercent: 0 },
@@ -18,7 +18,7 @@ export const CREDIT_PACKAGES = Object.freeze(
     { credits: 1000, discountPercent: 18 },
     { credits: 2000, discountPercent: 20 },
   ].map(({ credits, discountPercent }) => Object.freeze({
-    credits, discountPercent, price: credits * 10 * (100 - discountPercent) / 100,
+    credits, discountPercent, price: credits * 50 * (100 - discountPercent) / 100,
   }))
 )
 

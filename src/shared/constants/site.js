@@ -1,11 +1,11 @@
-import { translated } from '@/shared/i18n'
+import { t, translated } from '@/shared/i18n'
 import { NAV_KEYS, ROUTE_NAMES } from './routes'
 import { PERMISSIONS } from './roles'
 
 /*
  * 전역 사이트 정보 — 헤더,푸터,페이지 어디서든 이 상수만 참조한다.
  * ※ 기관(식약처) 정체성 관련 값은 모두 이 파일에 모여 있다.
- *   운영 주체가 바뀌면 SITE , FOOTER 의 기관 항목과 GovMasthead/OperatorIdentifier 노출 여부만 바꾸면 된다.
+ *   운영 주체가 바뀌면 SITE, FOOTER 의 기관 항목과 GovMasthead 노출 여부만 바꾸면 된다.
  */
 export const SITE = translated({
   orgCode: 'BEAUTY',
@@ -43,13 +43,13 @@ export const LANGUAGES = Object.freeze([
   { code: 'en', label: 'English' },
 ])
 
-// 푸터 — 서비스 로고 → 연락처 → 유틸리티 링크 → 정책 링크 → 저작권 → 운영기관 식별자 순
+// 푸터 — 서비스 이름과 운영 정보 → 안내 문장(한 줄에 한 문장) → 저작권과 비공식 서비스 안내
+const FOOTER_NOTICE_KEYS = ['common.footer.storageNotice', 'common.footer.photoNotice', 'common.site.demoNotice']
 export const FOOTER = translated({
   contacts: [translated({}, { term: 'common.footer.contactTerm', desc: 'common.footer.contactDesc' })],
-  utilityLinks: [],
-  policyLinks: [],
   copyright: 'Beauty Review Capstone',
-  kogl: '',
+  // 읽을 때마다 현재 언어로 번역한다
+  get notices() { return FOOTER_NOTICE_KEYS.map((key) => t(key)) },
 }, {
   retentionNotice: 'common.footer.retentionNotice',
   identifier: 'common.footer.identifier',

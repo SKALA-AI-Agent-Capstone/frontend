@@ -56,7 +56,7 @@ function locationLabel(finding) {
         <tbody>
           <tr v-for="(f, i) in version.result.findings" :key="f.id">
             <td>{{ i + 1 }}</td>
-            <td><strong>"{{ f.phrase }}"</strong><br />{{ f.category }}</td>
+            <td><strong>"{{ f.phrase }}"</strong></td>
             <td>{{ locationLabel(f) }}</td>
             <td>{{ SEVERITY_LABEL[f.severity].label }}<template v-if="f.escalation"><br />↑ {{ f.escalation.reason }}</template></td>
             <td>
@@ -187,7 +187,10 @@ function locationLabel(finding) {
   font-weight: var(--font-weight-bold);
 }
 .report__table-wrap { overflow-x: auto; }
-@media (max-width: 760px) { .report__table { min-width: 640px; } }
+@media (max-width: 760px) {
+  .report__table { min-width: 640px; }
+  .report__meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .report__table {
   width: 100%;
   border-collapse: collapse;

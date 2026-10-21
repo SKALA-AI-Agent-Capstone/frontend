@@ -1,73 +1,38 @@
 <!--
-  푸터 (KRDS 아이덴티티 / 푸터)
-  순서: 서비스 로고 ,  연락처 ,  유틸리티 링크(한 그룹) → 정책 링크 → 저작권 → 운영기관 식별자
-  작은 화면에서도 같은 순서로 세로 배치한다.
+  푸터: 서비스 이름과 운영 정보 → 안내 문장 → 저작권과 비공식 서비스 안내.
+  안내 문장은 한 줄에 한 문장씩 두어 넓은 화면에서도 문장 중간에서 꺾이지 않게 한다.
 -->
 <script setup>
 import { FOOTER, SITE } from '@/shared/constants/site'
-import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import PageContainer from './PageContainer.vue'
-import OperatorIdentifier from './footer/OperatorIdentifier.vue'
+
+const year = new Date().getFullYear()
 </script>
 
 <template>
   <footer class="app-footer">
     <PageContainer>
-      <div class="app-footer__info">
-        <div class="org">
-          <span class="org__emblem" aria-hidden="true">{{ SITE.orgName.charAt(0) }}</span>
-          <span class="org__names">
-            <strong class="org__name">{{ SITE.orgName }} {{ SITE.serviceName }}</strong>
-            <span class="org__name-en">{{ SITE.orgNameEn }}</span>
-          </span>
-        </div>
-
+      <div class="app-footer__top">
+        <p class="brand">
+          <strong class="brand__name">{{ SITE.orgName }}</strong>
+          <span class="brand__service">{{ SITE.serviceName }}</span>
+        </p>
         <dl class="contact">
           <div v-for="item in FOOTER.contacts" :key="item.term" class="contact__item">
             <dt>{{ item.term }}</dt>
-            <dd>
-              <a v-if="item.href" :href="item.href" class="contact__link">{{ item.desc }}</a>
-              <template v-else>{{ item.desc }}</template>
-              <span v-if="item.note"> {{ item.note }}</span>
-            </dd>
+            <dd>{{ item.desc }}</dd>
           </div>
         </dl>
-
-        <ul class="utility">
-          <li v-for="link in FOOTER.utilityLinks" :key="link.label">
-            <a
-              :href="link.href"
-              class="utility__link"
-              :target="link.external ? '_blank' : undefined"
-              :rel="link.external ? 'noopener noreferrer' : undefined"
-            >
-              {{ link.label }}
-              <template v-if="link.external">
-                <BaseIcon name="open_in_new" size="xs" />
-                <span class="sr-only">{{ $t('ui.newWindow') }}</span>
-              </template>
-            </a>
-          </li>
-        </ul>
       </div>
 
-      <nav :aria-label="$t('ui.footer.policyLinks')">
-        <ul class="policy">
-          <li v-for="link in FOOTER.policyLinks" :key="link.label">
-            <a :href="link.href" class="policy__link" :class="{ 'policy__link--emphasis': link.emphasis }">
-              {{ link.label }}
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <ul class="notices">
+        <li v-for="text in FOOTER.notices" :key="text">{{ text }}</li>
+      </ul>
 
-      <p class="app-footer__retention">{{ FOOTER.retentionNotice }} {{ SITE.demoNotice }}</p>
-      <div class="app-footer__copyright">
-        <p>{{ FOOTER.copyright }}</p>
-        <span class="kogl">{{ FOOTER.kogl }}</span>
+      <div class="app-footer__bottom">
+        <p>&copy; {{ year }} {{ FOOTER.copyright }}</p>
+        <p>{{ FOOTER.identifier }}</p>
       </div>
-
-      <OperatorIdentifier />
     </PageContainer>
   </footer>
 </template>
@@ -75,130 +40,58 @@ import OperatorIdentifier from './footer/OperatorIdentifier.vue'
 <style scoped>
 .app-footer {
   margin-top: var(--space-body-footer);
-  padding-top: var(--space-xl);
+  padding: 40px 0 32px;
   background: var(--color-bg-muted);
   border-top: var(--border-width) solid var(--color-border);
-  font-size: var(--font-size-body-s);
+  font-size: var(--font-size-detail-m);
   color: var(--color-text-secondary);
 }
 
-/* 서비스 로고 ,  연락처 ,  유틸리티 링크 — 하나의 그룹 */
-.app-footer__info {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 6fr) minmax(0, 3fr);
-  gap: var(--space-lg);
-  padding-bottom: var(--space-lg);
-}
-.org {
+.app-footer__top {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-}
-.org__emblem {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: var(--space-2xl);
-  height: var(--space-2xl);
-  border-radius: var(--radius-sm-2);
-  background: var(--color-secondary);
-  color: var(--color-on-secondary);
-  font-weight: var(--font-weight-bold);
-}
-.org__names {
-  display: flex;
-  flex-direction: column;
-}
-.org__name {
-  font-size: var(--font-size-title-s);
-  color: var(--color-text);
-}
-.org__name-en {
-  font-size: var(--font-size-detail-s);
-}
-.contact {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xs);
-  margin: 0;
-}
-.contact__item {
-  display: flex;
-  gap: var(--space-sm);
-}
-.contact__item dt {
-  flex-shrink: 0;
-  color: var(--color-text);
-  font-weight: var(--font-weight-bold);
-}
-.contact__item dd {
-  margin: 0;
-}
-.contact__link,
-.utility__link {
-  text-decoration: underline;
-  color: var(--color-text);
-}
-.utility {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-xs);
-}
-.utility__link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2xs);
-}
-
-.policy {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs) var(--space-lg);
-  padding: var(--space-md) 0;
-  border-top: var(--border-width) solid var(--color-border);
-  font-size: var(--font-size-label-s);
-}
-.policy__link:hover {
-  color: var(--color-text);
-  text-decoration: underline;
-}
-/* 개인정보처리방침 강조 */
-.policy__link--emphasis {
-  color: var(--color-primary);
-  font-weight: var(--font-weight-bold);
-}
-
-.app-footer__retention {
-  padding-bottom: var(--space-xs);
-  font-size: var(--font-size-detail-s);
-}
-.app-footer__copyright {
-  display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--space-sm);
-  padding-bottom: var(--space-md);
-  font-size: var(--font-size-detail-s);
+  gap: 12px 40px;
 }
-.kogl {
-  padding: var(--space-2xs) var(--space-sm);
-  border-radius: var(--radius-sm);
-  border: var(--border-width) solid var(--color-border-strong);
-  background: var(--color-bg-surface);
+.brand {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.brand__name {
+  font-size: var(--font-size-body-m);
   color: var(--color-text);
+  white-space: nowrap;
+}
+.brand__service { white-space: nowrap; }
+.contact { margin: 0; }
+.contact__item { display: flex; gap: 10px; }
+.contact__item dt { color: var(--color-text); font-weight: var(--font-weight-bold); white-space: nowrap; }
+.contact__item dd { margin: 0; }
+
+.notices {
+  display: grid;
+  gap: 4px;
+  margin: 24px 0;
+  padding: 20px 0;
+  border-block: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-detail-s);
+  line-height: 1.6;
 }
 
-@media (max-width: 1024px) {
-  .app-footer__info {
-    grid-template-columns: 1fr;
-  }
+.app-footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  font-size: var(--font-size-detail-s);
 }
-@media (max-width: 600px) {
-  .contact__item {
-    flex-direction: column;
-    gap: 0;
-  }
+
+@media (max-width: 760px) {
+  .app-footer { padding: 32px 0 28px; }
+  .app-footer__top,
+  .app-footer__bottom { flex-direction: column; }
 }
 </style>

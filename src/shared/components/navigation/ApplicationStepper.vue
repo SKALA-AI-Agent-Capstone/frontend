@@ -101,6 +101,7 @@ function stateOf(no) {
 .stepper__title {
   font-size: var(--font-size-label-s);
   line-height: var(--line-height-base);
+  text-wrap: balance;
 }
 .stepper__item--upcoming .stepper__title {
   font-weight: var(--font-weight-regular);
@@ -112,13 +113,20 @@ function stateOf(no) {
   color: var(--color-primary);
 }
 
-@media (max-width: 600px) {
+/* 태블릿 폭에서는 네 칸이 좁아 영어 단계 이름이 칸을 넘친다 */
+@media (max-width: 900px) {
   .stepper {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-sm);
   }
   .stepper__icon {
     display: none;
+  }
+}
+/* 휴대폰 폭에서는 두 칸도 좁아 단계 이름이 낱말 중간에서 꺾이므로 한 줄에 한 단계씩 둔다 */
+@media (max-width: 600px) {
+  .stepper {
+    grid-template-columns: 1fr;
   }
 }
 </style>

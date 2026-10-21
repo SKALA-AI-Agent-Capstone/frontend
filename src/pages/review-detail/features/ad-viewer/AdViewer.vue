@@ -145,7 +145,7 @@ const legend = computed(() =>
 }
 .legend {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
   gap: var(--space-sm);
 }
 .legend__item {
