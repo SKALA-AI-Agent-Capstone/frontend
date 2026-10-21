@@ -111,7 +111,7 @@ const ad = ARCHIVE_ADS.find((item) => item.id === props.adId) ?? ARCHIVE_ADS[0]
   letter-spacing: -0.02em;
   /* 문장 안의 줄바꿈 문자로 의미 단위에서 줄을 나눈다 */
   white-space: pre-line;
-  text-wrap: wrap;
+  text-wrap: pretty;
 }
 .auth__main {
   display: grid;

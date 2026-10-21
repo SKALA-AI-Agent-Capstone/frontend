@@ -64,7 +64,8 @@ const severityCounts = (version) =>
 .rows { display: grid; }
 .row {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) auto 120px;
+  /* 줄마다 따로 그리는 그리드라 칸 너비를 고정해 모든 줄을 맞춘다 */
+  grid-template-columns: 56px minmax(0, 1fr) 240px 132px;
   align-items: center;
   gap: 20px;
   padding: 14px 24px;
@@ -98,7 +99,8 @@ const severityCounts = (version) =>
 }
 .row__tag { color: var(--color-info-text); font-weight: var(--font-weight-bold); }
 
-.severity { display: flex; gap: 6px; }
+.severity { display: flex; justify-content: flex-end; gap: 6px; }
+.row > :deep(.base-button) { justify-self: end; }
 .severity__chip {
   padding: 4px 10px;
   border-radius: var(--radius-full);
@@ -123,7 +125,7 @@ const severityCounts = (version) =>
 
 @media (max-width: 760px) {
   .row { grid-template-columns: 56px minmax(0, 1fr); gap: 12px 14px; padding: 14px 16px; }
-  .severity { grid-column: 2; flex-wrap: wrap; }
-  .row :deep(.base-button) { grid-column: 1 / -1; }
+  .severity { grid-column: 2; flex-wrap: wrap; justify-content: flex-start; }
+  .row :deep(.base-button) { grid-column: 1 / -1; justify-self: stretch; }
 }
 </style>

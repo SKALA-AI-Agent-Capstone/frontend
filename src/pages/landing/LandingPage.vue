@@ -380,7 +380,6 @@ function start() {
 .hero__text {
   display: grid;
   gap: 32px;
-  max-width: 34em;
 }
 .hero__title {
   font-size: clamp(40px, 4.6vw, 72px);
@@ -388,6 +387,9 @@ function start() {
   letter-spacing: -0.03em;
   line-height: 1.1;
 }
+/* 영어 제목은 한국어보다 길어서 같은 크기면 줄마다 두 번 꺾인다 */
+:lang(en) .hero__title { font-size: clamp(36px, 3.7vw, 60px); }
+.hero__title .line { text-wrap: balance; }
 .hero__lead {
   color: var(--on-navy-soft);
   max-width: 38em;
@@ -409,11 +411,18 @@ function start() {
   gap: 16px;
   color: var(--krds-gray-0);
 }
-.hero__top :deep(.lang-menu__trigger) { color: var(--krds-gray-0); }
+.hero__top :deep(.lang-menu__trigger) {
+  color: var(--krds-gray-0);
+  font-size: 15px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  padding: 8px 4px;
+}
 .hero__login {
   color: var(--krds-gray-0);
   font-size: 15px;
   font-weight: var(--font-weight-bold);
+  line-height: 1.4;
   text-decoration: none;
   padding: 8px 4px;
 }
@@ -519,7 +528,9 @@ function start() {
   display: grid;
   gap: 6px;
 }
-[data-ui].flow__detail div { display: grid; grid-template-columns: 40px 1fr; gap: 8px; }
+/* 이름 칸은 가장 긴 이름에 맞춘다. 영어 이름이 길어도 값과 겹치지 않는다 */
+[data-ui].flow__detail { grid-template-columns: max-content minmax(0, 1fr); column-gap: 14px; }
+[data-ui].flow__detail div { display: contents; }
 [data-ui].flow__detail dt { color: var(--krds-gray-70); }
 [data-ui].flow__detail dd { margin: 0; }
 

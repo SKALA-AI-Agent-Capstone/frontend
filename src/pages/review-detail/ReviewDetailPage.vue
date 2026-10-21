@@ -1,6 +1,8 @@
 <!-- 위반사항 분석 및 보완 (시안 krds_3) -->
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useCreditsStore } from '@/shared/stores/credits'
+import { request } from '@/shared/api/http'
 import { legalSearch } from '@/shared/constants/legal'
 import { APPROVAL_LABEL, REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -26,6 +28,24 @@ import ViolationReviewList from './features/violation-review/ViolationReviewList
 import TileReview from './features/tile-review/TileReview.vue'
 
 const { review, version, versionNo, isDone, tileMode } = provideReviewDetail()
+const credits = useCreditsStore()
+const charge = ref(null)
+const balanceLoaded = ref(false)
+watch([() => review.value?.id, versionNo, () => version.value?.status], async ([id, no], _, onCleanup) => {
+  if (!id || !no) return
+  let stale = false
+  onCleanup(() => { stale = true })
+  try {
+    const result = await request(`/billing/reviews/${encodeURIComponent(id)}/charge?versionNo=${no}`)
+    if (stale) return
+    charge.value = result.charged ? result : null
+    if (charge.value) {
+      balanceLoaded.value = false
+      await credits.loadBalance()
+      if (!stale) balanceLoaded.value = true
+    }
+  } catch { if (!stale) { charge.value = null; balanceLoaded.value = false } }
+}, { immediate: true })
 const legal = computed(() => legalSearch(version.value?.result))
 
 const breadcrumbs = computed(() => [
@@ -70,6 +90,11 @@ const versionTabs = computed(() =>
       </template>
       <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
+
+    <BaseAlert v-if="charge" variant="info" :title="$t(charge.status === 'released' ? 'reviewDetail.credit.released' : 'reviewDetail.credit.charged', { count: charge.credits })">
+      <span v-if="balanceLoaded">{{ $t('reviewDetail.credit.balance') }} <strong>{{ $t('credits.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></span>
+      <span v-else>{{ $t('reviewDetail.credit.loading') }}</span>
+    </BaseAlert>
 
     <AnalysisDiagnosis />
 

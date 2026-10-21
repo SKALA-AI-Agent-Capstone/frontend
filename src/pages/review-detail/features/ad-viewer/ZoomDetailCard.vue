@@ -28,10 +28,10 @@ const basis = computed(() => props.finding.basis?.[0] ?? null)
     </p>
     <p class="zoom-card__summary">
       <template v-if="basis">
-        <strong>{{ finding.category }}</strong>, {{ $t('reviewDetail.zoom.basis') }} {{ basis.sourceName }} {{ basis.article }}.
+        {{ $t('reviewDetail.zoom.basis') }} {{ basis.sourceName }} {{ basis.article }}.
         {{ basis.plain }}
       </template>
-      <template v-else><strong>{{ finding.category }}</strong>. {{ emptyBasisText(finding, result) }}</template>
+      <template v-else>{{ emptyBasisText(finding, result) }}</template>
     </p>
   </div>
 </template>

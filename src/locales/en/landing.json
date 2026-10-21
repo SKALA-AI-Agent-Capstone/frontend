@@ -113,7 +113,7 @@
     "items": {
       "publish": {
         "q": "Can I publish based on the AI result alone?",
-        "a": "AI flags possible violations and suggests grounds and alternative wording.\nFinal approval before publishing is made by your in-house reviewer.\nIt does not replace association advice or government certification."
+        "a": "AI flags possible violations with grounds and alternative wording.\nYour in-house reviewer gives final approval before publishing.\nIt does not replace association advice or government certification."
       },
       "files": {
         "q": "Which files can I upload?",

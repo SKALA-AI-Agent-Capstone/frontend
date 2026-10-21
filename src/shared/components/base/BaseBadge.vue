@@ -43,6 +43,7 @@ defineProps({
   line-height: var(--line-height-base);
   font-weight: var(--font-weight-bold);
   max-width: 100%;
+  white-space: nowrap;
 }
 .base-badge--solid {
   background: var(--badge-solid);

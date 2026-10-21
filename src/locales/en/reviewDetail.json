@@ -12,6 +12,12 @@
   "versions": "Review versions",
   "failedTitle": "Analysis failed",
   "resubmit": "Resubmit the original as a new version",
+  "credit": {
+    "released": "{count} credits returned after analysis failed",
+    "charged": "{count} credits used for this review",
+    "balance": "Current balance:",
+    "loading": "Checking your balance."
+  },
   "bar": {
     "progress": "{done} of {total} possible violations have a revision applied",
     "ready": "{done} of {total} possible violations have a revision applied. Ready for re-review",
