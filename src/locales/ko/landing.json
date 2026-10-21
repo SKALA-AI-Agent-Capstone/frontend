@@ -17,7 +17,7 @@
     }
   },
   "flow": {
-    "title": "Beauty Review 파이프라인",
+    "title": "명탐정 VeRo 파이프라인",
     "upload": {
       "title": "광고 파일 올리기",
       "text": "PDF나 이미지를 올리고 검토를 시작합니다.",

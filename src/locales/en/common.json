@@ -1,6 +1,6 @@
 {
   "site": {
-    "govLabel": "Company workspace",
+    "orgName": "Detective VeRo",
     "serviceName": "Cosmetic Ad Pre-review",
     "mastheadText": "This is an internal ad pre-review development environment.",
     "mastheadToggle": "How to verify the official site",
