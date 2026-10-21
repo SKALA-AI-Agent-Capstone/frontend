@@ -52,7 +52,6 @@ async function submit() {
   <AuthShell
     :title="$t('auth.signup.title')"
     :lead="$t('auth.signup.lead')"
-    ad-id="lundborg"
     :statement="$t('auth.signup.statement')"
   >
     <form class="auth-form" @submit.prevent="submit">

@@ -17,7 +17,7 @@
     }
   },
   "flow": {
-    "title": "Beauty Review pipeline",
+    "title": "Detective VeRo pipeline",
     "upload": {
       "title": "Upload the ad",
       "text": "Upload a PDF or image to start a review.",

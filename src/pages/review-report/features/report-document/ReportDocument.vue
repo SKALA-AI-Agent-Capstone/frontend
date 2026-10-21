@@ -34,7 +34,7 @@ function locationLabel(finding) {
 <template>
   <article class="report">
     <header class="report__header">
-      <p class="report__service">{{ SITE.serviceName }}, {{ $t('report.heading') }}</p>
+      <p class="report__service">{{ SITE.orgName }} {{ SITE.serviceName }}, {{ $t('report.heading') }}</p>
       <h1 class="report__title">{{ review.productName }}</h1>
       <dl class="report__meta">
         <div><dt>{{ $t('report.reviewNo') }}</dt><dd>{{ review.id }}, v{{ version.no }}</dd></div>

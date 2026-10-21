@@ -7,15 +7,19 @@ import { PERMISSIONS } from './roles'
  * ※ 기관(식약처) 정체성 관련 값은 모두 이 파일에 모여 있다.
  *   운영 주체가 바뀌면 SITE, FOOTER 의 기관 항목과 GovMasthead 노출 여부만 바꾸면 된다.
  */
+// 마스코트(탐정 고양이) 색 버전. 'black' 또는 'navy'로 바꾸면 로고, 파비콘, 마스코트 그림이 한꺼번에 바뀐다.
+// 그림 파일은 public/brand/<버전>/ 에 같은 이름으로 들어 있다.
+export const MASCOT = 'black'
+/** 현재 마스코트 버전의 그림 주소. 예: brandAsset('vero-head.png') */
+export const brandAsset = (file) => `/brand/${MASCOT}/${file}`
+
 export const SITE = translated({
-  orgCode: 'BEAUTY',
-  orgName: 'Beauty Review',
-  orgNameEn: 'Beauty Review Workspace',
+  orgNameEn: 'VeRo Workspace',
   serviceNameEn: 'Cosmetic Ad Compliance Review',
   helpdeskPhone: '1577-1255',
   supportEmail: 'cosmetic@korea.kr',
 }, {
-  govLabel: 'common.site.govLabel',
+  orgName: 'common.site.orgName',
   serviceName: 'common.site.serviceName',
   // 공식 배너 문구 — KRDS: 텍스트와 스타일을 변형하지 않는다
   mastheadText: 'common.site.mastheadText',
@@ -51,7 +55,7 @@ export const FOOTER_LINKS = Object.freeze([
 ])
 export const FOOTER = translated({
   contacts: [translated({}, { term: 'common.footer.contactTerm', desc: 'common.footer.contactDesc' })],
-  copyright: 'Beauty Review Capstone',
+  copyright: 'VeRo Capstone',
   // 읽을 때마다 현재 언어로 번역한다
   get notices() { return FOOTER_NOTICE_KEYS.map((key) => t(key)) },
 }, {

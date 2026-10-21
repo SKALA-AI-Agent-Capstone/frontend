@@ -7,7 +7,7 @@
 <script setup>
 import { computed } from 'vue'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
-import { SITE } from '@/shared/constants/site'
+import { SITE, brandAsset } from '@/shared/constants/site'
 import { useScrollDirection } from '@/shared/composables/useScrollDirection'
 import PageContainer from './PageContainer.vue'
 import HeaderActions from './header/HeaderActions.vue'
@@ -22,14 +22,10 @@ const hidden = computed(() => !isAtTop.value && !isScrollingUp.value)
   <header class="app-header" :class="{ 'app-header--hidden': hidden }">
     <PageContainer class="app-header__top">
       <RouterLink :to="{ name: ROUTE_NAMES.DASHBOARD }" class="brand">
-        <span class="brand__gov">
-          <span class="brand__code">{{ SITE.orgCode }}</span>
-          {{ SITE.govLabel }}
-        </span>
-        <span class="brand__name">
-          <span class="brand__org">{{ SITE.orgName }}</span>
-          <span class="brand__divider" aria-hidden="true" />
-          <span class="brand__service">{{ SITE.serviceName }}</span>
+        <img :src="brandAsset('vero-head.png')" alt="" class="brand__logo" width="48" height="48" />
+        <span class="brand__text">
+          <span class="brand__gov">{{ SITE.serviceName }}</span>
+          <span class="brand__name">{{ SITE.orgName }}</span>
         </span>
       </RouterLink>
 
@@ -69,25 +65,29 @@ const hidden = computed(() => !isAtTop.value && !isScrollingUp.value)
   gap: var(--space-xs);
 }
 
-/* 서비스 아이덴티티 — 항상 좌측 상단 */
+/* 서비스 아이덴티티 — 항상 좌측 상단. 마스코트 얼굴 로고 옆에 작업공간 표시와 서비스 이름 */
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+.brand__logo {
+  flex: none;
+  width: 48px;
+  height: 48px;
+}
+.brand__text {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 .brand__gov {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
   font-size: var(--font-size-detail-s);
-  color: var(--color-text-secondary);
-}
-.brand__code {
-  padding: 0 var(--space-xs);
-  border-radius: var(--radius-xs);
-  background: var(--color-secondary-subtle);
-  color: var(--color-secondary);
   font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
 }
 .brand__name {
   display: flex;
@@ -96,14 +96,7 @@ const hidden = computed(() => !isAtTop.value && !isScrollingUp.value)
   gap: var(--space-sm);
   font-size: var(--font-size-title-l);
   font-weight: var(--font-weight-bold);
-}
-.brand__divider {
-  width: var(--border-width);
-  height: var(--space-md);
-  background: var(--color-border-strong);
-}
-.brand__service {
-  color: var(--color-primary);
+  letter-spacing: -0.02em;
 }
 
 
@@ -113,17 +106,10 @@ const hidden = computed(() => !isAtTop.value && !isScrollingUp.value)
   }
 }
 @media (max-width: 600px) {
-  .brand__gov {
-    display: none;
-  }
+  .brand__logo { width: 36px; height: 36px; }
+  .brand__gov { font-size: 1.1rem; white-space: nowrap; }
   .brand__name {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
     font-size: var(--font-size-title-xs);
-  }
-  .brand__divider {
-    display: none;
   }
 }
 </style>

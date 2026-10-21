@@ -6,7 +6,7 @@
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
-import { SITE } from '@/shared/constants/site'
+import { FOOTER, SITE, brandAsset } from '@/shared/constants/site'
 import {
   APPROVAL_ACTIONS,
   APPROVAL_LABEL,
@@ -90,7 +90,10 @@ function start() {
     <!-- 첫 화면: 왼쪽은 제목과 행동, 오른쪽은 실제로 동작하는 파일 읽기 조각 -->
     <section class="hero" aria-labelledby="landing-title">
       <div class="hero__copy">
-        <RouterLink :to="{ name: ROUTE_NAMES.LANDING }" class="wordmark">Beauty Review</RouterLink>
+        <RouterLink :to="{ name: ROUTE_NAMES.LANDING }" class="wordmark">
+          <img :src="brandAsset('vero-head-outline.png')" alt="" width="36" height="36" class="wordmark__logo" />
+          {{ SITE.orgName }}
+        </RouterLink>
         <div class="hero__text">
           <h1 id="landing-title" class="hero__title lines">
             <span class="line"><span data-line style="--i: 0">{{ $t('landing.hero.title1') }}</span></span>
@@ -311,7 +314,7 @@ function start() {
           </ul>
         </details>
       </nav>
-      <p class="foot__meta">{{ year }} Beauty Review Capstone. {{ $t('landing.foot.notOfficial') }}</p>
+      <p class="foot__meta">{{ year }} {{ FOOTER.copyright }}. {{ $t('landing.foot.notOfficial') }}</p>
     </footer>
   </div>
 </template>
@@ -371,12 +374,17 @@ function start() {
   gap: 48px;
 }
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--krds-gray-0);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--size-body);
+  font-weight: 800;
+  font-size: 2.2rem;
+  letter-spacing: -0.02em;
   text-decoration: none;
   align-self: flex-start;
 }
+.wordmark__logo { width: 36px; height: 36px; flex: none; }
 .hero__text {
   display: grid;
   gap: 32px;

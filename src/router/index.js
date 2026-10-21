@@ -124,7 +124,8 @@ router.afterEach((to) => {
 })
 
 function setDocumentTitle(route) {
-  document.title = route.meta.title ? `${t(route.meta.title)} | ${SITE.serviceName}` : SITE.serviceName
+  // 탭 제목: '화면 이름 | VeRo', 화면 이름이 없으면 'VeRo, 화장품 광고 사전검토'
+  document.title = route.meta.title ? `${t(route.meta.title)} | ${SITE.orgName}` : `${SITE.orgName}, ${SITE.serviceName}`
 }
 watch(() => currentLocale(), () => setDocumentTitle(router.currentRoute.value))
 
