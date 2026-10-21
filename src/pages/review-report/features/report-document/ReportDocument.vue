@@ -13,6 +13,7 @@ import { rewriteLabel } from '@/shared/api/engine/detect'
 import { emptyBasisText, legalSearch } from '@/shared/constants/legal'
 import { SITE } from '@/shared/constants/site'
 import { formatDate, formatDateTime } from '@/shared/utils/format'
+import { t } from '@/shared/i18n'
 
 const props = defineProps({
   review: { type: Object, required: true },
@@ -26,31 +27,31 @@ function violationFor(finding) {
   return props.review.violations?.find((v) => v.findingId === finding.id) ?? null
 }
 function locationLabel(finding) {
-  return finding.location?.kind === 'copy' ? '광고 카피' : finding.location?.fileName ?? '위치 정보 없음'
+  return finding.location?.kind === 'copy' ? t('reviewDetail.viewer.copy') : finding.location?.fileName ?? t('report.noLocation')
 }
 </script>
 
 <template>
   <article class="report">
     <header class="report__header">
-      <p class="report__service">{{ SITE.serviceName }} , 검토 결과 리포트</p>
+      <p class="report__service">{{ SITE.serviceName }}, {{ $t('report.heading') }}</p>
       <h1 class="report__title">{{ review.productName }}</h1>
       <dl class="report__meta">
-        <div><dt>검토 번호</dt><dd>{{ review.id }} , v{{ version.no }}</dd></div>
-        <div><dt>작성자</dt><dd>{{ version.authorName }}</dd></div>
-        <div><dt>분석 완료</dt><dd>{{ formatDateTime(version.result.analyzedAt) }}</dd></div>
-        <div><dt>승인 상태</dt><dd>{{ APPROVAL_LABEL[version.approval.state].label }}</dd></div>
+        <div><dt>{{ $t('report.reviewNo') }}</dt><dd>{{ review.id }}, v{{ version.no }}</dd></div>
+        <div><dt>{{ $t('report.author') }}</dt><dd>{{ version.authorName }}</dd></div>
+        <div><dt>{{ $t('report.analyzedAt') }}</dt><dd>{{ formatDateTime(version.result.analyzedAt) }}</dd></div>
+        <div><dt>{{ $t('report.approval') }}</dt><dd>{{ APPROVAL_LABEL[version.approval.state].label }}</dd></div>
       </dl>
       <p class="report__notice">
-        {{ legalSearch(version.result).reportNotice }} 게재 여부의 최종 판단과 책임은 승인 담당자에게 있습니다.
+        {{ legalSearch(version.result).reportNotice }} {{ $t('report.responsibility') }}
       </p>
     </header>
 
     <section>
-      <h2>1. 확인할 문구 ({{ version.result.findings.length }}건)</h2>
-      <table class="report__table">
+      <h2>{{ $t('report.s1', { count: version.result.findings.length }) }}</h2>
+      <div class="report__table-wrap"><table class="report__table">
         <thead>
-          <tr><th>#</th><th>문구</th><th>위치</th><th>판정</th><th>근거 (출처 , 버전)</th><th>최종 결정</th></tr>
+          <tr><th>#</th><th>{{ $t('report.colPhrase') }}</th><th>{{ $t('report.colLocation') }}</th><th>{{ $t('report.colSeverity') }}</th><th>{{ $t('report.colBasis') }}</th><th>{{ $t('report.colDecision') }}</th></tr>
         </thead>
         <tbody>
           <tr v-for="(f, i) in version.result.findings" :key="f.id">
@@ -65,10 +66,10 @@ function locationLabel(finding) {
             <td>
               <template v-if="violationFor(f)?.finalResolution">
                 {{ violationFor(f).finalText }}
-                <br /><span class="report__label">{{ violationFor(f).decidedByName ?? '시스템' }} , {{ formatDateTime(violationFor(f).decidedAt) }}</span>
+                <br /><span class="report__label">{{ violationFor(f).decidedByName ?? $t('reviewDetail.revision.system') }}, {{ formatDateTime(violationFor(f).decidedAt) }}</span>
               </template>
               <template v-else-if="violationFor(f)">
-                미결정 — 제안: {{ violationFor(f).rewriteSuggestion ?? '없음' }}
+                {{ $t('report.undecided', { suggestion: violationFor(f).rewriteSuggestion ?? $t('report.none') }) }}
               </template>
               <template v-else>
                 <p v-for="(r, j) in f.rewrites" :key="j">{{ rewriteLabel(r) }}<template v-if="r.note"> — {{ r.note }}</template></p>
@@ -76,61 +77,61 @@ function locationLabel(finding) {
             </td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </section>
 
     <section>
-      <h2>2. 증빙 대조</h2>
+      <h2>{{ $t('report.s2') }}</h2>
       <ul>
         <li v-for="(flag, i) in version.result.evidence.flags" :key="i">[{{ SEVERITY_LABEL[flag.severity].short }}] {{ flag.message }}</li>
-        <li v-if="!version.result.evidence.flags.length">증빙 자동 대조가 완료됐다는 뜻은 아닙니다. 추출 상태와 담당자 확인이 필요합니다.</li>
+        <li v-if="!version.result.evidence.flags.length">{{ $t('report.evidenceNotDone') }}</li>
       </ul>
-      <p class="report__label">주장별 필요 서류</p>
+      <p class="report__label">{{ $t('reviewDetail.evidence.required') }}</p>
       <ul>
         <li v-for="req in version.result.evidence.requirements" :key="req.claimType">
           {{ CLAIM_LABEL[req.claimType] }}:
-          <template v-if="req.prohibited">증빙 불가 표현 (수정 필요)</template>
-          <template v-else>{{ req.docs.map((d) => `${d.label} ${d.provided ? '제출' : '미제출'}`).join(', ') }}</template>
+          <template v-if="req.prohibited">{{ $t('report.prohibited') }}</template>
+          <template v-else>{{ req.docs.map((d) => `${d.label} ${t(d.provided ? 'report.provided' : 'report.missing')}`).join(', ') }}</template>
         </li>
       </ul>
-      <p class="report__label">제출 서류</p>
+      <p class="report__label">{{ $t('reviewDetail.evidence.submitted') }}</p>
       <ul>
         <li v-for="doc in version.input.evidence" :key="doc.id">{{ DOC_TYPE_LABEL[doc.docType] }} — {{ doc.name }}</li>
-        <li v-if="!version.input.evidence.length">없음</li>
+        <li v-if="!version.input.evidence.length">{{ $t('report.none') }}</li>
       </ul>
-      <p>공공데이터 교차검증: {{ version.result.publicData.status }} {{ version.result.publicData.reportNo ? `(${version.result.publicData.reportNo})` : '' }}</p>
+      <p>{{ $t('report.publicData') }} {{ version.result.publicData.status }} {{ version.result.publicData.reportNo ? `(${version.result.publicData.reportNo})` : '' }}</p>
     </section>
 
     <section>
-      <h2>3. 특허 확인</h2>
+      <h2>{{ $t('report.s3') }}</h2>
       <ul>
         <li v-for="p in version.result.patents" :key="p.id">
           {{ p.confirmedNumber ?? p.number }} — {{ PATENT_STATUS_LABEL[p.status].label }}
-          <template v-if="p.match"> , {{ PATENT_MATCH_LABEL[p.match.verdict || 'unknown'].label }}: {{ p.match.summary }}</template>
-          <template v-if="p.checkedAt"> (출처 {{ p.source ?? '-' }}, {{ formatDateTime(p.checkedAt) }})</template>
+          <template v-if="p.match">, {{ PATENT_MATCH_LABEL[p.match.verdict || 'unknown'].label }}: {{ p.match.summary }}</template>
+          <template v-if="p.checkedAt"> ({{ $t('report.patentSource', { source: p.source ?? '-', at: formatDateTime(p.checkedAt) }) }})</template>
         </li>
-        <li v-if="!version.result.patents.length">추출된 특허번호 없음</li>
+        <li v-if="!version.result.patents.length">{{ $t('report.noPatents') }}</li>
       </ul>
     </section>
 
     <section>
-      <h2>사진 독립 검토</h2>
-      <p>처리 상태: {{version.result.pipelineStatus?.visual}}</p>
-      <p v-for="item in version.result.visualFindings" :key="item.id">{{item.location.fileName}} / {{item.location.page}}페이지: {{item.observation}} / {{item.concern}}</p>
+      <h2>{{ $t('reviewDetail.visual.title') }}</h2>
+      <p>{{ $t('reviewDetail.visual.status', { status: version.result.pipelineStatus?.visual }) }}</p>
+      <p v-for="item in version.result.visualFindings" :key="item.id">{{ $t('reviewDetail.visual.location', { name: item.location.fileName, page: item.location.page }) }}: {{item.observation}} / {{item.concern}}</p>
       <p v-for="warning in version.result.warnings" :key="warning">{{warning}}</p>
     </section>
     <section>
-      <h2>4. 승인 이력 (v{{ version.no }})</h2>
+      <h2>{{ $t('report.s4', { version: version.no }) }}</h2>
       <ul>
         <li v-for="(h, i) in version.approval.history" :key="i">
           {{ formatDateTime(h.at) }} {{ h.by }} — {{ APPROVAL_LABEL[h.action].label }}{{ h.comment ? `: ${h.comment}` : '' }}
         </li>
-        <li v-if="!version.approval.history.length">처리 이력 없음</li>
+        <li v-if="!version.approval.history.length">{{ $t('report.noHistory') }}</li>
       </ul>
     </section>
 
     <footer class="report__footer">
-      적용 기준: {{ version.result.standardsSnapshot.map((s) => `${s.name} ${s.version}(${formatDate(s.revisedAt)})`).join(' / ') || '조문 후보가 없어 적용 법령 버전을 기록하지 않았습니다.' }}
+      {{ $t('report.standards') }} {{ version.result.standardsSnapshot.map((s) => `${s.name} ${s.version}(${formatDate(s.revisedAt)})`).join(' / ') || $t('report.noStandards') }}
     </footer>
   </article>
 </template>
@@ -185,6 +186,8 @@ function locationLabel(finding) {
   margin-top: var(--space-sm);
   font-weight: var(--font-weight-bold);
 }
+.report__table-wrap { overflow-x: auto; }
+@media (max-width: 760px) { .report__table { min-width: 640px; } }
 .report__table {
   width: 100%;
   border-collapse: collapse;

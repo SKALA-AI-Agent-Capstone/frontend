@@ -1,0 +1,207 @@
+{
+  "login": "Log in",
+  "hero": {
+    "title1": "Review cosmetic ads",
+    "title2": "before they go live",
+    "lead1": "Upload a PDF or image ad and AI reads the copy and photos separately,",
+    "lead2": "then shows possible violations, legal grounds and alternative wording.",
+    "cta": "Create a company workspace"
+  },
+  "anatomy": {
+    "title": "Copy and images are read separately",
+    "notes": {
+      "lesquendieu": "Two products on one page, with copy filling more space than the drawing.",
+      "elida": "A single letter becomes the picture, with the product name set apart below.",
+      "lundborg": "The product name and call to action wrap the illustration top and bottom.",
+      "klarybella": "Handwritten copy sits on top of the portrait."
+    }
+  },
+  "flow": {
+    "title": "Beauty Review pipeline",
+    "upload": {
+      "title": "Upload the ad",
+      "text": "Upload a PDF or image to start a review.",
+      "rows": {
+        "format": "Format",
+        "formatValue": "PDF, image",
+        "submit": "Submitted by"
+      }
+    },
+    "analyze": {
+      "title": "Analyze copy and photos",
+      "text": "AI checks the copy and photos separately for possible violations.",
+      "rows": {
+        "copy": "Copy",
+        "copyValue": "Possible violations, legal grounds",
+        "photo": "Photos",
+        "photoValue": "Reviewed separately"
+      }
+    },
+    "resolve": {
+      "title": "Decide per phrase",
+      "text": "When analysis is done, choose how to handle each phrase.",
+      "rows": {
+        "choose": "Options"
+      }
+    },
+    "approve": {
+      "title": "Reviewer approval",
+      "text": "A reviewer approves, requests changes or rejects.",
+      "rows": {
+        "decide": "Decision"
+      }
+    }
+  },
+  "features": {
+    "title": "Workspace",
+    "roles": {
+      "title": "Split roles in-house",
+      "text": "Marketing submits as a writer, and legal or regulatory staff approve as reviewers. The account that creates the workspace becomes the admin.",
+      "members": "Members"
+    },
+    "basis": {
+      "scope": "Legal search scope",
+      "scopeValue": "Loaded Cosmetics Act articles",
+      "note": "Legal grounds for each flagged phrase",
+      "chip": "Loaded sources only",
+      "title": "Attach legal grounds",
+      "text": "For every phrase AI flags, it attaches the articles found in the loaded Cosmetics Act."
+    },
+    "originals": {
+      "title": "Keep the originals",
+      "text": "Uploaded originals are kept on the server with the results and approval history, so you can view them again in review and reports.",
+      "rows": {
+        "ad": "Ad original",
+        "result": "Review result",
+        "approvals": "Approval history",
+        "kept": "Kept on server",
+        "view": "View again",
+        "viewValue": "Review and report screens"
+      }
+    },
+    "versions": {
+      "label": "Versions",
+      "v2": "Revised copy",
+      "v1": "First submission",
+      "title": "Edits become new versions",
+      "text": "Resubmitting the original creates a new version instead of overwriting earlier results."
+    },
+    "report": {
+      "title": "Keep a report",
+      "text": "Phrases to check, evidence, patents, photo review and approvals in a single report.",
+      "name": "Review report",
+      "note": "Phrases to check, evidence, patents, photo review, approvals",
+      "button": "Print or save PDF"
+    },
+    "tenant": {
+      "label": "Workspace",
+      "note": "No access to other companies",
+      "title": "One workspace per company",
+      "text": "Each company has its own workspace, so accounts only see their own company's ads and history."
+    }
+  },
+  "sample": {
+    "people": {
+      "a": "Haneul Kim",
+      "b": "Doyun Lee",
+      "c": "Seoyeon Park"
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "lead": "What people check most before submitting a review.",
+    "items": {
+      "publish": {
+        "q": "Can I publish based on the AI result alone?",
+        "a": "AI flags possible violations and suggests grounds and alternative wording.\nFinal approval before publishing is made by your in-house reviewer.\nIt does not replace association advice or government certification."
+      },
+      "files": {
+        "q": "Which files can I upload?",
+        "a": "PDFs and images (JPG, PNG, WEBP). Text PDFs, scanned PDFs and long images are split on the server, and there is no screen for typing copy directly."
+      },
+      "originals": {
+        "q": "What happens to the files I upload?",
+        "a": "They are kept on the server with the review results and approval history. You can view them again in review and report screens, and resubmit the original to review a new version."
+      },
+      "legal": {
+        "q": "Where do the legal grounds come from?",
+        "a": "Related articles are found in the loaded Cosmetics Act.\nEvery phrase AI flags is shown with its legal grounds."
+      },
+      "privacy": {
+        "q": "Can other companies see our files?",
+        "a": "No. Each company has its own workspace, and accounts can only access their own company's data."
+      },
+      "cost": {
+        "q": "Does it cost anything?",
+        "a": "Usage billing for reviews is not connected yet. The credit top-up screen only runs test payments."
+      }
+    }
+  },
+  "cta": {
+    "title1": "Upload",
+    "title2": "your first ad",
+    "lead1": "Creating a workspace sets up an admin account,",
+    "lead2": "and you can submit your first review right away.",
+    "sampleTenant": "Bomgyeol Cosmetics",
+    "startNew": "Start with this name",
+    "goLogin": "Go to log in",
+    "mode": "How to start",
+    "modeNew": "New workspace",
+    "modeExisting": "I have an account",
+    "tenantLabel": "Company name",
+    "existingNote": "Log in with your existing email and password."
+  },
+  "foot": {
+    "label": "Footer",
+    "signup": "Create a workspace",
+    "credits": "Image credits",
+    "creditLine": "public domain, Wikimedia Commons",
+    "notOfficial": "Not an official review service."
+  },
+  "archive": {
+    "lesquendieu": {
+      "caption": "Lesquendieu perfumery magazine ad, 1921",
+      "alt": "A French magazine ad split in two: a lotion for blondes above and a cream below, both mostly copy."
+    },
+    "elida": {
+      "caption": "Elida toilet soap poster, Julius Klinger, 1921",
+      "alt": "Soap poster with a black capital E and a red butterfly on cream, ELIDA lettering below."
+    },
+    "lundborg": {
+      "caption": "Lundborg perfume poster, Louis Rhead, 1890s",
+      "alt": "Perfume poster of a woman in purple scattering violets on a yellow ground.",
+      "year": "1890s"
+    },
+    "klarybella": {
+      "caption": "Klarybella perfume poster, Ludwig Hohlwein, 1924",
+      "alt": "Perfume poster of a woman in a blue dress with yellow roses."
+    },
+    "rigaud": {
+      "caption": "Rigaud perfume ad, George Barbier, 1922",
+      "alt": "Perfume ad of a woman in a pink dress and a Pierrot on a moonlit balustrade."
+    },
+    "unknownCreator": "Unknown artist"
+  },
+  "reader": {
+    "portrait": "Portrait, {ratio}x the width",
+    "landscape": "Landscape, {ratio}x the height",
+    "square": "Nearly square",
+    "sampleError": "Could not load the sample image. Please try again shortly.",
+    "typeError": "Only PDF, JPG, PNG and WEBP files can be uploaded.",
+    "readError": "Could not read the image. Check that the file is not damaged.",
+    "title": "Read an ad file",
+    "file": "File",
+    "format": "Format",
+    "size": "Size",
+    "pages": "Pages",
+    "pagesValue": "Checked on server",
+    "ratio": "Ratio",
+    "pixels": "Pixels",
+    "copy": "Copy",
+    "copyText": "Flags possible violations and finds legal grounds.",
+    "photo": "Photos",
+    "photoText": "Reviewed separately from the copy. No real efficacy ruling.",
+    "pick": "Choose my ad file",
+    "samples": "Vintage cosmetic ad samples"
+  }
+}

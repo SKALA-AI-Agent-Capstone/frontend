@@ -7,7 +7,7 @@ const open = defineModel('open', { type: Boolean, default: false })
 
 defineProps({
   title: { type: String, required: true },
-  confirmLabel: { type: String, default: '확인' },
+  confirmLabel: { type: String, default: null },
   danger: { type: Boolean, default: false },
   busy: { type: Boolean, default: false },
 })
@@ -22,9 +22,9 @@ const titleId = `confirm-${Math.random().toString(36).slice(2, 8)}`
     </template>
     <div class="confirm__body"><slot /></div>
     <template #footer>
-      <BaseButton variant="outline" @click="open = false">취소</BaseButton>
+      <BaseButton variant="outline" @click="open = false">{{ $t('ui.cancel') }}</BaseButton>
       <BaseButton :variant="danger ? 'danger' : 'primary'" :busy="busy" @click="emit('confirm')">
-        {{ confirmLabel }}
+        {{ confirmLabel ?? $t('ui.confirm') }}
       </BaseButton>
     </template>
   </BaseModal>

@@ -1,3 +1,4 @@
+import { textMap } from '@/shared/i18n'
 // 역할, 권한 (NFR-9) — 화면에서는 역할명 대신 PERMISSIONS 로 판단한다.
 export const ROLES = Object.freeze({
   WRITER: 'writer',
@@ -5,10 +6,10 @@ export const ROLES = Object.freeze({
   ADMIN: 'admin',
 })
 
-export const ROLE_LABEL = Object.freeze({
-  [ROLES.WRITER]: '작성자',
-  [ROLES.REVIEWER]: '검토자',
-  [ROLES.ADMIN]: '관리자',
+export const ROLE_LABEL = textMap({
+  [ROLES.WRITER]: 'common.roles.writer',
+  [ROLES.REVIEWER]: 'common.roles.reviewer',
+  [ROLES.ADMIN]: 'common.roles.admin',
 })
 
 export const PERMISSIONS = Object.freeze({

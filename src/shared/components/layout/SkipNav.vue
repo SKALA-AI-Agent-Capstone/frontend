@@ -1,5 +1,5 @@
 <template>
-  <a href="#main-content" class="skip-nav">본문 바로가기</a>
+  <a href="#main-content" class="skip-nav">{{ $t('ui.skipNav') }}</a>
 </template>
 
 <style scoped>

@@ -16,16 +16,16 @@ defineProps({
 <template>
   <div class="basis">
     <p class="basis__head">
-      <BaseBadge variant="secondary">{{ SOURCE_TYPE_LABEL[basis.sourceType] ?? '기준' }}</BaseBadge>
+      <BaseBadge variant="secondary">{{ SOURCE_TYPE_LABEL[basis.sourceType] ?? $t('ui.basis.standard') }}</BaseBadge>
       <strong>{{ basis.sourceName }}</strong>
       <span>{{ basis.article }}</span>
     </p>
     <p class="basis__plain">{{ basis.plain }}</p>
-    <BaseDisclosure v-if="basis.original" label="원문 조항 보기">
+    <BaseDisclosure v-if="basis.original" :label="$t('ui.basis.showOriginal')">
       <blockquote class="basis__original">{{ basis.original }}</blockquote>
     </BaseDisclosure>
-    <p v-else class="basis__no-original">원문 미등록 — 참조 기준 관리에서 원문 등록이 필요합니다.</p>
-    <p class="basis__meta">기준 버전 {{ basis.version }} ,  개정 {{ formatDate(basis.revisedAt) }}</p>
+    <p v-else class="basis__no-original">{{ $t('ui.basis.noOriginal') }}</p>
+    <p class="basis__meta">{{ $t('ui.basis.meta', { version: basis.version, date: formatDate(basis.revisedAt) }) }}</p>
   </div>
 </template>
 

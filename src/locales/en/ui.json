@@ -1,0 +1,119 @@
+{
+  "header": {
+    "batch": "Batch {done}/{total}",
+    "charge": "Top up credits",
+    "balance": "Current credit balance",
+    "credits": "{count} credits"
+  },
+  "user": {
+    "role": "Role",
+    "tenant": "Company",
+    "account": "Account",
+    "logout": "Log out"
+  },
+  "masthead": "BEAUTY REVIEW / Internal ad pre-review / Local development",
+  "newWindow": "(opens in a new window)",
+  "footer": {
+    "policyLinks": "Policy links",
+    "operator": "Operator"
+  },
+  "skipNav": "Skip to main content",
+  "breadcrumb": "You are here",
+  "stepper": {
+    "label": "Submission steps",
+    "step": "Step {no}",
+    "current": "[in progress]"
+  },
+  "form": {
+    "required": "Required",
+    "optional": "(optional)"
+  },
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "select": "Select",
+  "dropzone": {
+    "filled": "{count} file(s) uploaded",
+    "addMore": "Drag more files here or use the button below.",
+    "add": "Add files",
+    "pick": "Choose files from your computer"
+  },
+  "attachments": {
+    "label": "Attached files",
+    "remove": "Remove {name}"
+  },
+  "findingNo": "(finding {no})",
+  "countUnit": "items",
+  "severitySummary": "Findings by severity",
+  "thumb": {
+    "image": "Image",
+    "none": "No file"
+  },
+  "stage": {
+    "queued": "Queued",
+    "analyzing": "Analyzing",
+    "analyzed": "Analyzed",
+    "failed": "Analysis failed",
+    "pending": "Awaiting decision",
+    "approved": "Approved",
+    "changes": "Changes requested",
+    "rejected": "Rejected",
+    "decision": "Reviewer decision",
+    "analysis": "Analysis",
+    "submitted": "Submitted",
+    "label": "Progress: {steps}"
+  },
+  "basis": {
+    "standard": "Standard",
+    "showOriginal": "Show original article",
+    "noOriginal": "Original text not registered. Register it in reference management.",
+    "meta": "Standard version {version}, revised {date}"
+  },
+  "requirement": {
+    "prohibited": "Wording not allowed even with evidence, the copy must change",
+    "provided": "Submitted",
+    "missing": "Not submitted"
+  },
+  "publicDomain": "public domain",
+  "requestFailed": "Request failed ({status})",
+  "errors": {
+    "reselectAd": "Please choose the ad file again.",
+    "reselectEvidence": "Please choose the evidence file again.",
+    "retryUnavailable": "Retrying this step is not available yet. Submit a new version with the original file.",
+    "batchMock": "Error while converting the file (mock)",
+    "billingNotConnected": "Usage billing for reviews is not connected yet."
+  },
+  "titles": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "reviewNew": "Submit a review",
+    "reviewDetail": "Findings and fixes",
+    "report": "Review report",
+    "batch": "Campaign batch review",
+    "history": "Review history",
+    "approvals": "Awaiting approval",
+    "credits": "Credits",
+    "standards": "Laws and notices"
+  },
+  "publicData": {
+    "cancelledTitle": "This reported item has withdrawal records. A reviewer needs to check it",
+    "ambiguousTitle": "Check that the product matches the report number",
+    "foundTitle": "Found in MFDS reported items",
+    "notFoundTitle": "No result. Check the number again",
+    "errorTitle": "Public data connection failed. Try again later",
+    "skippedTitle": "No review or report number entered, so no cross-check was run",
+    "unknownTitle": "Official information needs checking",
+    "reportNo": "Report number",
+    "productName": "Product name",
+    "functions": "Reported functions",
+    "functionsUnknown": "Efficacy scope unknown",
+    "reportedAt": "Reported",
+    "notFoundText": "The search ran normally, but no reported item matches {no}. Check the number for typos, or submit a copy of the review or report as evidence.",
+    "errorText": "Could not connect to the external system ({error}). This does not mean the product has a problem, and the rest of the review continues.",
+    "cancelledText": "The item has withdrawal records. Check its current registration status and product materials yourself.",
+    "ambiguousText": "The number format or product name match is unclear, or not all pages could be checked. This does not mean the product does not exist.",
+    "meta": "Supporting cross-check, {source}",
+    "checkedAt": "checked {at}",
+    "errorHint": "Check the settings, then submit the original as a new version. Re-checking only this item is not connected yet."
+  },
+  "progress": "Progress"
+}

@@ -46,7 +46,7 @@ const bindings = computed(() => {
     <BaseIcon v-if="iconRight" :name="iconRight" size="sm" />
     <template v-if="external">
       <BaseIcon name="open_in_new" size="xs" />
-      <span class="sr-only">(새 창 열림)</span>
+      <span class="sr-only">{{ $t('ui.newWindow') }}</span>
     </template>
   </component>
 </template>

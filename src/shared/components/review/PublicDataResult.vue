@@ -15,41 +15,41 @@ const props = defineProps({
 defineEmits(['retry'])
 
 const VIEW = {
-  cancelled: {variant:'warning',icon:'info',title:'취하 정보가 있는 보고품목입니다. 담당자 확인이 필요합니다'},
-  ambiguous: {variant:'warning',icon:'help',title:'제품과 보고번호의 정확한 대응을 확인해야 합니다'},
-  [PUBLIC_DATA_STATUS.FOUND]: { variant: 'success', icon: 'verified', title: '식약처 보고품목에서 확인되었습니다' },
+  cancelled: {variant:'warning',icon:'info',title:'ui.publicData.cancelledTitle'},
+  ambiguous: {variant:'warning',icon:'help',title:'ui.publicData.ambiguousTitle'},
+  [PUBLIC_DATA_STATUS.FOUND]: { variant: 'success', icon: 'verified', title: 'ui.publicData.foundTitle' },
   [PUBLIC_DATA_STATUS.NOT_FOUND]: {
     variant: 'warning',
     icon: 'search_off',
-    title: '조회 결과 없음 — 번호를 다시 확인해 주세요',
+    title: 'ui.publicData.notFoundTitle',
   },
-  [PUBLIC_DATA_STATUS.ERROR]: { variant: 'danger', icon: 'cloud_off', title: '공공데이터 연동 실패 — 잠시 후 다시 조회해 주세요' },
-  [PUBLIC_DATA_STATUS.SKIPPED]: { variant: 'neutral', icon: 'info', title: '심사,보고번호 미입력 — 교차검증을 하지 않았습니다' },
+  [PUBLIC_DATA_STATUS.ERROR]: { variant: 'danger', icon: 'cloud_off', title: 'ui.publicData.errorTitle' },
+  [PUBLIC_DATA_STATUS.SKIPPED]: { variant: 'neutral', icon: 'info', title: 'ui.publicData.skippedTitle' },
 }
-const view = computed(() => VIEW[props.result.status] || {variant:'warning',icon:'info',title:'공식 정보 확인 필요'})
+const view = computed(() => VIEW[props.result.status] || {variant:'warning',icon:'info',title:'ui.publicData.unknownTitle'})
 </script>
 
 <template>
-  <BaseAlert :variant="view.variant" :icon="view.icon" :title="view.title" aria-live="polite">
+  <BaseAlert :variant="view.variant" :icon="view.icon" :title="$t(view.title)" aria-live="polite">
     <div class="public-data">
       <dl v-if="result.status === PUBLIC_DATA_STATUS.FOUND" class="public-data__list">
-        <div><dt>보고번호</dt><dd>{{ result.reportNo }}</dd></div>
-        <div><dt>제품명</dt><dd>{{ result.data.productName }}</dd></div>
-        <div><dt>보고 기능</dt><dd>{{ result.data.functions?.join(', ') || '효능 범위 미확인' }}</dd></div>
-        <div><dt>보고일</dt><dd>{{ formatDate(result.data.reportedAt) }}</dd></div>
+        <div><dt>{{ $t('ui.publicData.reportNo') }}</dt><dd>{{ result.reportNo }}</dd></div>
+        <div><dt>{{ $t('ui.publicData.productName') }}</dt><dd>{{ result.data.productName }}</dd></div>
+        <div><dt>{{ $t('ui.publicData.functions') }}</dt><dd>{{ result.data.functions?.join(', ') || $t('ui.publicData.functionsUnknown') }}</dd></div>
+        <div><dt>{{ $t('ui.publicData.reportedAt') }}</dt><dd>{{ formatDate(result.data.reportedAt) }}</dd></div>
       </dl>
       <p v-else-if="result.status === PUBLIC_DATA_STATUS.NOT_FOUND">
-        정상적으로 조회했지만 '{{ result.reportNo }}'에 해당하는 보고품목이 없습니다. 번호 오타를 확인하거나, 심사,보고서 사본을 증빙으로 제출해 주세요.
+        {{ $t('ui.publicData.notFoundText', { no: result.reportNo }) }}
       </p>
       <p v-else-if="result.status === PUBLIC_DATA_STATUS.ERROR">
-        외부 시스템과 연결하지 못했습니다({{ result.error }}). 제품에 문제가 있다는 뜻이 아니며, 다른 검토는 계속 진행됩니다.
+        {{ $t('ui.publicData.errorText', { error: result.error }) }}
       </p>
-      <p v-else-if="result.status === 'cancelled'">조회한 품목에 취하 정보가 있습니다. 현재 등록 상태와 제품 자료를 직접 확인해 주세요.</p>
-      <p v-else-if="result.status === 'ambiguous'">번호 형식이나 제품명 대응이 명확하지 않거나 전체 페이지를 확인하지 못했습니다. 제품이 없다는 뜻은 아닙니다.</p>
+      <p v-else-if="result.status === 'cancelled'">{{ $t('ui.publicData.cancelledText') }}</p>
+      <p v-else-if="result.status === 'ambiguous'">{{ $t('ui.publicData.ambiguousText') }}</p>
       <p class="public-data__meta">
-        보조 교차검증 , {{ result.source }}<template v-if="result.checkedAt"> , {{ formatDateTime(result.checkedAt) }} 조회</template>
+        {{ $t('ui.publicData.meta', { source: result.source }) }}<template v-if="result.checkedAt">, {{ $t('ui.publicData.checkedAt', { at: formatDateTime(result.checkedAt) }) }}</template>
       </p>
-      <p v-if="result.status === PUBLIC_DATA_STATUS.ERROR">설정 확인 후 원본 파일로 새 버전을 신청해 주세요. 결과 항목만 재조회하는 기능은 아직 연결하지 않았습니다.</p>
+      <p v-if="result.status === PUBLIC_DATA_STATUS.ERROR">{{ $t('ui.publicData.errorHint') }}</p>
     </div>
   </BaseAlert>
 </template>

@@ -1,0 +1,119 @@
+{
+  "header": {
+    "batch": "배치 {done}/{total}",
+    "charge": "크레딧 충전",
+    "balance": "현재 크레딧 잔액",
+    "credits": "{count} 크레딧"
+  },
+  "user": {
+    "role": "역할",
+    "tenant": "소속",
+    "account": "계정",
+    "logout": "로그아웃"
+  },
+  "masthead": "BEAUTY REVIEW / 기업 내부 사전검토 / 로컬 개발환경",
+  "newWindow": "(새 창 열림)",
+  "footer": {
+    "policyLinks": "정책 링크",
+    "operator": "운영기관 식별자"
+  },
+  "skipNav": "본문 바로가기",
+  "breadcrumb": "현재 위치",
+  "stepper": {
+    "label": "신청 진행 단계",
+    "step": "{no}단계",
+    "current": "[진행 중]"
+  },
+  "form": {
+    "required": "필수",
+    "optional": "(선택)"
+  },
+  "cancel": "취소",
+  "confirm": "확인",
+  "select": "선택해주세요",
+  "dropzone": {
+    "filled": "파일 {count}개를 올렸습니다",
+    "addMore": "더 올리려면 끌어다 놓거나 아래 버튼을 누르세요.",
+    "add": "파일 추가",
+    "pick": "컴퓨터에서 파일 선택"
+  },
+  "attachments": {
+    "label": "첨부된 파일",
+    "remove": "{name} 삭제"
+  },
+  "findingNo": "(탐지 {no}번)",
+  "countUnit": "건",
+  "severitySummary": "심각도별 탐지 건수",
+  "thumb": {
+    "image": "이미지",
+    "none": "파일 없음"
+  },
+  "stage": {
+    "queued": "분석 대기",
+    "analyzing": "분석 중",
+    "analyzed": "분석 완료",
+    "failed": "분석 실패",
+    "pending": "결정 대기",
+    "approved": "승인",
+    "changes": "수정 요청",
+    "rejected": "반려",
+    "decision": "검토자 결정",
+    "analysis": "분석",
+    "submitted": "접수",
+    "label": "진행 단계: {steps}"
+  },
+  "basis": {
+    "standard": "기준",
+    "showOriginal": "원문 조항 보기",
+    "noOriginal": "원문 미등록, 참조 기준 관리에서 원문 등록이 필요합니다.",
+    "meta": "기준 버전 {version}, 개정 {date}"
+  },
+  "requirement": {
+    "prohibited": "증빙으로 허용되지 않는 표현, 문구 수정 필요",
+    "provided": "제출됨",
+    "missing": "미제출"
+  },
+  "publicDomain": "퍼블릭 도메인",
+  "requestFailed": "요청 실패 ({status})",
+  "errors": {
+    "reselectAd": "광고 원본 파일을 다시 선택해 주세요.",
+    "reselectEvidence": "증빙 원본 파일을 다시 선택해 주세요.",
+    "retryUnavailable": "이 재시도 기능은 후속 구현 대상입니다. 원본 파일로 새 버전을 신청해 주세요.",
+    "batchMock": "파일 변환 중 오류 (목업)",
+    "billingNotConnected": "검토 사용량 과금은 아직 연결되지 않았습니다."
+  },
+  "titles": {
+    "login": "로그인",
+    "signup": "회원가입",
+    "reviewNew": "자율심의 신청",
+    "reviewDetail": "위반사항 분석 및 보완",
+    "report": "심의 리포트",
+    "batch": "캠페인 일괄 심의",
+    "history": "심의 이력",
+    "approvals": "승인 대기",
+    "credits": "크레딧",
+    "standards": "법령, 고시 자료실"
+  },
+  "publicData": {
+    "cancelledTitle": "취하 정보가 있는 보고품목입니다. 담당자 확인이 필요합니다",
+    "ambiguousTitle": "제품과 보고번호의 정확한 대응을 확인해야 합니다",
+    "foundTitle": "식약처 보고품목에서 확인되었습니다",
+    "notFoundTitle": "조회 결과 없음 — 번호를 다시 확인해 주세요",
+    "errorTitle": "공공데이터 연동 실패 — 잠시 후 다시 조회해 주세요",
+    "skippedTitle": "심사, 보고번호 미입력 — 교차검증을 하지 않았습니다",
+    "unknownTitle": "공식 정보 확인 필요",
+    "reportNo": "보고번호",
+    "productName": "제품명",
+    "functions": "보고 기능",
+    "functionsUnknown": "효능 범위 미확인",
+    "reportedAt": "보고일",
+    "notFoundText": "정상적으로 조회했지만 {no}에 해당하는 보고품목이 없습니다. 번호 오타를 확인하거나, 심사, 보고서 사본을 증빙으로 제출해 주세요.",
+    "errorText": "외부 시스템과 연결하지 못했습니다({error}). 제품에 문제가 있다는 뜻이 아니며, 다른 검토는 계속 진행됩니다.",
+    "cancelledText": "조회한 품목에 취하 정보가 있습니다. 현재 등록 상태와 제품 자료를 직접 확인해 주세요.",
+    "ambiguousText": "번호 형식이나 제품명 대응이 명확하지 않거나 전체 페이지를 확인하지 못했습니다. 제품이 없다는 뜻은 아닙니다.",
+    "meta": "보조 교차검증, {source}",
+    "checkedAt": "{at} 조회",
+    "errorHint": "설정 확인 후 원본 파일로 새 버전을 신청해 주세요. 결과 항목만 재조회하는 기능은 아직 연결하지 않았습니다."
+  },
+  "progress": "진행률"
+}

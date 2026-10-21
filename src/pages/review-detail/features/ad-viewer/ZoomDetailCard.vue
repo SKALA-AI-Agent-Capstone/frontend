@@ -20,15 +20,15 @@ const basis = computed(() => props.finding.basis?.[0] ?? null)
 <template>
   <div class="zoom-card" :class="revised ? 'zoom-card--success' : `zoom-card--${severity.variant}`" aria-live="polite">
     <div class="zoom-card__head">
-      <p class="zoom-card__title">포인트 {{ number }} 확대 정밀 분석</p>
-      <BaseBadge :variant="revised ? 'success' : severity.variant">{{ revised ? '수정안 반영' : severity.label }}</BaseBadge>
+      <p class="zoom-card__title">{{ $t('reviewDetail.zoom.title', { number }) }}</p>
+      <BaseBadge :variant="revised ? 'success' : severity.variant">{{ revised ? $t('reviewDetail.zoom.revised') : severity.label }}</BaseBadge>
     </div>
     <p class="zoom-card__detected">
-      검출 문구: <mark>"{{ finding.phrase }}"</mark>
+      {{ $t('reviewDetail.zoom.detected') }} <mark>"{{ finding.phrase }}"</mark>
     </p>
     <p class="zoom-card__summary">
       <template v-if="basis">
-        <strong>{{ finding.category }}</strong>, 관련 조문 후보: {{ basis.sourceName }} {{ basis.article }}.
+        <strong>{{ finding.category }}</strong>, {{ $t('reviewDetail.zoom.basis') }} {{ basis.sourceName }} {{ basis.article }}.
         {{ basis.plain }}
       </template>
       <template v-else><strong>{{ finding.category }}</strong>. {{ emptyBasisText(finding, result) }}</template>

@@ -20,24 +20,24 @@ function zoomOut() {
 </script>
 
 <template>
-  <div class="toolbar" role="toolbar" aria-label="광고물 뷰어 도구">
+  <div class="toolbar" role="toolbar" :aria-label="$t('reviewDetail.toolbar.label')">
     <div class="toolbar__group">
       <button type="button" class="tool" @click="zoom = min">
         <span>{{ zoom }}%</span>
-        <span class="sr-only">원본 크기로 복원</span>
+        <span class="sr-only">{{ $t('reviewDetail.toolbar.reset') }}</span>
       </button>
       <button type="button" class="tool" :disabled="zoom >= max" @click="zoomIn">
         <BaseIcon name="zoom_in" size="sm" />
-        <span class="sr-only">확대</span>
+        <span class="sr-only">{{ $t('reviewDetail.toolbar.zoomIn') }}</span>
       </button>
       <button type="button" class="tool" :disabled="zoom <= min" @click="zoomOut">
         <BaseIcon name="zoom_out" size="sm" />
-        <span class="sr-only">축소</span>
+        <span class="sr-only">{{ $t('reviewDetail.toolbar.zoomOut') }}</span>
       </button>
     </div>
     <button type="button" class="tool tool--toggle" :aria-pressed="overlay" @click="overlay = !overlay">
       <BaseIcon name="layers" size="sm" />
-      오버레이 표시 {{ overlay ? 'ON' : 'OFF' }}
+      {{ $t('reviewDetail.toolbar.overlay') }} {{ overlay ? 'ON' : 'OFF' }}
     </button>
   </div>
 </template>

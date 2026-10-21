@@ -1,0 +1,72 @@
+{
+  "status": {
+    "queued": "Queued",
+    "analyzing": "Analyzing",
+    "done": "Analyzed",
+    "failed": "Analysis failed"
+  },
+  "approval": {
+    "pending": "Awaiting approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "changesRequested": "Changes requested"
+  },
+  "resolution": {
+    "kept": "Original kept",
+    "rewritten": "Suggestion adopted",
+    "rewrittenManual": "Edited manually"
+  },
+  "patentStatus": {
+    "needsConfirm": "Number needs confirmation",
+    "registered": "Registered patent confirmed",
+    "unavailable": "Cannot verify",
+    "error": "Lookup failed"
+  },
+  "patentMatch": {
+    "related": "Related to the ad claim",
+    "partial": "Partly related",
+    "unrelated": "Not related to the ad claim",
+    "unknown": "Cannot compare"
+  },
+  "action": {
+    "approve": "Approve",
+    "requestChanges": "Request changes",
+    "reject": "Reject"
+  },
+  "severity": {
+    "high": "High risk of violation",
+    "medium": "Needs attention",
+    "low": "Review advised"
+  },
+  "severityShort": {
+    "high": "High",
+    "medium": "Caution",
+    "low": "Advisory"
+  },
+  "claim": {
+    "drug": "Drug-like efficacy claim",
+    "endorsement": "Expert or institutional endorsement",
+    "absolute": "Absolute or superlative wording",
+    "whitening": "Whitening function",
+    "wrinkle": "Wrinkle-improvement function",
+    "clinical": "Test results or figures cited",
+    "in_vitro": "In-vitro test cited",
+    "patent": "Patent claim",
+    "trademark": "Trademark claim",
+    "certification": "Certification or award claim",
+    "origin": "Country-of-origin claim",
+    "ingredient": "Ingredient content or formulation",
+    "exaggeration": "Instant or exaggerated effect"
+  },
+  "docType": {
+    "functional_report": "Functional cosmetic review or report",
+    "ingredient_list": "Full ingredient list",
+    "clinical_test": "Human application test report",
+    "in_vitro_test": "In-vitro test report",
+    "certificate": "Certificate or award document",
+    "patent_cert": "Patent registration certificate",
+    "trademark_cert": "Trademark registration certificate",
+    "origin_cert": "Certificate of origin",
+    "other": "Other evidence"
+  }
+}

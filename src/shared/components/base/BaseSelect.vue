@@ -6,7 +6,7 @@ const model = defineModel({ type: String, default: '' })
 defineProps({
   id: { type: String, default: null },
   options: { type: Array, required: true }, // [{ value, label }]
-  placeholder: { type: String, default: '선택해주세요' },
+  placeholder: { type: String, default: null },
   required: { type: Boolean, default: false },
 })
 </script>
@@ -14,7 +14,7 @@ defineProps({
 <template>
   <div class="base-select">
     <select :id="id" v-model="model" class="control base-select__control" :required="required">
-      <option value="">{{ placeholder }}</option>
+      <option value="">{{ placeholder ?? $t('ui.select') }}</option>
       <option v-for="option in options" :key="option.value" :value="option.value">
         {{ option.label }}
       </option>

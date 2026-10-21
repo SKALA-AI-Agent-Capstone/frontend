@@ -5,7 +5,7 @@ import TaegeukMark from '../TaegeukMark.vue'
 </script>
 
 <template>
-  <section class="identifier" aria-label="운영기관 식별자">
+  <section class="identifier" :aria-label="$t('ui.footer.operator')">
     <span class="identifier__logo" role="img" :aria-label="SITE.orgName">
       <TaegeukMark />
       <span aria-hidden="true">{{ SITE.orgName }}</span>

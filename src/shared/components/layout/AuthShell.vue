@@ -6,6 +6,7 @@
 import { RouterLink } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { ARCHIVE_ADS } from '@/pages/landing/archive'
+import LanguageMenu from './header/LanguageMenu.vue'
 
 const props = defineProps<{
   title: string
@@ -20,12 +21,15 @@ const ad = ARCHIVE_ADS.find((item) => item.id === props.adId) ?? ARCHIVE_ADS[0]
 <template>
   <div class="auth">
     <aside class="auth__side">
-      <RouterLink :to="{ name: ROUTE_NAMES.LANDING }" class="auth__wordmark">Beauty Review</RouterLink>
+      <div class="auth__top">
+        <RouterLink :to="{ name: ROUTE_NAMES.LANDING }" class="auth__wordmark">Beauty Review</RouterLink>
+        <LanguageMenu class="auth__lang" />
+      </div>
       <div class="auth__intro">
         <figure class="auth__figure">
           <img :src="ad.src" :alt="ad.alt" :width="ad.width" :height="ad.height" class="auth__img" />
           <figcaption>
-            <a :href="ad.page" target="_blank" rel="noopener noreferrer">{{ ad.caption }}</a>, 퍼블릭 도메인
+            <a :href="ad.page" target="_blank" rel="noopener noreferrer">{{ ad.caption }}</a>, {{ $t('ui.publicDomain') }}
           </figcaption>
         </figure>
         <p class="auth__statement">{{ statement }}</p>
@@ -72,6 +76,8 @@ const ad = ARCHIVE_ADS.find((item) => item.id === props.adId) ?? ARCHIVE_ADS[0]
 .auth :is(h1, p, figcaption) {
   text-wrap: balance;
 }
+.auth__top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.auth__lang :deep(.lang-menu__trigger) { color: var(--krds-gray-0); }
 .auth__wordmark {
   color: var(--krds-gray-0);
   font-weight: var(--font-weight-bold);

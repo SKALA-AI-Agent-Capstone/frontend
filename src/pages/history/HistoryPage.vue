@@ -8,13 +8,13 @@ import { FOOTER } from '@/shared/constants/site'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
-import BaseEmptyState from '@/shared/components/base/BaseEmptyState.vue'
 import BaseInput from '@/shared/components/base/BaseInput.vue'
 import BaseSelect from '@/shared/components/base/BaseSelect.vue'
-import PageHeading from '@/shared/components/layout/PageHeading.vue'
+import ScreenTitle from '@/shared/components/layout/ScreenTitle.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
 import HistoryTable from './features/history-table/HistoryTable.vue'
+import { t } from '@/shared/i18n'
 
 const reviews = useReviewsStore()
 const session = useSessionStore()
@@ -22,7 +22,7 @@ const session = useSessionStore()
 const route = useRoute()
 const keyword = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const approval = ref('')
-const approvalOptions = Object.values(APPROVAL_STATE).map((s) => ({ value: s, label: APPROVAL_LABEL[s].label }))
+const approvalOptions = computed(() => Object.values(APPROVAL_STATE).map((s) => ({ value: s, label: APPROVAL_LABEL[s].label })))
 
 const rows = computed(() =>
   reviews.list
@@ -35,7 +35,7 @@ const confirmAll = ref(false)
 const deletedNotice = ref(null)
 const deleteError = ref(null)
 const deleteScope = computed(() =>
-  session.can(PERMISSIONS.REVIEW_DELETE_ANY) ? `${session.tenant?.name}의 전체 검토 이력` : '내가 작성한 전체 검토 이력',
+  session.can(PERMISSIONS.REVIEW_DELETE_ANY) ? t('history.scopeTenant', { name: session.tenant?.name }) : t('history.scopeMine'),
 )
 
 async function deleteAll() {
@@ -43,56 +43,80 @@ async function deleteAll() {
   try {
     const count = await reviews.deleteAll()
     confirmAll.value = false
-    deletedNotice.value = `${count}건을 삭제했습니다.`
+    deletedNotice.value = t('history.deleted', { count })
   } catch (e) { deleteError.value = e.message; confirmAll.value = false; await reviews.load() }
 }
 </script>
 
 <template>
   <div class="history-page">
-    <PageHeading boxed badge="심의 결과 보존 ,  재조회" title="심의 이력" description="과거 심의 결과를 다시 보고 리포트를 다시 받을 수 있습니다." :breadcrumbs="[{ label: '심의 이력' }]">
-      <template #aside>
-        <BaseButton variant="outline" icon="delete_sweep" :disabled="!reviews.list.length" @click="confirmAll = true">전체 삭제</BaseButton>
-      </template>
-    </PageHeading>
+    <ScreenTitle :title="$t('history.title')" :description="$t('history.description')" :count="reviews.list.length">
+      <BaseButton variant="outline" icon="delete_sweep" :disabled="!reviews.list.length" @click="confirmAll = true">{{ $t('history.deleteAll') }}</BaseButton>
+    </ScreenTitle>
 
-    <BaseAlert variant="neutral" icon="inventory">{{ FOOTER.retentionNotice }} 자동 만료(TTL) 삭제는 하지 않습니다.</BaseAlert>
     <BaseAlert v-if="deleteError" variant="danger">{{ deleteError }}</BaseAlert>
     <BaseAlert v-if="deletedNotice" variant="success" aria-live="polite">{{ deletedNotice }}</BaseAlert>
 
-    <div class="history-page__filters" role="search">
-      <label class="sr-only" for="history-keyword">제품명, 캠페인 검색</label>
-      <BaseInput id="history-keyword" v-model="keyword" type="search" leading-icon="search" placeholder="제품명, 검토번호, 캠페인 검색" />
-      <label class="sr-only" for="history-approval">승인 상태</label>
-      <BaseSelect id="history-approval" v-model="approval" :options="approvalOptions" placeholder="승인 상태 전체" />
-    </div>
+    <section class="list" :aria-label="$t('history.listLabel')">
+      <div class="list__toolbar" role="search">
+        <label class="sr-only" for="history-keyword">{{ $t('history.searchLabel') }}</label>
+        <BaseInput id="history-keyword" v-model="keyword" type="search" leading-icon="search" :placeholder="$t('history.searchPlaceholder')" />
+        <label class="sr-only" for="history-approval">{{ $t('history.approvalLabel') }}</label>
+        <BaseSelect id="history-approval" v-model="approval" :options="approvalOptions" :placeholder="$t('history.approvalAll')" />
+      </div>
 
-    <HistoryTable v-if="rows.length" :rows="rows" />
-    <BaseEmptyState v-else icon="history" title="검토 이력이 없습니다">
-      <BaseButton :to="{ name: ROUTE_NAMES.REVIEW_NEW }">새 검토 시작</BaseButton>
-    </BaseEmptyState>
+      <HistoryTable v-if="rows.length" :rows="rows" />
+      <div v-else class="list__empty">
+        <p class="list__empty-title">{{ reviews.list.length ? $t('history.emptyFiltered') : $t('history.empty') }}</p>
+        <p class="list__empty-text">{{ reviews.list.length ? $t('history.emptyFilteredText') : $t('history.emptyText') }}</p>
+        <BaseButton v-if="!reviews.list.length" variant="outline" size="sm" :to="{ name: ROUTE_NAMES.REVIEW_NEW }">{{ $t('history.newReview') }}</BaseButton>
+      </div>
+    </section>
 
-    <BaseConfirmDialog v-model:open="confirmAll" title="전체 검토 이력을 삭제할까요?" confirm-label="전체 삭제" danger @confirm="deleteAll">
-      {{ deleteScope }}이 판정, 근거, 승인 이력과 함께 모두 삭제되며 되돌릴 수 없습니다.
+    <p class="history-page__note">{{ FOOTER.retentionNotice }} {{ $t('history.noTtl') }}</p>
+
+    <BaseConfirmDialog v-model:open="confirmAll" :title="$t('history.confirmAllTitle')" :confirm-label="$t('history.deleteAll')" danger @confirm="deleteAll">
+      {{ $t('history.confirmAllText', { scope: deleteScope }) }}
     </BaseConfirmDialog>
   </div>
 </template>
 
 <style scoped>
 .history-page {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-lg);
+  padding-bottom: var(--space-4xl);
 }
-.history-page__filters {
+.list {
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: 12px;
+  overflow: clip;
+}
+.list__toolbar {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: var(--space-sm);
+  padding: 16px 24px;
+  border-bottom: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-page);
 }
+.list__empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  padding: 72px 24px;
+  text-align: center;
+}
+.list__empty-title { font-size: var(--font-size-body-l); font-weight: var(--font-weight-bold); }
+.list__empty-text { color: var(--color-text-secondary); margin-bottom: var(--space-sm); }
+.history-page__note { font-size: var(--font-size-detail-s); color: var(--color-text-secondary); }
 
 @media (max-width: 600px) {
-  .history-page__filters {
+  .list__toolbar {
     grid-template-columns: 1fr;
+    padding: 12px 16px;
   }
 }
 </style>

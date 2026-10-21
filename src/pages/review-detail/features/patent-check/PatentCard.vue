@@ -13,13 +13,14 @@ import BaseFormField from '@/shared/components/base/BaseFormField.vue'
 import BaseInput from '@/shared/components/base/BaseInput.vue'
 import InputWithAction from '@/shared/components/form/InputWithAction.vue'
 import { formatDate, formatDateTime } from '@/shared/utils/format'
+import { t } from '@/shared/i18n'
 
 const props = defineProps({
   patent: { type: Object, required: true },
 })
 const emit = defineEmits(['retry', 'confirm'])
 
-const status = computed(() => PATENT_STATUS_LABEL[props.patent.status] || {label:'확인 필요',variant:'warning'})
+const status = computed(() => PATENT_STATUS_LABEL[props.patent.status] || { label: t('reviewDetail.patent.needsCheck'), variant: 'warning' })
 const match = computed(() => (props.patent.match ? PATENT_MATCH_LABEL[props.patent.match.verdict] : null))
 const number = ref(props.patent.number)
 const inputId = `patent-${props.patent.id}`
@@ -34,60 +35,60 @@ const inputId = `patent-${props.patent.id}`
       <BaseBadge :variant="status.variant">{{ status.label }}</BaseBadge>
     </header>
     <p class="patent__origin">
-      추출 위치: {{ patent.origins?.join(', ') || '광고와 증빙에서 추출한 번호 후보' }}. 번호는 원본과 직접 확인해 주세요. OCR 정답 확률을 제공하지 않습니다.
+      {{ $t('reviewDetail.patent.origin', { origin: patent.origins?.join(', ') || $t('reviewDetail.patent.originDefault') }) }}
     </p>
 
     <!-- NFR-12: 자동 확정하지 않고 사용자 확인 요청 -->
     <div v-if="patent.status === PATENT_STATUS.NEEDS_CONFIRM" class="patent__confirm">
-      <BaseAlert variant="warning" title="특허번호를 확인해 주세요">
+      <BaseAlert variant="warning" :title="$t('reviewDetail.patent.confirmTitle')">
         <ul>
           <li v-for="note in patent.notes" :key="note">{{ note }}</li>
         </ul>
       </BaseAlert>
-      <BaseFormField label="확인한 특허 등록번호" :for-id="inputId" hint="형식: 10-0000000">
+      <BaseFormField :label="$t('reviewDetail.patent.confirmLabel')" :for-id="inputId" :hint="$t('reviewDetail.patent.confirmHint')">
         <InputWithAction>
           <BaseInput :id="inputId" v-model="number" placeholder="10-0000000" />
           <template #action>
-            <BaseButton size="sm" variant="secondary" :busy="patent.retrying" @click="emit('confirm', number)">확인 후 조회</BaseButton>
+            <BaseButton size="sm" variant="secondary" :busy="patent.retrying" @click="emit('confirm', number)">{{ $t('reviewDetail.patent.confirmSearch') }}</BaseButton>
           </template>
         </InputWithAction>
       </BaseFormField>
     </div>
 
     <!-- NFR-16: 조회 실패 — 다른 기능은 정상, 이 항목만 재시도 -->
-    <BaseAlert v-else-if="patent.status === PATENT_STATUS.ERROR" variant="danger" icon="cloud_off" title="특허 조회 실패">
+    <BaseAlert v-else-if="patent.status === PATENT_STATUS.ERROR" variant="danger" icon="cloud_off" :title="$t('reviewDetail.patent.errorTitle')">
       <div class="patent__retry">
-        <span>{{ patent.error }} — 특허 확인 결과만 보류되며, 다른 검토 결과는 정상입니다.</span>
-        <p>공식 API 설정 확인 후 원본 파일로 새 버전을 신청해 주세요.</p>
+        <span>{{ patent.error }} {{ $t('reviewDetail.patent.errorText') }}</span>
+        <p>{{ $t('reviewDetail.patent.errorHint') }}</p>
       </div>
     </BaseAlert>
 
     <!-- NFR-13: 결과 없음 → 단정하지 않음 -->
-    <BaseAlert v-else-if="patent.status === PATENT_STATUS.UNAVAILABLE" variant="neutral" icon="help" title="확인 불가">
-      조회 결과를 찾지 못했습니다. '특허 없음'이나 '광고와 불일치'로 판단하지 않으며, 특허등록증 사본으로 확인해 주세요.
+    <BaseAlert v-else-if="patent.status === PATENT_STATUS.UNAVAILABLE" variant="neutral" icon="help" :title="$t('reviewDetail.patent.unavailableTitle')">
+      {{ $t('reviewDetail.patent.unavailableText') }}
     </BaseAlert>
 
     <template v-else-if="patent.status === PATENT_STATUS.REGISTERED">
       <dl class="patent__info">
-        <div><dt>발명 명칭</dt><dd>{{ patent.data.title }}</dd></div>
-        <div><dt>특허권자</dt><dd>{{ patent.data.applicant || '미확인' }}</dd></div>
-        <div><dt>등록일</dt><dd>{{ formatDate(patent.data.registerDate) }}</dd></div>
+        <div><dt>{{ $t('reviewDetail.patent.inventionTitle') }}</dt><dd>{{ patent.data.title }}</dd></div>
+        <div><dt>{{ $t('reviewDetail.patent.holder') }}</dt><dd>{{ patent.data.applicant || $t('reviewDetail.patent.unknown') }}</dd></div>
+        <div><dt>{{ $t('reviewDetail.patent.registered') }}</dt><dd>{{ formatDate(patent.data.registerDate) }}</dd></div>
       </dl>
       <div class="patent__match">
         <p class="patent__match-head">
-          청구항 대조
+          {{ $t('reviewDetail.patent.claims') }}
           <BaseBadge :variant="match.variant">{{ match.label }}</BaseBadge>
         </p>
         <p class="patent__summary">{{ patent.match.summary }}</p>
         <table v-if="patent.match.reasons?.length" class="patent__table">
           <thead>
-            <tr><th scope="col">광고 주장</th><th scope="col">특허 원문 위치</th><th scope="col">대조 근거</th></tr>
+            <tr><th scope="col">{{ $t('reviewDetail.patent.adClaim') }}</th><th scope="col">{{ $t('reviewDetail.patent.location') }}</th><th scope="col">{{ $t('reviewDetail.patent.basis') }}</th></tr>
           </thead>
           <tbody>
             <tr v-for="reason in patent.match.reasons" :key="reason.adTerm">
               <td><strong>{{ reason.adTerm }}</strong><br /><span class="muted">{{ reason.adExcerpt }}</span></td>
               <td>{{ reason.location ?? '-' }}</td>
-              <td :class="{ muted: !reason.found }">{{ reason.patentExcerpt ?? '청구항, 명세서에서 확인되지 않음' }}</td>
+              <td :class="{ muted: !reason.found }">{{ reason.patentExcerpt ?? $t('reviewDetail.patent.notFoundInClaims') }}</td>
             </tr>
           </tbody>
         </table>
@@ -95,8 +96,8 @@ const inputId = `patent-${props.patent.id}`
     </template>
 
     <p v-if="patent.checkedAt" class="patent__trace">
-      조회 번호 {{ patent.confirmedNumber ?? patent.number }} ,  출처 {{ patent.source ?? '-' }} ,  조회 {{ formatDateTime(patent.checkedAt) }}
-      <template v-if="patent.confirmedBy"> ,  번호 확인 {{ patent.confirmedBy }}</template>
+      {{ $t('reviewDetail.patent.trace', { number: patent.confirmedNumber ?? patent.number, source: patent.source ?? '-', at: formatDateTime(patent.checkedAt) }) }}
+      <template v-if="patent.confirmedBy">, {{ $t('reviewDetail.patent.confirmedBy', { name: patent.confirmedBy }) }}</template>
     </p>
   </article>
 </template>

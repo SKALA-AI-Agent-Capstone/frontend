@@ -1,0 +1,4 @@
+{
+  "title": "Campaign batch processing",
+  "text": "This minimum release covers single reviews only. Setting up the RabbitMQ server and building the batch worker are separate work, so this screen does not accept batch submissions."
+}

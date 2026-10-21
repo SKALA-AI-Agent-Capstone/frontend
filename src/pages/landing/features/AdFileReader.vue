@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ARCHIVE_ADS, type ArchiveAd } from '../archive'
+import { t } from '@/shared/i18n'
 
 interface ReadFile {
   name: string
@@ -36,9 +37,9 @@ const orientation = computed(() => {
   const f = file.value
   if (!f?.width || !f.height) return null
   const ratio = f.height / f.width
-  if (ratio > 1.05) return `세로형, 가로의 ${ratio.toFixed(2)}배`
-  if (ratio < 0.95) return `가로형, 세로의 ${(1 / ratio).toFixed(2)}배`
-  return '정사각형에 가까움'
+  if (ratio > 1.05) return t('landing.reader.portrait', { ratio: ratio.toFixed(2) })
+  if (ratio < 0.95) return t('landing.reader.landscape', { ratio: (1 / ratio).toFixed(2) })
+  return t('landing.reader.square')
 })
 
 function formatBytes(bytes: number) {
@@ -81,7 +82,7 @@ async function readSample(ad: ArchiveAd) {
       local: false,
     }
   } catch {
-    error.value = '예시 이미지를 불러오지 못했습니다. 잠시 후 다시 골라 주세요.'
+    error.value = t('landing.reader.sampleError')
   }
 }
 
@@ -90,7 +91,7 @@ async function readLocal(picked: File | undefined) {
   error.value = ''
   const format = FORMATS[picked.type]
   if (!format) {
-    error.value = 'PDF, JPG, PNG, WEBP 파일만 올릴 수 있습니다.'
+    error.value = t('landing.reader.typeError')
     return
   }
   selectedSample.value = null
@@ -104,7 +105,7 @@ async function readLocal(picked: File | undefined) {
     const size = await measure(objectUrl)
     file.value = { name: picked.name, kind: 'image', format: format.label, bytes: picked.size, ...size, preview: objectUrl, local: true }
   } catch {
-    error.value = '이미지를 읽지 못했습니다. 파일이 손상되지 않았는지 확인해 주세요.'
+    error.value = t('landing.reader.readError')
   }
 }
 
@@ -123,8 +124,8 @@ onBeforeUnmount(releaseUrl)
 </script>
 
 <template>
-  <div data-ui class="reader" aria-label="광고 파일 읽기">
-    <p class="reader__title">광고 파일 읽기</p>
+  <div data-ui class="reader" :aria-label="$t('landing.reader.title')">
+    <p class="reader__title">{{ $t('landing.reader.title') }}</p>
 
     <div
       class="reader__drop"
@@ -139,34 +140,34 @@ onBeforeUnmount(releaseUrl)
       </div>
       <dl class="reader__readout" aria-live="polite">
         <!-- 파일이 바뀌어도 조각 크기가 변하지 않도록 항상 같은 다섯 줄을 한 줄씩 보여 준다 -->
-        <div><dt>파일</dt><dd :title="file?.name">{{ file?.name ?? '-' }}</dd></div>
-        <div><dt>형식</dt><dd>{{ file?.format ?? '-' }}</dd></div>
-        <div><dt>용량</dt><dd>{{ file ? formatBytes(file.bytes) : '-' }}</dd></div>
+        <div><dt>{{ $t('landing.reader.file') }}</dt><dd :title="file?.name">{{ file?.name ?? '-' }}</dd></div>
+        <div><dt>{{ $t('landing.reader.format') }}</dt><dd>{{ file?.format ?? '-' }}</dd></div>
+        <div><dt>{{ $t('landing.reader.size') }}</dt><dd>{{ file ? formatBytes(file.bytes) : '-' }}</dd></div>
         <template v-if="file?.kind === 'pdf'">
-          <div><dt>페이지</dt><dd>서버에서 확인</dd></div>
-          <div><dt>비율</dt><dd>-</dd></div>
+          <div><dt>{{ $t('landing.reader.pages') }}</dt><dd>{{ $t('landing.reader.pagesValue') }}</dd></div>
+          <div><dt>{{ $t('landing.reader.ratio') }}</dt><dd>-</dd></div>
         </template>
         <template v-else>
-          <div><dt>픽셀</dt><dd>{{ file?.width ? `${file.width} × ${file.height}` : '-' }}</dd></div>
-          <div><dt>비율</dt><dd>{{ orientation ?? '-' }}</dd></div>
+          <div><dt>{{ $t('landing.reader.pixels') }}</dt><dd>{{ file?.width ? `${file.width} × ${file.height}` : '-' }}</dd></div>
+          <div><dt>{{ $t('landing.reader.ratio') }}</dt><dd>{{ orientation ?? '-' }}</dd></div>
         </template>
       </dl>
     </div>
 
     <div class="reader__lanes">
-      <p><strong>문구</strong> 위반 소지를 판단하고 근거 조문을 찾습니다.</p>
-      <p><strong>사진</strong> 문구와 따로 표현을 살핍니다. 실제 효능을 판정하지 않습니다.</p>
+      <p><strong>{{ $t('landing.reader.copy') }}</strong> {{ $t('landing.reader.copyText') }}</p>
+      <p><strong>{{ $t('landing.reader.photo') }}</strong> {{ $t('landing.reader.photoText') }}</p>
     </div>
 
     <div class="reader__actions">
-      <button type="button" class="reader__pick" @click="input?.click()">내 광고 파일 고르기</button>
+      <button type="button" class="reader__pick" @click="input?.click()">{{ $t('landing.reader.pick') }}</button>
       <!-- 오류는 안내 문구 자리에 바꿔 보여 주어 조각 높이를 유지한다 -->
       <span v-if="error" class="reader__hint reader__error" role="alert">{{ error }}</span>
       <span v-else class="reader__hint">PDF, JPG, PNG, WEBP</span>
       <input ref="input" type="file" :accept="ACCEPT" class="sr-only" tabindex="-1" @change="onPick" />
     </div>
 
-    <div class="reader__samples" role="group" aria-label="옛 화장품 광고 예시">
+    <div class="reader__samples" role="group" :aria-label="$t('landing.reader.samples')">
       <button
         v-for="ad in ARCHIVE_ADS"
         :key="ad.id"

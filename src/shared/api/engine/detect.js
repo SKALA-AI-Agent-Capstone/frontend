@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n'
 /*
  * 위반 소지 문구 탐지 (FR-1, 2, 5) — 순수 함수.
  * 같은 위치에 여러 규칙이 겹치면 심각도가 높은 규칙을 우선한다.
@@ -66,8 +67,8 @@ export function extractClaims(findings) {
 /** 대체 표현 제안 → 화면 표시 문구 */
 export function rewriteLabel(rewrite) {
   if (typeof rewrite === 'string') return rewrite
-  if (rewrite.keep) return '현재 표현 유지 (증빙 제출)'
-  if (!rewrite.text) return '표현 삭제'
+  if (rewrite.keep) return t('common.rewrite.keep')
+  if (!rewrite.text) return t('common.rewrite.remove')
   return `"${rewrite.text}"`
 }
 

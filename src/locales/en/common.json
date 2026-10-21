@@ -1,0 +1,72 @@
+{
+  "site": {
+    "govLabel": "Company workspace",
+    "serviceName": "Cosmetic Ad Pre-review",
+    "mastheadText": "This is an internal ad pre-review development environment.",
+    "mastheadToggle": "How to verify the official site",
+    "adminLinkText": "Statute candidate search",
+    "demoNotice": "Local development: legal search covers only loaded sources (Cosmetics Act articles), and payments run in test mode."
+  },
+  "nav": {
+    "reviewNew": "Submit an ad review",
+    "history": "Review history",
+    "approvals": "Awaiting approval",
+    "standards": "Laws and notices",
+    "dashboard": "Dashboard"
+  },
+  "utility": {
+    "siteGuide": "Site guide",
+    "remoteSupport": "Remote support"
+  },
+  "footer": {
+    "contactTerm": "Operated by",
+    "contactDesc": "Capstone internal pre-review development environment",
+    "retentionNotice": "Review results, approval history and uploaded originals are kept on the server. Photo analysis is not a real efficacy ruling.",
+    "identifier": "This is not an official service run by the government or an industry association."
+  },
+  "roles": {
+    "writer": "Writer",
+    "reviewer": "Reviewer",
+    "admin": "Admin"
+  },
+  "steps": {
+    "write": "Fill in review details",
+    "diagnose": "AI pre-review",
+    "fix": "Check and fix findings",
+    "approved": "Approved"
+  },
+  "ledger": {
+    "charge": "Top-up",
+    "usage": "Usage"
+  },
+  "analysis": {
+    "prepare": { "title": "Prepare files", "description": "Stores the originals and splits long images into sections to analyze." },
+    "text": { "title": "Extract and check copy", "description": "Reads the copy in PDFs and images and finds wording that may violate the rules." },
+    "visual": { "title": "Check photos", "description": "Looks at comparison photos and visual claims separately from the copy." },
+    "business": { "title": "Legal grounds and official APIs", "description": "Finds related statutes for each phrase and checks submitted documents and official APIs." },
+    "approval": { "title": "Save results", "description": "Saves the results and waits for reviewer approval." }
+  },
+  "product": {
+    "functional": "Functional cosmetics",
+    "general": "General cosmetics (skincare, makeup)",
+    "baby": "Infant and children's cosmetics",
+    "custom": "Customized cosmetics"
+  },
+  "media": {
+    "live": { "label": "Live commerce", "description": "Scripts for live shopping streams" },
+    "detailPage": { "label": "Online product page", "description": "Own store and marketplaces" },
+    "print": { "label": "Print / outdoor", "description": "Catalogs, leaflets, billboards" },
+    "sns": { "label": "SNS / short-form", "description": "Instagram, YouTube, TikTok" },
+    "broadcast": { "label": "TV / radio", "description": "Broadcast and cable" }
+  },
+  "sourceType": {
+    "law": "Law",
+    "association": "Association advisory standard",
+    "guideline": "MFDS guideline",
+    "internal": "Internal guideline"
+  },
+  "rewrite": {
+    "keep": "Keep current wording (submit evidence)",
+    "remove": "Remove the wording"
+  }
+}

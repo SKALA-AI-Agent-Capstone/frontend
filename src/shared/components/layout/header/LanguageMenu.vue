@@ -1,15 +1,17 @@
 <!-- 언어 선택 드롭다운 — 국기 없이 해당 언어로 언어명 표기 -->
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { LANGUAGES } from '@/shared/constants/site'
+import { currentLocale, setLocale } from '@/shared/i18n'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 
 const open = ref(false)
-const current = ref(LANGUAGES[0].code)
+// 고른 언어는 브라우저에 저장되어 다음 방문에도 유지된다
+const current = computed(() => currentLocale())
 const rootRef = ref(null)
 
 function select(code) {
-  current.value = code
+  setLocale(code)
   open.value = false
 }
 

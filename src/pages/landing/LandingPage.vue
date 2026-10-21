@@ -18,72 +18,47 @@ import {
 import AdFileReader from './features/AdFileReader.vue'
 import { ARCHIVE_ADS } from './archive'
 import { useReveal } from './useReveal'
+import { t } from '@/shared/i18n'
+import LanguageMenu from '@/shared/components/layout/header/LanguageMenu.vue'
 
 const router = useRouter()
 const root = ref<HTMLElement | null>(null)
 const { ready } = useReveal(root)
-const anatomy = [
-  { id: 'lesquendieu', note: '한 장에 두 제품을 싣고, 그림보다 문구가 지면을 채웁니다.' },
-  { id: 'elida', note: '글자 하나가 그대로 그림이 되고, 제품명은 아래에 따로 놓입니다.' },
-  { id: 'lundborg', note: '제품명과 권유 문구가 그림의 위아래를 감쌉니다.' },
-  { id: 'klarybella', note: '인물 그림 위에 손글씨 문구가 겹쳐 있습니다.' },
-].map((item) => ({ ...item, ad: ARCHIVE_ADS.find((ad) => ad.id === item.id)! }))
+const anatomy = ['lesquendieu', 'elida', 'lundborg', 'klarybella']
+  .map((id) => ({ id, note: `landing.anatomy.notes.${id}` })).map((item) => ({ ...item, ad: ARCHIVE_ADS.find((ad) => ad.id === item.id)! }))
 const year = new Date().getFullYear()
 
 // 단계 배지는 앱의 실제 상태 표기(REVIEW_STATUS_LABEL, APPROVAL_LABEL)를 그대로 쓴다.
-const flow = [
+// 표의 값은 번역 키(문자열)이거나, 이미 번역된 label을 가진 상태 상수다
+const cell = (value: string | { label: string }) => (typeof value === 'string' ? t(value) : value.label)
+
+type FlowRow = [string, string | { label: string }]
+const flow: { key: string; status: { label: string; variant: string }; rows: FlowRow[] }[] = [
   {
-    title: '광고 파일 올리기',
-    text: 'PDF나 이미지를 올리고 검토를 시작합니다.',
+    key: 'upload',
     status: REVIEW_STATUS_LABEL[REVIEW_STATUS.QUEUED],
-    rows: [['형식', 'PDF, 이미지'], ['신청', '작성자']],
+    rows: [['landing.flow.upload.rows.format', 'landing.flow.upload.rows.formatValue'], ['landing.flow.upload.rows.submit', 'common.roles.writer']],
   },
   {
-    title: '문구와 사진 분석',
-    text: 'AI가 문구와 사진을 나눠 위반 소지를 판단합니다.',
+    key: 'analyze',
     status: REVIEW_STATUS_LABEL[REVIEW_STATUS.ANALYZING],
-    rows: [['문구', '위반 소지와 근거 조문'], ['사진', '표현 별도 검토']],
+    rows: [['landing.flow.analyze.rows.copy', 'landing.flow.analyze.rows.copyValue'], ['landing.flow.analyze.rows.photo', 'landing.flow.analyze.rows.photoValue']],
   },
   {
-    title: '문구별 처리 선택',
-    text: '분석이 끝나면 문구마다 처리 방법을 고릅니다.',
+    key: 'resolve',
     status: REVIEW_STATUS_LABEL[REVIEW_STATUS.DONE],
-    rows: Object.values(VIOLATION_RESOLUTION_LABEL).map((item, i) => [i === 0 ? '선택' : '', item.label]),
+    rows: Object.values(VIOLATION_RESOLUTION_LABEL).map((item, i) => [i === 0 ? 'landing.flow.resolve.rows.choose' : '', item]),
   },
   {
-    title: '검토자 승인',
-    text: '검토자가 승인, 수정 요청, 반려 중에서 결정합니다.',
+    key: 'approve',
     status: APPROVAL_LABEL[APPROVAL_STATE.PENDING],
-    rows: APPROVAL_ACTIONS.map((action, i) => [i === 0 ? '결정' : '', action.label]),
+    rows: APPROVAL_ACTIONS.map((action, i) => [i === 0 ? 'landing.flow.approve.rows.decide' : '', action]),
   },
 ]
 
-const faqs = [
-  {
-    q: 'AI 결과대로 바로 게시해도 되나요?',
-    a: 'AI가 위반 소지를 판단하고 근거와 대체 표현을 제시합니다.\n게시 전 최종 승인은 사내 검토자가 합니다.\n협회 자문이나 정부 인증을 대신하지 않습니다.',
-  },
-  {
-    q: '어떤 파일을 올릴 수 있나요?',
-    a: 'PDF와 이미지(JPG, PNG, WEBP) 두 가지입니다. 텍스트 PDF, 스캔 PDF, 긴 이미지는 서버가 나눠 처리하고, 카피를 직접 입력하는 화면은 없습니다.',
-  },
-  {
-    q: '올린 원본은 어떻게 되나요?',
-    a: '검토 결과, 승인 이력과 함께 서버에 보존됩니다. 위반 검토와 리포트 화면에서 원본을 다시 볼 수 있고, 새 버전으로 재검토할 때는 원본 파일을 다시 제출합니다.',
-  },
-  {
-    q: '법령 근거는 어디서 찾나요?',
-    a: '적재된 화장품법 조문에서 문구와 관련된 조문을 찾습니다.\nAI가 위반 소지로 본 문구마다 근거 조문을 함께 보여 줍니다.',
-  },
-  {
-    q: '다른 회사가 우리 자료를 볼 수 있나요?',
-    a: '볼 수 없습니다. 기업마다 작업공간이 나뉘고, 계정은 자기 기업의 자료에만 접근합니다.',
-  },
-  {
-    q: '비용이 드나요?',
-    a: '검토 사용량 과금은 아직 연결되지 않았습니다. 크레딧 충전 화면은 테스트 결제로만 동작합니다.',
-  },
-]
+// 질문과 답은 locales/*/landing.json의 faq 목록에 있다
+const FAQ_KEYS = ['publish', 'files', 'originals', 'legal', 'privacy', 'cost']
+const faqs = computed(() => FAQ_KEYS.map((key) => ({ q: t(`landing.faq.items.${key}.q`), a: t(`landing.faq.items.${key}.a`) })))
 const activeFaq = ref(0)
 const faqButtons: HTMLButtonElement[] = []
 
@@ -92,13 +67,13 @@ function onFaqKey(event: KeyboardEvent) {
   if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
   event.preventDefault()
   const step = event.key === 'ArrowDown' ? 1 : -1
-  activeFaq.value = (activeFaq.value + step + faqs.length) % faqs.length
+  activeFaq.value = (activeFaq.value + step + FAQ_KEYS.length) % FAQ_KEYS.length
   faqButtons[activeFaq.value]?.focus()
 }
 
 const startMode = ref<'new' | 'existing'>('new')
-const tenantName = ref('봄결 코스메틱')
-const startLabel = computed(() => (startMode.value === 'new' ? '이 이름으로 시작하기' : '로그인하러 가기'))
+const tenantName = ref(t('landing.cta.sampleTenant'))
+const startLabel = computed(() => t(startMode.value === 'new' ? 'landing.cta.startNew' : 'landing.cta.goLogin'))
 
 function start() {
   if (startMode.value === 'existing') {
@@ -118,19 +93,19 @@ function start() {
         <RouterLink :to="{ name: ROUTE_NAMES.LANDING }" class="wordmark">Beauty Review</RouterLink>
         <div class="hero__text">
           <h1 id="landing-title" class="hero__title lines">
-            <span class="line"><span data-line style="--i: 0">화장품 광고를</span></span>
-            <span class="line"><span data-line style="--i: 1">게시 전에 검토합니다</span></span>
+            <span class="line"><span data-line style="--i: 0">{{ $t('landing.hero.title1') }}</span></span>
+            <span class="line"><span data-line style="--i: 1">{{ $t('landing.hero.title2') }}</span></span>
           </h1>
           <p class="hero__lead fade-up">
-            PDF나 이미지 광고를 올리면 AI가 문구와 사진을 나눠 읽고,<br class="br-wide" /> 위반 소지와 근거 조문, 대체 표현을 알려 줍니다.
+            {{ $t('landing.hero.lead1') }}<br class="br-wide" /> {{ $t('landing.hero.lead2') }}
           </p>
           <div class="hero__actions fade-up">
-            <RouterLink :to="{ name: ROUTE_NAMES.SIGNUP }" class="btn btn--accent">기업 작업공간 만들기</RouterLink>
+            <RouterLink :to="{ name: ROUTE_NAMES.SIGNUP }" class="btn btn--accent">{{ $t('landing.hero.cta') }}</RouterLink>
           </div>
         </div>
       </div>
       <div class="hero__stage">
-        <RouterLink :to="{ name: ROUTE_NAMES.LOGIN }" class="hero__login">로그인</RouterLink>
+        <div class="hero__top"><LanguageMenu class="hero__lang" /><RouterLink :to="{ name: ROUTE_NAMES.LOGIN }" class="hero__login">{{ $t('landing.login') }}</RouterLink></div>
         <AdFileReader class="fade-up" />
       </div>
     </section>
@@ -138,7 +113,7 @@ function start() {
     <!-- 광고 한 장의 구성: 공개 도메인 옛 광고로 문구와 그림이 섞이는 모습을 보여 준다 -->
     <section class="anatomy page-frame" aria-labelledby="anatomy-title">
       <div class="anatomy__head" data-reveal>
-        <h2 id="anatomy-title" class="section-title">문구와 그림은 따로 읽습니다</h2>
+        <h2 id="anatomy-title" class="section-title">{{ $t('landing.anatomy.title') }}</h2>
       </div>
       <ul class="anatomy__row">
         <li v-for="item in anatomy" :key="item.id" class="anatomy__item" data-reveal>
@@ -148,7 +123,7 @@ function start() {
             </div>
             <figcaption>
               <span class="anatomy__caption">{{ item.ad.caption }}</span>
-              <span class="anatomy__note">{{ item.note }}</span>
+              <span class="anatomy__note">{{ $t(item.note) }}</span>
             </figcaption>
           </figure>
         </li>
@@ -158,14 +133,14 @@ function start() {
     <!-- 흐름: 한 건이 신청부터 승인까지 거치는 상태. 배지는 앱의 실제 상태 표기다 -->
     <section class="flow" aria-labelledby="flow-title">
       <div class="flow__inner page-frame">
-        <h2 id="flow-title" class="section-title" data-reveal>Beauty Review 파이프라인</h2>
+        <h2 id="flow-title" class="section-title" data-reveal>{{ $t('landing.flow.title') }}</h2>
         <ol class="flow__track">
-          <li v-for="(step, i) in flow" :key="step.title" class="flow__step" data-reveal :style="{ '--i': i }">
+          <li v-for="(step, i) in flow" :key="step.key" class="flow__step" data-reveal :style="{ '--i': i }">
             <p class="flow__badge" :class="`flow__badge--${step.status.variant}`">{{ step.status.label }}</p>
-            <h3 class="flow__title">{{ step.title }}</h3>
-            <p class="flow__text">{{ step.text }}</p>
+            <h3 class="flow__title">{{ $t(`landing.flow.${step.key}.title`) }}</h3>
+            <p class="flow__text">{{ $t(`landing.flow.${step.key}.text`) }}</p>
             <dl data-ui class="flow__detail">
-              <div v-for="row in step.rows" :key="row[1]" :class="{ 'is-cont': !row[0] }"><dt>{{ row[0] }}</dt><dd>{{ row[1] }}</dd></div>
+              <div v-for="(row, r) in step.rows" :key="r" :class="{ 'is-cont': !row[0] }"><dt>{{ row[0] ? $t(row[0]) : '' }}</dt><dd>{{ cell(row[1]) }}</dd></div>
             </dl>
           </li>
         </ol>
@@ -174,48 +149,48 @@ function start() {
 
     <!-- 작업공간 기능: 문장과 실제 화면 조각이 엇갈려 놓인다 -->
     <section class="features page-frame" aria-labelledby="features-title">
-      <h2 id="features-title" class="section-title" data-reveal>작업공간</h2>
+      <h2 id="features-title" class="section-title" data-reveal>{{ $t('landing.features.title') }}</h2>
       <div class="features__grid">
         <article class="cell cell--text-top" data-reveal>
           <div class="cell__text">
-            <h3>사내 역할을 나눕니다</h3>
-            <p>마케팅 담당자는 작성자로 신청하고, <span class="nb">법무나 허가 담당자는</span> 검토자로 승인합니다. 작업공간을 만든 계정은 관리자가 됩니다.</p>
+            <h3>{{ $t('landing.features.roles.title') }}</h3>
+            <p>{{ $t('landing.features.roles.text') }}</p>
           </div>
           <div data-ui class="frag frag--members frag--dock-bottom">
-            <p class="frag__label">구성원</p>
+            <p class="frag__label">{{ $t('landing.features.roles.members') }}</p>
             <ul>
-              <li><span>김하늘</span><span class="chip">작성자</span></li>
-              <li class="is-hover"><span>이도윤</span><span class="chip chip--blue">검토자</span></li>
-              <li><span>박서연</span><span class="chip chip--navy">관리자</span></li>
+              <li><span>{{ $t('landing.sample.people.a') }}</span><span class="chip">{{ $t('common.roles.writer') }}</span></li>
+              <li class="is-hover"><span>{{ $t('landing.sample.people.b') }}</span><span class="chip chip--blue">{{ $t('common.roles.reviewer') }}</span></li>
+              <li><span>{{ $t('landing.sample.people.c') }}</span><span class="chip chip--navy">{{ $t('common.roles.admin') }}</span></li>
             </ul>
           </div>
         </article>
 
         <article class="cell cell--frag-top" data-reveal>
           <div data-ui class="frag frag--search frag--dock-top">
-            <p class="frag__label">법령 검색 범위</p>
-            <p class="frag__value">적재된 화장품법 조문</p>
-            <p class="frag__note">위반 소지 문구마다 근거 조문을 제시합니다</p>
-            <span class="chip chip--amber">적재 자료 기준</span>
+            <p class="frag__label">{{ $t('landing.features.basis.scope') }}</p>
+            <p class="frag__value">{{ $t('landing.features.basis.scopeValue') }}</p>
+            <p class="frag__note">{{ $t('landing.features.basis.note') }}</p>
+            <span class="chip chip--amber">{{ $t('landing.features.basis.chip') }}</span>
           </div>
           <div class="cell__text">
-            <h3>근거 조문을 붙입니다</h3>
-            <p>AI가 위반 소지로 본 문구마다 적재된 화장품법에서 찾은 근거 조문을 붙입니다.</p>
+            <h3>{{ $t('landing.features.basis.title') }}</h3>
+            <p>{{ $t('landing.features.basis.text') }}</p>
           </div>
         </article>
 
         <article class="cell cell--text-top" data-reveal>
           <div class="cell__text">
-            <h3>원본을 보존합니다</h3>
-            <p>업로드한 원본은 검토 결과, 승인 이력과 함께 서버에 보존되어 위반 검토와 리포트에서 다시 볼 수 있습니다.</p>
+            <h3>{{ $t('landing.features.originals.title') }}</h3>
+            <p>{{ $t('landing.features.originals.text') }}</p>
           </div>
           <div data-ui class="frag frag--table frag--dock-bottom">
             <table>
               <tbody>
-                <tr><th scope="row">광고 원본</th><td>서버 보존</td></tr>
-                <tr><th scope="row">검토 결과</th><td>서버 보존</td></tr>
-                <tr><th scope="row">승인 이력</th><td>서버 보존</td></tr>
-                <tr><th scope="row">다시 보기</th><td>위반 검토, 리포트 화면</td></tr>
+                <tr><th scope="row">{{ $t('landing.features.originals.rows.ad') }}</th><td>{{ $t('landing.features.originals.rows.kept') }}</td></tr>
+                <tr><th scope="row">{{ $t('landing.features.originals.rows.result') }}</th><td>{{ $t('landing.features.originals.rows.kept') }}</td></tr>
+                <tr><th scope="row">{{ $t('landing.features.originals.rows.approvals') }}</th><td>{{ $t('landing.features.originals.rows.kept') }}</td></tr>
+                <tr><th scope="row">{{ $t('landing.features.originals.rows.view') }}</th><td>{{ $t('landing.features.originals.rows.viewValue') }}</td></tr>
               </tbody>
             </table>
           </div>
@@ -223,39 +198,39 @@ function start() {
 
         <article class="cell cell--frag-top" data-reveal>
           <div data-ui class="frag frag--versions frag--dock-top">
-            <p class="frag__label">버전</p>
+            <p class="frag__label">{{ $t('landing.features.versions.label') }}</p>
             <ol>
-              <li class="is-current"><span>v2</span><span>문구 수정본</span><span class="chip chip--amber">{{ APPROVAL_LABEL[APPROVAL_STATE.PENDING].label }}</span></li>
-              <li><span>v1</span><span>최초 신청</span><span class="chip chip--blue">{{ APPROVAL_LABEL[APPROVAL_STATE.CHANGES_REQUESTED].label }}</span></li>
+              <li class="is-current"><span>v2</span><span>{{ $t('landing.features.versions.v2') }}</span><span class="chip chip--amber">{{ APPROVAL_LABEL[APPROVAL_STATE.PENDING].label }}</span></li>
+              <li><span>v1</span><span>{{ $t('landing.features.versions.v1') }}</span><span class="chip chip--blue">{{ APPROVAL_LABEL[APPROVAL_STATE.CHANGES_REQUESTED].label }}</span></li>
             </ol>
           </div>
           <div class="cell__text">
-            <h3>고치면 새 버전으로</h3>
-            <p>원본 파일을 다시 제출하면 이전 결과를 덮어쓰지 않고 새 버전으로 재검토합니다.</p>
+            <h3>{{ $t('landing.features.versions.title') }}</h3>
+            <p>{{ $t('landing.features.versions.text') }}</p>
           </div>
         </article>
 
         <article class="cell cell--text-top" data-reveal>
           <div class="cell__text">
-            <h3>리포트로 남깁니다</h3>
-            <p>확인할 문구, 증빙 대조, 특허 확인, 사진 검토, 승인 이력을 리포트 한 장으로 정리합니다.</p>
+            <h3>{{ $t('landing.features.report.title') }}</h3>
+            <p>{{ $t('landing.features.report.text') }}</p>
           </div>
           <div data-ui class="frag frag--report frag--dock-bottom">
-            <p class="frag__value">심의 리포트</p>
-            <p class="frag__note">확인할 문구, 증빙 대조, 특허 확인, 사진 독립 검토, 승인 이력</p>
-            <span class="frag__button">인쇄, PDF 저장</span>
+            <p class="frag__value">{{ $t('landing.features.report.name') }}</p>
+            <p class="frag__note">{{ $t('landing.features.report.note') }}</p>
+            <span class="frag__button">{{ $t('landing.features.report.button') }}</span>
           </div>
         </article>
 
         <article class="cell cell--frag-top" data-reveal>
           <div data-ui class="frag frag--tenant frag--dock-top">
-            <p class="frag__label">작업공간</p>
-            <p class="frag__value">봄결 코스메틱</p>
-            <p class="frag__note">다른 기업 자료 접근 불가</p>
+            <p class="frag__label">{{ $t('landing.features.tenant.label') }}</p>
+            <p class="frag__value">{{ $t('landing.cta.sampleTenant') }}</p>
+            <p class="frag__note">{{ $t('landing.features.tenant.note') }}</p>
           </div>
           <div class="cell__text">
-            <h3>기업마다 따로</h3>
-            <p>기업마다 작업공간이 분리되어, 계정은 자기 회사의 광고와 이력만 볼 수 있습니다.</p>
+            <h3>{{ $t('landing.features.tenant.title') }}</h3>
+            <p>{{ $t('landing.features.tenant.text') }}</p>
           </div>
         </article>
       </div>
@@ -265,8 +240,8 @@ function start() {
     <section class="faq" aria-labelledby="faq-title">
       <div class="faq__inner page-frame">
         <div class="faq__intro" data-reveal>
-          <h2 id="faq-title" class="section-title">자주 묻는 질문</h2>
-          <p class="faq__lead">검토를 신청하기 전에 가장 많이 확인하는 내용입니다.</p>
+          <h2 id="faq-title" class="section-title">{{ $t('landing.faq.title') }}</h2>
+          <p class="faq__lead">{{ $t('landing.faq.lead') }}</p>
         </div>
         <ul class="faq__list" data-reveal @keydown="onFaqKey">
           <li v-for="(item, i) in faqs" :key="item.q" class="faq__item" :class="{ 'is-active': activeFaq === i }">
@@ -301,21 +276,21 @@ function start() {
     <section class="cta" aria-labelledby="cta-title">
       <div class="cta__copy page-frame">
         <div class="cta__text" data-reveal>
-          <h2 id="cta-title" class="cta__title">첫 광고를<br />올려 보세요</h2>
-          <p class="cta__lead">작업공간을 만들면 관리자 계정이 생기고, 바로 첫 검토를 신청할 수 있습니다.</p>
+          <h2 id="cta-title" class="cta__title">{{ $t('landing.cta.title1') }}<br />{{ $t('landing.cta.title2') }}</h2>
+          <p class="cta__lead">{{ $t('landing.cta.lead1') }}<br class="br-wide" /> {{ $t('landing.cta.lead2') }}</p>
         </div>
         <form data-ui class="dialog" data-reveal aria-labelledby="dialog-title" @submit.prevent="start">
-          <p id="dialog-title" class="dialog__title">기업 작업공간 만들기</p>
-          <div class="dialog__seg" role="radiogroup" aria-label="시작 방법">
-            <button type="button" role="radio" :aria-checked="startMode === 'new'" :class="{ 'is-on': startMode === 'new' }" @click="startMode = 'new'">새 작업공간</button>
-            <button type="button" role="radio" :aria-checked="startMode === 'existing'" :class="{ 'is-on': startMode === 'existing' }" @click="startMode = 'existing'">이미 계정이 있음</button>
+          <p id="dialog-title" class="dialog__title">{{ $t('landing.hero.cta') }}</p>
+          <div class="dialog__seg" role="radiogroup" :aria-label="$t('landing.cta.mode')">
+            <button type="button" role="radio" :aria-checked="startMode === 'new'" :class="{ 'is-on': startMode === 'new' }" @click="startMode = 'new'">{{ $t('landing.cta.modeNew') }}</button>
+            <button type="button" role="radio" :aria-checked="startMode === 'existing'" :class="{ 'is-on': startMode === 'existing' }" @click="startMode = 'existing'">{{ $t('landing.cta.modeExisting') }}</button>
           </div>
           <div class="dialog__slot">
           <label class="dialog__field" :class="{ 'is-off': startMode !== 'new' }" :aria-hidden="startMode !== 'new'">
-            기업명
+            {{ $t('landing.cta.tenantLabel') }}
             <input v-model="tenantName" maxlength="120" autocomplete="organization" :required="startMode === 'new'" />
           </label>
-          <p class="dialog__note" :class="{ 'is-off': startMode === 'new' }" :aria-hidden="startMode === 'new'">기존 계정의 이메일과 비밀번호로 로그인합니다.</p>
+          <p class="dialog__note" :class="{ 'is-off': startMode === 'new' }" :aria-hidden="startMode === 'new'">{{ $t('landing.cta.existingNote') }}</p>
           </div>
           <button type="submit" class="dialog__submit">{{ startLabel }}</button>
         </form>
@@ -324,19 +299,19 @@ function start() {
 
     <footer class="foot page-frame">
       <p class="foot__what">{{ SITE.serviceName }}</p>
-      <nav class="foot__links" aria-label="바닥글">
-        <RouterLink :to="{ name: ROUTE_NAMES.LOGIN }">로그인</RouterLink>
-        <RouterLink :to="{ name: ROUTE_NAMES.SIGNUP }">작업공간 만들기</RouterLink>
+      <nav class="foot__links" :aria-label="$t('landing.foot.label')">
+        <RouterLink :to="{ name: ROUTE_NAMES.LOGIN }">{{ $t('landing.login') }}</RouterLink>
+        <RouterLink :to="{ name: ROUTE_NAMES.SIGNUP }">{{ $t('landing.foot.signup') }}</RouterLink>
         <details class="foot__credits">
-          <summary>이미지 출처</summary>
+          <summary>{{ $t('landing.foot.credits') }}</summary>
           <ul>
             <li v-for="ad in ARCHIVE_ADS" :key="ad.id">
-              <a :href="ad.page" target="_blank" rel="noopener noreferrer">{{ ad.caption }}</a>, 퍼블릭 도메인, 위키미디어 공용
+              <a :href="ad.page" target="_blank" rel="noopener noreferrer">{{ ad.caption }}</a>, {{ $t('landing.foot.creditLine') }}
             </li>
           </ul>
         </details>
       </nav>
-      <p class="foot__meta">{{ year }} Beauty Review Capstone. 공식 심의 서비스가 아닙니다.</p>
+      <p class="foot__meta">{{ year }} Beauty Review Capstone. {{ $t('landing.foot.notOfficial') }}</p>
     </footer>
   </div>
 </template>
@@ -425,10 +400,17 @@ function start() {
   place-items: center;
   padding: 96px var(--frame) 64px;
 }
-.hero__login {
+.hero__top {
   position: absolute;
-  top: 40px;
+  top: 32px;
   right: var(--frame);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--krds-gray-0);
+}
+.hero__top :deep(.lang-menu__trigger) { color: var(--krds-gray-0); }
+.hero__login {
   color: var(--krds-gray-0);
   font-size: 15px;
   font-weight: var(--font-weight-bold);

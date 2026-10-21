@@ -1,3 +1,4 @@
+import { textMap } from '@/shared/i18n'
 /*
  * 참조 기준 출처 (NFR-6 최신성 ,  NFR-11 출처, 버전 관리)
  * ⚠ 데모 데이터: 버전, 개정일, 협회 기준 항목명은 예시입니다. 실제 서비스에서는 기준 관리 백엔드에서 내려받는다.
@@ -10,11 +11,11 @@ export const SOURCE_TYPES = Object.freeze({
   INTERNAL: 'internal',
 })
 
-export const SOURCE_TYPE_LABEL = Object.freeze({
-  [SOURCE_TYPES.LAW]: '법령',
-  [SOURCE_TYPES.ASSOCIATION]: '협회 자문 기준',
-  [SOURCE_TYPES.GUIDELINE]: '식약처 가이드라인',
-  [SOURCE_TYPES.INTERNAL]: '사내 지침',
+export const SOURCE_TYPE_LABEL = textMap({
+  [SOURCE_TYPES.LAW]: 'common.sourceType.law',
+  [SOURCE_TYPES.ASSOCIATION]: 'common.sourceType.association',
+  [SOURCE_TYPES.GUIDELINE]: 'common.sourceType.guideline',
+  [SOURCE_TYPES.INTERNAL]: 'common.sourceType.internal',
 })
 
 export const STANDARD_SOURCES = [

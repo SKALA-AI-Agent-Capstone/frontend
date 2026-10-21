@@ -18,10 +18,10 @@ const counts = computed(() =>
 </script>
 
 <template>
-  <ul class="severity-summary" :class="{ 'severity-summary--compact': compact }" aria-label="심각도별 탐지 건수">
+  <ul class="severity-summary" :class="{ 'severity-summary--compact': compact }" :aria-label="$t('ui.severitySummary')">
     <li v-for="item in counts" :key="item.severity" class="severity-summary__item" :class="`tone-${item.variant}`">
       <span class="severity-summary__label">{{ compact ? item.short : item.label }}</span>
-      <strong class="severity-summary__count">{{ item.count }}<span class="sr-only">건</span></strong>
+      <strong class="severity-summary__count">{{ item.count }}<span class="sr-only">{{ $t('ui.countUnit') }}</span></strong>
     </li>
   </ul>
 </template>

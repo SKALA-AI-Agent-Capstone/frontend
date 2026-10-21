@@ -17,8 +17,8 @@ defineProps({
     <div class="form-field__label-row">
       <label class="form-field__label" :for="forId">
         {{ label }}
-        <span v-if="required" class="form-field__required" aria-label="필수">*</span>
-        <span v-if="optional" class="form-field__optional">(선택)</span>
+        <span v-if="required" class="form-field__required" :aria-label="$t('ui.form.required')">*</span>
+        <span v-if="optional" class="form-field__optional">{{ $t('ui.form.optional') }}</span>
       </label>
       <slot name="label-action" />
     </div>

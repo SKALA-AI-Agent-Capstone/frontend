@@ -37,7 +37,7 @@ const segments = computed(() => {
       >
         <span class="mark__no" aria-hidden="true">{{ numberOf(seg.finding) }}</span>
         {{ seg.text }}
-        <span class="sr-only">(탐지 {{ numberOf(seg.finding) }}번)</span>
+        <span class="sr-only">{{ $t('ui.findingNo', { no: numberOf(seg.finding) }) }}</span>
       </component>
       <template v-else>{{ seg.text }}</template>
     </template>

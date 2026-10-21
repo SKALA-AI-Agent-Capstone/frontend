@@ -1,29 +1,21 @@
 <!--
   헤더 (KRDS 아이덴티티 / 헤더) — 시안 krds_1 구성
-  순서: (건너뛰기 링크 ,  공식 배너는 레이아웃에서 먼저 렌더) → 서비스 아이덴티티 → 유틸리티 → 크레딧, 사용자 → 메인 메뉴
+  순서: (건너뛰기 링크 ,  공식 배너는 레이아웃에서 먼저 렌더) → 서비스 아이덴티티 → 유틸리티 → 크레딧, 사용자.
+  주 메뉴 줄은 두지 않는다. 화면 이동은 대시보드 카드와 사용자 메뉴가 맡는다.
   스크롤을 내릴 때는 고정하지 않고, 올릴 때 공식 배너를 제외한 헤더 전체를 상단에 고정한다.
 -->
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { SITE } from '@/shared/constants/site'
 import { useScrollDirection } from '@/shared/composables/useScrollDirection'
-import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import PageContainer from './PageContainer.vue'
 import HeaderActions from './header/HeaderActions.vue'
 import HeaderUtility from './header/HeaderUtility.vue'
-import MainMenu from './header/MainMenu.vue'
 
-const route = useRoute()
 const { isScrollingUp, isAtTop } = useScrollDirection()
-const menuOpen = ref(false)
 
-const hidden = computed(() => !isAtTop.value && !isScrollingUp.value && !menuOpen.value)
-
-watch(() => route.fullPath, () => {
-  menuOpen.value = false
-})
+const hidden = computed(() => !isAtTop.value && !isScrollingUp.value)
 </script>
 
 <template>
@@ -43,26 +35,10 @@ watch(() => route.fullPath, () => {
 
       <div class="app-header__right">
         <HeaderUtility class="app-header__utility" />
-        <HeaderActions :menu-open="menuOpen" @toggle-menu="menuOpen = !menuOpen" />
+        <HeaderActions />
       </div>
     </PageContainer>
 
-    <nav class="gnb" aria-label="주 메뉴">
-      <PageContainer class="gnb__inner">
-        <MainMenu />
-        <span class="gnb__admin">
-          <BaseIcon name="verified_user" size="xs" />
-          {{ SITE.adminLinkText }}
-        </span>
-      </PageContainer>
-    </nav>
-
-    <nav v-show="menuOpen" id="mobile-menu" class="mobile-menu" aria-label="전체 메뉴">
-      <PageContainer>
-        <MainMenu vertical @navigate="menuOpen = false" />
-        <HeaderUtility class="mobile-menu__utility" />
-      </PageContainer>
-    </nav>
   </header>
 </template>
 
@@ -130,44 +106,10 @@ watch(() => route.fullPath, () => {
   color: var(--color-primary);
 }
 
-.gnb {
-  border-top: var(--border-width) solid var(--color-border);
-}
-.gnb__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-}
-.gnb__admin {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-sm);
-  border: var(--border-width) solid var(--color-border);
-  font-size: var(--font-size-detail-s);
-  color: var(--color-secondary);
-  white-space: nowrap;
-}
-
-.mobile-menu {
-  display: none;
-  border-top: var(--border-width) solid var(--color-border);
-  padding-bottom: var(--space-lg);
-}
-.mobile-menu__utility {
-  margin-top: var(--space-lg);
-}
 
 @media (max-width: 1024px) {
-  .gnb,
   .app-header__utility {
     display: none;
-  }
-  /* 열림/닫힘은 v-show(inline style)가 제어 */
-  .mobile-menu {
-    display: block;
   }
 }
 @media (max-width: 600px) {

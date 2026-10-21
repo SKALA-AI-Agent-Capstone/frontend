@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
+import { t } from '@/shared/i18n'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
@@ -25,8 +26,8 @@ const recheckVariant = computed(() => (session.can(PERMISSIONS.REVIEW_APPROVE) ?
 
 const statusText = computed(() =>
   findings.value.length
-    ? `위반 소지 ${findings.value.length}건 중 ${revisedCount.value}건 수정안 반영${ready.value ? ' — 재심의를 진행할 수 있습니다' : ''}`
-    : '검토 후보가 없습니다. 법령 적합성을 확인한 결과는 아닙니다.',
+    ? t(ready.value ? 'reviewDetail.bar.ready' : 'reviewDetail.bar.progress', { total: findings.value.length, done: revisedCount.value })
+    : t('reviewDetail.bar.none'),
 )
 
 async function remove() {
@@ -44,22 +45,22 @@ async function remove() {
       {{ statusText }}
     </p>
     <div class="action-bar__buttons">
-      <BaseButton v-if="reviews.canDelete(review)" variant="ghost" icon="delete" @click="confirmOpen = true">삭제</BaseButton>
+      <BaseButton v-if="reviews.canDelete(review)" variant="ghost" icon="delete" @click="confirmOpen = true">{{ $t('reviewDetail.bar.delete') }}</BaseButton>
       <BaseButton
         variant="outline"
         icon="download"
         :to="{ name: ROUTE_NAMES.REVIEW_REPORT, params: { id: review.id }, query: { v: version.no } }"
       >
-        심의 리포트
+        {{ $t('reviewDetail.bar.report') }}
       </BaseButton>
       <BaseButton v-if="isLatest" :variant="recheckVariant" icon="send" @click="reviseAndRecheck">
-        {{ revisedCount ? '수정안 참고해 새 파일 검토' : '새 파일로 재검토' }}
+        {{ $t(revisedCount ? 'reviewDetail.bar.recheckRevised' : 'reviewDetail.bar.recheck') }}
       </BaseButton>
     </div>
   </div>
 
-  <BaseConfirmDialog v-model:open="confirmOpen" title="심의 건을 삭제할까요?" confirm-label="삭제" danger @confirm="remove">
-    '{{ review.productName }}'의 모든 버전({{ review.versions.length }}개)과 판정, 근거, 승인 이력이 삭제되며 되돌릴 수 없습니다.
+  <BaseConfirmDialog v-model:open="confirmOpen" :title="$t('reviewDetail.bar.confirmTitle')" :confirm-label="$t('reviewDetail.bar.delete')" danger @confirm="remove">
+    {{ $t('reviewDetail.bar.confirmText', { name: review.productName, count: review.versions.length }) }}
   </BaseConfirmDialog>
 </template>
 

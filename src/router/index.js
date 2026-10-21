@@ -1,4 +1,6 @@
+import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { currentLocale, t } from '@/shared/i18n'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import { NAV_KEYS, ROUTE_NAMES } from '@/shared/constants/routes'
 import { useReviewsStore } from '@/shared/stores/reviews'
@@ -16,13 +18,13 @@ const routes = [
     path: '/login',
     name: ROUTE_NAMES.LOGIN,
     component: () => import('@/pages/login/LoginPage.vue'),
-    meta: { title: '로그인', layout: 'blank', public: true },
+    meta: { title: 'ui.titles.login', layout: 'blank', public: true },
   },
   {
     path: '/signup',
     name: ROUTE_NAMES.SIGNUP,
     component: () => import('@/pages/signup/SignupPage.vue'),
-    meta: { title: '회원가입', layout: 'blank', public: true },
+    meta: { title: 'ui.titles.signup', layout: 'blank', public: true },
   },
   {
     path: '/',
@@ -34,49 +36,49 @@ const routes = [
     path: '/reviews/new',
     name: ROUTE_NAMES.REVIEW_NEW,
     component: () => import('@/pages/review-new/ReviewNewPage.vue'),
-    meta: { title: '자율심의 신청', navKey: NAV_KEYS.REVIEW_NEW, permission: PERMISSIONS.REVIEW_CREATE },
+    meta: { title: 'ui.titles.reviewNew', navKey: NAV_KEYS.REVIEW_NEW, permission: PERMISSIONS.REVIEW_CREATE },
   },
   {
     path: '/reviews/:id',
     name: ROUTE_NAMES.REVIEW_DETAIL,
     component: () => import('@/pages/review-detail/ReviewDetailPage.vue'),
-    meta: { title: '위반사항 분석 및 보완', navKey: NAV_KEYS.HISTORY },
+    meta: { title: 'ui.titles.reviewDetail', navKey: NAV_KEYS.HISTORY },
   },
   {
     path: '/reviews/:id/report',
     name: ROUTE_NAMES.REVIEW_REPORT,
     component: () => import('@/pages/review-report/ReviewReportPage.vue'),
-    meta: { title: '심의 리포트', layout: 'blank' },
+    meta: { title: 'ui.titles.report', layout: 'blank' },
   },
   {
     path: '/batch',
     name: ROUTE_NAMES.BATCH,
     component: () => import('@/pages/batch/BatchPage.vue'),
-    meta: { title: '캠페인 일괄 심의', navKey: NAV_KEYS.BATCH, permission: PERMISSIONS.REVIEW_CREATE },
+    meta: { title: 'ui.titles.batch', navKey: NAV_KEYS.BATCH, permission: PERMISSIONS.REVIEW_CREATE },
   },
   {
     path: '/history',
     name: ROUTE_NAMES.HISTORY,
     component: () => import('@/pages/history/HistoryPage.vue'),
-    meta: { title: '심의 이력', navKey: NAV_KEYS.HISTORY },
+    meta: { title: 'ui.titles.history', navKey: NAV_KEYS.HISTORY },
   },
   {
     path: '/approvals',
     name: ROUTE_NAMES.APPROVALS,
     component: () => import('@/pages/approvals/ApprovalsPage.vue'),
-    meta: { title: '승인 대기', navKey: NAV_KEYS.APPROVALS, permission: PERMISSIONS.REVIEW_APPROVE },
+    meta: { title: 'ui.titles.approvals', navKey: NAV_KEYS.APPROVALS, permission: PERMISSIONS.REVIEW_APPROVE },
   },
   {
     path: '/credits',
     name: ROUTE_NAMES.CREDITS,
     component: () => import('@/pages/credits/CreditsPage.vue'),
-    meta: { title: '크레딧' },
+    meta: { title: 'ui.titles.credits' },
   },
   {
     path: '/standards',
     name: ROUTE_NAMES.STANDARDS,
     component: () => import('@/pages/standards/StandardsPage.vue'),
-    meta: { title: '법령,고시 자료실', navKey: NAV_KEYS.STANDARDS },
+    meta: { title: 'ui.titles.standards', navKey: NAV_KEYS.STANDARDS },
   },
   { path: '/:pathMatch(.*)*', redirect: { name: ROUTE_NAMES.DASHBOARD } },
 ]
@@ -105,7 +107,13 @@ router.beforeEach(async (to) => {
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} | ${SITE.serviceName}` : SITE.serviceName
+  // 언어를 바꾸면 현재 화면 제목도 다시 쓴다
+  setDocumentTitle(to)
 })
+
+function setDocumentTitle(route) {
+  document.title = route.meta.title ? `${t(route.meta.title)} | ${SITE.serviceName}` : SITE.serviceName
+}
+watch(() => currentLocale(), () => setDocumentTitle(router.currentRoute.value))
 
 export default router

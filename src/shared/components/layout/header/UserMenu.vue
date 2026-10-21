@@ -2,12 +2,16 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ROLE_LABEL } from '@/shared/constants/roles'
+import { PERMISSIONS, ROLE_LABEL } from '@/shared/constants/roles'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import { useSessionStore } from '@/shared/stores/session'
+import { LANGUAGES } from '@/shared/constants/site'
+import { currentLocale, setLocale } from '@/shared/i18n'
+import { useReviewsStore } from '@/shared/stores/reviews'
 
 const session = useSessionStore()
+const reviews = useReviewsStore()
 const router = useRouter()
 const open = ref(false)
 const rootRef = ref(null)
@@ -41,12 +45,45 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
     </button>
     <div v-show="open" id="user-menu-panel" class="user-menu__panel">
       <dl class="user-menu__info">
-        <div><dt>역할</dt><dd>{{ ROLE_LABEL[session.user.role] }}</dd></div>
-        <div><dt>소속</dt><dd>{{ session.tenant?.name }}</dd></div>
-        <div><dt>계정</dt><dd>{{ session.user.email }}</dd></div>
+        <div><dt>{{ $t('ui.user.role') }}</dt><dd>{{ ROLE_LABEL[session.user.role] }}</dd></div>
+        <div><dt>{{ $t('ui.user.tenant') }}</dt><dd>{{ session.tenant?.name }}</dd></div>
+        <div><dt>{{ $t('ui.user.account') }}</dt><dd>{{ session.user.email }}</dd></div>
       </dl>
+      <!-- 주 메뉴 줄 대신, 대시보드 밖의 화면은 이곳에서 연다 -->
+      <ul class="user-menu__links">
+        <li>
+          <RouterLink :to="{ name: ROUTE_NAMES.STANDARDS }" class="user-menu__link" @click="open = false">
+            <BaseIcon name="menu_book" size="sm" /> {{ $t('common.nav.standards') }}
+          </RouterLink>
+        </li>
+        <li v-if="session.can(PERMISSIONS.REVIEW_APPROVE)">
+          <RouterLink :to="{ name: ROUTE_NAMES.APPROVALS }" class="user-menu__link" @click="open = false">
+            <BaseIcon name="fact_check" size="sm" /> {{ $t('common.nav.approvals') }}
+            <span v-if="reviews.pendingApprovals.length" class="user-menu__count">{{ reviews.pendingApprovals.length }}</span>
+          </RouterLink>
+        </li>
+        <li>
+          <RouterLink :to="{ name: ROUTE_NAMES.HISTORY }" class="user-menu__link" @click="open = false">
+            <BaseIcon name="history" size="sm" /> {{ $t('common.nav.history') }}
+          </RouterLink>
+        </li>
+      </ul>
+      <!-- 좁은 화면에서는 머리글의 언어 메뉴가 숨으므로 여기서도 언어를 바꿀 수 있다 -->
+      <div class="user-menu__lang" role="group" aria-label="Language">
+        <button
+          v-for="lang in LANGUAGES"
+          :key="lang.code"
+          type="button"
+          :lang="lang.code"
+          :aria-pressed="currentLocale() === lang.code"
+          :class="{ 'is-on': currentLocale() === lang.code }"
+          @click="setLocale(lang.code)"
+        >
+          {{ lang.label }}
+        </button>
+      </div>
       <button type="button" class="user-menu__logout" @click="logout">
-        <BaseIcon name="logout" size="sm" /> 로그아웃
+        <BaseIcon name="logout" size="sm" /> {{ $t('ui.user.logout') }}
       </button>
     </div>
   </div>
@@ -102,6 +139,57 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
   font-weight: var(--font-weight-bold);
   word-break: break-all;
 }
+.user-menu__links {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: var(--border-width) solid var(--color-border);
+}
+.user-menu__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 40px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-sm-2);
+  font-size: var(--font-size-label-s);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  text-decoration: none;
+}
+.user-menu__link:hover { background: var(--color-bg-muted); }
+.user-menu__count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-danger-text);
+  color: var(--color-on-primary);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+.user-menu__lang {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: var(--space-md);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+}
+.user-menu__lang button {
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-sm-2);
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-detail-m);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.user-menu__lang button.is-on { background: var(--color-bg-surface); color: var(--color-text); font-weight: var(--font-weight-bold); }
 .user-menu__logout {
   display: flex;
   align-items: center;

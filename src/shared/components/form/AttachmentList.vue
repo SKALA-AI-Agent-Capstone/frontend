@@ -14,14 +14,14 @@ function formatSize(bytes) {
 </script>
 
 <template>
-  <ul v-if="files.length" class="attachments" aria-label="첨부된 파일">
+  <ul v-if="files.length" class="attachments" :aria-label="$t('ui.attachments.label')">
     <li v-for="(file, index) in files" :key="`${file.name}-${index}`" class="attachments__item">
       <BaseIcon name="draft" size="sm" class="attachments__icon" />
       <span class="attachments__name">{{ file.name }}</span>
       <span class="attachments__size">{{ formatSize(file.size) }}</span>
       <button type="button" class="attachments__remove" @click="$emit('remove', index)">
         <BaseIcon name="close" size="sm" />
-        <span class="sr-only">{{ file.name }} 삭제</span>
+        <span class="sr-only">{{ $t('ui.attachments.remove', { name: file.name }) }}</span>
       </button>
     </li>
   </ul>

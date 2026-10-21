@@ -6,11 +6,13 @@ import BaseIcon from './BaseIcon.vue'
 defineProps({
   title: { type: String, required: true },
   description: { type: String, default: null },
-  buttonLabel: { type: String, default: '컴퓨터에서 파일 선택' },
+  buttonLabel: { type: String, default: null },
   buttonIcon: { type: String, default: null },
   accept: { type: String, default: '' },
   multiple: { type: Boolean, default: false },
   size: { type: String, default: 'md' }, // md | lg
+  count: { type: Number, default: 0 }, // 이미 올린 파일 수: 1개 이상이면 올림 상태로 표시
+  filledTitle: { type: String, default: null }, // 올림 상태의 제목 (없으면 '파일 N개를 올렸습니다')
 })
 
 const emit = defineEmits(['select'])
@@ -37,23 +39,25 @@ function onDrop(event) {
 <template>
   <div
     class="dropzone"
-    :class="[`dropzone--${size}`, { 'dropzone--dragging': isDragging }]"
+    :class="[`dropzone--${size}`, { 'dropzone--dragging': isDragging, 'dropzone--filled': count > 0 }]"
     @dragover.prevent="isDragging = true"
     @dragleave.prevent="isDragging = false"
     @drop.prevent="onDrop"
   >
     <span class="dropzone__icon-wrap">
-      <BaseIcon name="cloud_upload" :size="size === 'lg' ? 'lg' : 'md'" />
+      <BaseIcon :name="count > 0 ? 'check_circle' : 'cloud_upload'" :size="size === 'lg' ? 'lg' : 'md'" />
     </span>
-    <component :is="size === 'lg' ? 'h2' : 'p'" class="dropzone__title">{{ title }}</component>
-    <p v-if="description" class="dropzone__desc">{{ description }}</p>
+    <component :is="size === 'lg' ? 'h2' : 'p'" class="dropzone__title" aria-live="polite">
+      {{ count > 0 ? (filledTitle ?? $t('ui.dropzone.filled', { count })) : title }}
+    </component>
+    <p v-if="description" class="dropzone__desc">{{ count > 0 ? $t('ui.dropzone.addMore') : description }}</p>
     <BaseButton
       :variant="size === 'lg' ? 'primary' : 'outline'"
       :size="size === 'lg' ? 'md' : 'sm'"
       :icon="buttonIcon"
       @click="pick"
     >
-      {{ buttonLabel }}
+      {{ count > 0 ? $t('ui.dropzone.add') : (buttonLabel ?? $t('ui.dropzone.pick')) }}
     </BaseButton>
     <input
       ref="inputRef"
@@ -89,6 +93,16 @@ function onDrop(event) {
 .dropzone--dragging {
   border-color: var(--color-primary);
   background: var(--color-info-surface);
+}
+/* 파일을 올린 뒤: 실선 테두리와 옅은 파랑 바탕으로 올림 상태를 알린다 */
+.dropzone--filled {
+  border-style: solid;
+  border-color: var(--color-primary);
+  background: var(--color-info-surface);
+}
+.dropzone.dropzone--filled .dropzone__icon-wrap,
+.dropzone.dropzone--filled .dropzone__title {
+  color: var(--color-primary-active);
 }
 .dropzone__icon-wrap {
   color: var(--color-text-secondary);

@@ -21,6 +21,7 @@ import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 import ApprovalHistory from './ApprovalHistory.vue'
+import { t } from '@/shared/i18n'
 
 const { review, version, isLatest } = useReviewDetail()
 const legal = computed(() => legalSearch(version.value?.result))
@@ -42,11 +43,11 @@ watch(() => version.value.no, () => {
 async function decide(action) {
   error.value = null
   if (!acknowledged.value) {
-    error.value = '최종 책임 확인에 체크해 주세요.'
+    error.value = t('reviewDetail.approval.ackRequired')
     return
   }
   if (!comment.value.trim()) {
-    error.value = `${action.label} 사유를 입력해 주세요.`
+    error.value = t('reviewDetail.approval.reasonRequired', { action: action.label })
     return
   }
   try { await reviews.decide(review.value.id, version.value.no, action.state, comment.value) }
@@ -58,18 +59,18 @@ async function decide(action) {
 
 <template>
   <BaseCard tag="section" class="approval" aria-labelledby="approval-title">
-    <BaseSectionHeader title="담당자 승인" heading-id="approval-title" size="md">
+    <BaseSectionHeader :title="$t('reviewDetail.approval.title')" heading-id="approval-title" size="md">
       <BaseBadge :variant="state.variant" dot>{{ state.label }}</BaseBadge>
     </BaseSectionHeader>
 
     <template v-if="canDecide">
-      <BaseAlert variant="warning" icon="gavel" title="최종 책임은 승인자에게 있습니다">
-        AI 검토 결과는 판단을 돕는 참고 자료입니다. 원문과 근거를 직접 확인한 뒤 처리해 주세요.
+      <BaseAlert variant="warning" icon="gavel" :title="$t('reviewDetail.approval.responsibility')">
+        {{ $t('reviewDetail.approval.responsibilityText') }}
       </BaseAlert>
-      <BaseFormField label="검토 의견" for-id="approval-comment" :hint="legal.approvalHint">
-        <BaseTextarea id="approval-comment" v-model="comment" :rows="3" placeholder="담당자에게 전달할 의견을 입력하세요." />
+      <BaseFormField :label="$t('reviewDetail.approval.comment')" for-id="approval-comment" :hint="legal.approvalHint">
+        <BaseTextarea id="approval-comment" v-model="comment" :rows="3" :placeholder="$t('reviewDetail.approval.commentPlaceholder')" />
       </BaseFormField>
-      <BaseCheckbox v-model="acknowledged" label="AI 결과와 원문,근거를 직접 확인했으며, 승인 결정의 책임이 본인에게 있음을 확인합니다." />
+      <BaseCheckbox v-model="acknowledged" :label="$t('reviewDetail.approval.ack')" />
       <BaseAlert v-if="error" variant="danger" aria-live="assertive">{{ error }}</BaseAlert>
       <div class="approval__actions">
         <BaseButton
@@ -83,11 +84,11 @@ async function decide(action) {
         </BaseButton>
       </div>
     </template>
-    <p v-else-if="!isLatest" class="approval__note">이전 버전입니다. 승인 처리는 최신 버전에서만 할 수 있습니다.</p>
-    <p v-else-if="version.approval.state !== 'pending'" class="approval__note">이 버전의 담당자 결정이 저장되었습니다.</p>
-    <p v-else class="approval__note">승인,반려,수정 요청은 검토자 또는 관리자만 할 수 있습니다.</p>
+    <p v-else-if="!isLatest" class="approval__note">{{ $t('reviewDetail.approval.oldVersion') }}</p>
+    <p v-else-if="version.approval.state !== 'pending'" class="approval__note">{{ $t('reviewDetail.approval.saved') }}</p>
+    <p v-else class="approval__note">{{ $t('reviewDetail.approval.noPermission') }}</p>
 
-    <BaseAlert v-if="version.approval.agentResume === 'pending'" variant="warning">결정은 저장됐지만 실행 재개는 대기 중입니다. 자동 재시도는 아직 연결되지 않았습니다.</BaseAlert>
+    <BaseAlert v-if="version.approval.agentResume === 'pending'" variant="warning">{{ $t('reviewDetail.approval.resumePending') }}</BaseAlert>
     <ApprovalHistory :history="version.approval.history" :version-no="version.no" />
   </BaseCard>
 </template>

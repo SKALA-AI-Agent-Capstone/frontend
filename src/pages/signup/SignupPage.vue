@@ -7,6 +7,7 @@ import { safeRedirect } from '@/shared/utils/redirect'
 import AuthShell from '@/shared/components/layout/AuthShell.vue'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import '@/pages/login/auth-form.css'
+import { t } from '@/shared/i18n'
 
 const session = useSessionStore()
 const router = useRouter()
@@ -27,7 +28,7 @@ async function submit() {
     await session.signup({ email: email.value, password: password.value, name: name.value, tenantName: tenantName.value })
     await router.replace(safeRedirect(route.query.redirect))
   } catch (e) {
-    error.value = e instanceof Error ? e.message : '작업공간을 만들지 못했습니다.'
+    error.value = e instanceof Error ? e.message : t('auth.signup.failed')
   } finally {
     busy.value = false
   }
@@ -36,26 +37,26 @@ async function submit() {
 
 <template>
   <AuthShell
-    title="기업 작업공간 만들기"
-    lead="회사 이름으로 작업공간을 만들고 첫 광고 검토를 신청합니다."
+    :title="$t('auth.signup.title')"
+    :lead="$t('auth.signup.lead')"
     ad-id="lundborg"
-    statement="작업공간마다 광고와&#10;검토 이력이 따로 보관됩니다."
+    :statement="$t('auth.signup.statement')"
   >
     <form class="auth-form" @submit.prevent="submit">
       <label class="auth-field">
-        기업명
+        {{ $t('auth.signup.tenant') }}
         <input v-model="tenantName" required maxlength="120" autocomplete="organization" />
       </label>
       <label class="auth-field">
-        이름
+        {{ $t('auth.signup.name') }}
         <input v-model="name" required maxlength="80" autocomplete="name" />
       </label>
       <label class="auth-field">
-        이메일
+        {{ $t('auth.email') }}
         <input v-model="email" type="email" required autocomplete="username" />
       </label>
       <label class="auth-field">
-        비밀번호
+        {{ $t('auth.password') }}
         <input
           v-model="password"
           type="password"
@@ -65,16 +66,16 @@ async function submit() {
           autocomplete="new-password"
           aria-describedby="signup-password-hint"
         />
-        <span id="signup-password-hint" class="auth-field__hint">10자 이상 72자 이하</span>
+        <span id="signup-password-hint" class="auth-field__hint">{{ $t('auth.signup.passwordHint') }}</span>
       </label>
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
       <button type="submit" class="auth-submit" :disabled="busy" :aria-busy="busy || undefined">
-        {{ busy ? '작업공간을 만드는 중' : '작업공간 만들기' }}
+        {{ busy ? $t('auth.signup.busy') : $t('auth.signup.submit') }}
       </button>
     </form>
     <p class="auth-switch">
-      이미 계정이 있다면
-      <RouterLink :to="{ name: ROUTE_NAMES.LOGIN, query: route.query.redirect ? { redirect: route.query.redirect } : {} }">로그인</RouterLink>
+      {{ $t('auth.signup.switchLead') }}
+      <RouterLink :to="{ name: ROUTE_NAMES.LOGIN, query: route.query.redirect ? { redirect: route.query.redirect } : {} }">{{ $t('auth.signup.switch') }}</RouterLink>
     </p>
   </AuthShell>
 </template>

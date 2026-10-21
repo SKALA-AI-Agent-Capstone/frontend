@@ -15,7 +15,7 @@ function stateOf(no) {
 </script>
 
 <template>
-  <nav aria-label="신청 진행 단계">
+  <nav :aria-label="$t('ui.stepper.label')">
     <ol class="stepper">
       <li
         v-for="step in steps"
@@ -30,7 +30,7 @@ function stateOf(no) {
         </span>
         <span class="stepper__text">
           <span class="stepper__caption">
-            {{ step.no }}단계<template v-if="stateOf(step.no) === 'active'"> [진행 중]</template>
+            {{ $t('ui.stepper.step', { no: step.no }) }}{{ stateOf(step.no) === 'active' ? ` ${$t('ui.stepper.current')}` : '' }}
           </span>
           <strong class="stepper__title">{{ step.title }}</strong>
         </span>

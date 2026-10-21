@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { legalSearch } from '@/shared/constants/legal'
 import { APPROVAL_LABEL, REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
+import { t } from '@/shared/i18n'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
@@ -27,17 +28,17 @@ const { review, version, versionNo, isDone } = provideReviewDetail()
 const legal = computed(() => legalSearch(version.value?.result))
 
 const breadcrumbs = computed(() => [
-  { label: '심의 이력', to: { name: ROUTE_NAMES.HISTORY } },
+  { label: t('reviewDetail.crumbHistory'), to: { name: ROUTE_NAMES.HISTORY } },
   { label: review.value?.productName ?? '' },
 ])
 const stepLabel = computed(() =>
-  isDone.value ? '심의 절차 3단계 / 총 4단계 (위반사항 확인,보완 단계)' : '심의 절차 2단계 / 총 4단계 (AI 사전 진단 중)',
+  t(isDone.value ? 'reviewDetail.stepDone' : 'reviewDetail.stepAnalyzing'),
 )
 const versionTabs = computed(() =>
   review.value.versions.map((v) => ({
     value: v.no,
     label: `v${v.no}`,
-    badge: v.status === REVIEW_STATUS.DONE ? APPROVAL_LABEL[v.approval.state].label : '진단 중',
+    badge: v.status === REVIEW_STATUS.DONE ? APPROVAL_LABEL[v.approval.state].label : t('reviewDetail.diagnosing'),
   })),
 )
 </script>
@@ -46,16 +47,16 @@ const versionTabs = computed(() =>
   <BaseEmptyState
     v-if="!review"
     icon="search_off"
-    title="심의 건을 찾을 수 없습니다"
-    description="삭제되었거나 다른 기업의 심의 건입니다."
+    :title="$t('reviewDetail.notFoundTitle')"
+    :description="$t('reviewDetail.notFoundText')"
   >
-    <BaseButton variant="outline" :to="{ name: ROUTE_NAMES.HISTORY }">심의 이력으로</BaseButton>
+    <BaseButton variant="outline" :to="{ name: ROUTE_NAMES.HISTORY }">{{ $t('reviewDetail.backToHistory') }}</BaseButton>
   </BaseEmptyState>
 
   <div v-else-if="version" class="supplement-page">
     <PageHeading
-      title="문구와 사진 검토 결과"
-      :description="`${review.productName} — 문구 확인 후보와 법령 조문 후보, 사진 관찰, 증빙 추출 상태를 확인하세요.`"
+      :title="$t('reviewDetail.title')"
+      :description="$t('reviewDetail.description', { name: review.productName })"
       :breadcrumbs="breadcrumbs"
     >
       <template #top-aside>
@@ -63,17 +64,17 @@ const versionTabs = computed(() =>
       </template>
       <template #aside>
         <BaseInfoChip v-if="isDone" variant="info" icon="approval">
-          승인 상태: <strong>{{ APPROVAL_LABEL[version.approval.state].label }}</strong>
+          {{ $t('reviewDetail.approvalState') }} <strong>{{ APPROVAL_LABEL[version.approval.state].label }}</strong>
         </BaseInfoChip>
       </template>
-      <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" label="심의 버전" />
+      <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
 
     <AnalysisDiagnosis />
 
-    <BaseAlert v-if="version.status === REVIEW_STATUS.FAILED" variant="danger" title="분석에 실패했습니다">
+    <BaseAlert v-if="version.status === REVIEW_STATUS.FAILED" variant="danger" :title="$t('reviewDetail.failedTitle')">
       {{ version.error }}
-      <BaseButton :to="{name: ROUTE_NAMES.REVIEW_NEW, query:{from:review.id}}">원본 파일을 다시 제출해 새 버전 검토</BaseButton>
+      <BaseButton :to="{name: ROUTE_NAMES.REVIEW_NEW, query:{from:review.id}}">{{ $t('reviewDetail.resubmit') }}</BaseButton>
     </BaseAlert>
 
     <template v-if="isDone">

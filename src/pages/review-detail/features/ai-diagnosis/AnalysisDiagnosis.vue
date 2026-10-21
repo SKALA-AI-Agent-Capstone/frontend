@@ -8,7 +8,8 @@ import { useRouter } from 'vue-router'
 import { ANALYSIS_STEPS } from '@/shared/api/analysisApi'
 import { REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
-import { formatFileSize, formatNumber } from '@/shared/utils/format'
+import { formatFileSize } from '@/shared/utils/format'
+import { t } from '@/shared/i18n'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 import AiDiagnosisModal from './AiDiagnosisModal.vue'
 import DiagnosisBackgroundStatus from './DiagnosisBackgroundStatus.vue'
@@ -17,7 +18,10 @@ const { review, version } = useReviewDetail()
 const router = useRouter()
 
 const running = computed(() => [REVIEW_STATUS.QUEUED, REVIEW_STATUS.ANALYZING].includes(version.value.status))
-const done = computed(() => version.value.status === REVIEW_STATUS.DONE)
+const phase = computed(() => {
+  if (running.value) return 'running'
+  return version.value.status === REVIEW_STATUS.FAILED ? 'failed' : 'done'
+})
 const open = ref(running.value)
 const dismissed = ref(false)
 
@@ -30,24 +34,27 @@ watch(
   },
 )
 
-const steps = computed(() =>
-  ANALYSIS_STEPS.map((step, i) => {
-    const progress = version.value.steps[i] ?? 0
-    return { ...step, progress, state: progress >= 100 ? 'done' : progress > 0 ? 'running' : 'pending' }
-  }),
-)
-const totalProgress = computed(() => Math.round(steps.value.reduce((s, x) => s + x.progress, 0) / steps.value.length))
+// 서버는 단계마다 완료(100) 여부만 알려 준다. 끝나지 않은 첫 단계를 진행 중(실패 시 중단)으로 본다.
+const steps = computed(() => {
+  const marks = version.value.steps ?? []
+  const firstOpen = ANALYSIS_STEPS.findIndex((_, i) => (marks[i] ?? 0) < 100)
+  return ANALYSIS_STEPS.map((step, i) => {
+    let state = (marks[i] ?? 0) >= 100 || phase.value === 'done' ? 'done' : 'pending'
+    if (state !== 'done' && i === firstOpen) state = phase.value === 'failed' ? 'failed' : 'running'
+    return { ...step, state }
+  })
+})
+const doneCount = computed(() => steps.value.filter((s) => s.state === 'done').length)
 
 const subject = computed(() => {
-  const file = version.value.input.files[0]
-  if (file) {
-    return {
-      title: file.name,
-      ext: file.name.split('.').pop()?.toUpperCase(),
-      meta: `파일 크기: ${formatFileSize(file.size)} • 광고물 ${version.value.input.files.length}건 • 텍스트 ${formatNumber(version.value.input.copy.length)}자`,
-    }
+  const files = version.value.input.files ?? []
+  const evidence = version.value.input.evidence ?? []
+  const first = files[0]
+  const counts = [t('reviewDetail.modal.adFiles', { count: files.length }), evidence.length ? t('reviewDetail.modal.evidenceFiles', { count: evidence.length }) : null].filter(Boolean).join(', ')
+  return {
+    title: first?.name ?? review.value.productName,
+    meta: first ? `${formatFileSize(first.size)}, ${counts}` : counts,
   }
-  return { title: review.value.productName, ext: 'TEXT', meta: `광고 문구 ${formatNumber(version.value.input.copy.length)}자 • v${version.value.no}` }
 })
 
 function background() {
@@ -59,17 +66,18 @@ function background() {
 <template>
   <DiagnosisBackgroundStatus
     v-if="dismissed && running && !open"
-    :done="done"
-    :total-progress="totalProgress"
+    :done-count="doneCount"
+    :total="steps.length"
     :file-name="subject.title"
     @open="open = true"
   />
   <AiDiagnosisModal
     v-model:open="open"
+    :review="review"
+    :version="version"
     :subject="subject"
-    :done="done"
+    :phase="phase"
     :steps="steps"
-    :total-progress="totalProgress"
     @background="background"
     @history="router.push({ name: ROUTE_NAMES.HISTORY })"
     @view-result="open = false"
