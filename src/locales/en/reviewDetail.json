@@ -190,5 +190,11 @@
     "concern": "To check: {concern}",
     "adjacent": "Context from nearby sections or the comparison image is needed.",
     "region": "Analyzed region y={from}~{to}%. This does not confirm exact wrinkle positions or actual efficacy."
+  },
+  "charge": {
+    "deducted": "{cost} credits were deducted for this review",
+    "refunded": "Analysis failed, so {cost} credits were returned",
+    "balance": "Current balance:",
+    "loading": "Checking your balance."
   }
 }

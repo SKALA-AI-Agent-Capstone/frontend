@@ -85,9 +85,9 @@ const versionTabs = computed(() =>
       <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
 
-    <BaseAlert v-if="showCharge" variant="info" :title="version.status === REVIEW_STATUS.FAILED ? '검사 실패로 100크레딧 반환' : '검사 비용 100크레딧 차감'">
-      <span v-if="balanceLoaded">현재 잔액: <strong>{{ credits.balance.toLocaleString('ko-KR') }}크레딧</strong></span>
-      <span v-else>잔액을 확인하고 있습니다.</span>
+    <BaseAlert v-if="showCharge" variant="info" :title="$t(version.status === REVIEW_STATUS.FAILED ? 'reviewDetail.charge.refunded' : 'reviewDetail.charge.deducted', { cost: 100 })">
+      <span v-if="balanceLoaded">{{ $t('reviewDetail.charge.balance') }} <strong>{{ $t('ui.credit.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></span>
+      <span v-else>{{ $t('reviewDetail.charge.loading') }}</span>
     </BaseAlert>
 
     <AnalysisDiagnosis />

@@ -28,5 +28,11 @@
   "pay": "결제",
   "done": "테스트 결제 완료",
   "current": "현재 크레딧:",
-  "again": "다른 금액권 선택하기"
+  "again": "다른 금액권 선택하기",
+  "balanceNow": "현재 잔액",
+  "unit": "크레딧",
+  "perCredit": "크레딧당 {price}원",
+  "summary": "결제 정보",
+  "payAmount": "{amount} 결제하기",
+  "best": "크레딧당 가장 저렴"
 }

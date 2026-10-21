@@ -65,5 +65,16 @@
     "reportNo": "Functional cosmetic review or report number",
     "reportNoHint": "The number and product name are checked on the server during review. Without an official API key and route, it shows as unverified and is never treated as a compliance ruling.",
     "reportNoPlaceholder": "Review or report number from your documents"
+  },
+  "credit": {
+    "balanceFailed": "Could not load your credit balance. Please try again shortly.",
+    "confirmTitle": "Start this review?",
+    "confirmAction": "Use {cost} credits and start",
+    "cost": "Deducted for this review",
+    "confirmNote": "Credits are deducted as soon as the review starts. If analysis fails, they are returned automatically.",
+    "topUpTitle": "Not enough credits",
+    "topUpText": "Each review needs {cost} credits. Top up {shortfall} more credits to continue.",
+    "topUpAction": "Go to top up",
+    "topUpNote": "Your product details are saved as a draft. Upload your files again after topping up."
   }
 }

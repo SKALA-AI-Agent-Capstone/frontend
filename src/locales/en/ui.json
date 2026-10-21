@@ -111,5 +111,15 @@
     "checkedAt": "checked {at}",
     "errorHint": "Check the settings, then submit the original as a new version. Re-checking only this item is not connected yet."
   },
-  "progress": "Progress"
+  "progress": "Progress",
+  "credit": {
+    "required": "Credits needed",
+    "amount": "{count} credits",
+    "balance": "Current balance",
+    "after": "Balance after review",
+    "note": "Credits are deducted when the review starts.",
+    "shortTitle": "Not enough credits",
+    "shortfall": "You need {count} more credits.",
+    "topUp": "Top up credits"
+  }
 }
