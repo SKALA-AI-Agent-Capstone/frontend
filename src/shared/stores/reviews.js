@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { request } from '@/shared/api/http'
+import { openReviewStream } from '@/shared/api/reviewEvents'
 import { useSessionStore } from './session'
 import { useCreditsStore } from './credits'
 import { t } from '@/shared/i18n'
@@ -10,6 +11,12 @@ export const useReviewsStore = defineStore('reviews', () => {
   const items = ref([])
   const error = ref(null)
   let pollTimer = null
+  // 실행 중인 건마다 SSE 구독 하나. 구독이 실패한 건만 폴링한다.
+  const streams = new Map()
+  const fallback = new Set()
+  // 화면에 보여 줄 최근 진행 이벤트: { [reviewId]: { tool, state, retry, live } }
+  const activity = ref({})
+  const MAX_STREAMS = 4
   const list = computed(() => items.value.filter(r => r.tenantId === session.tenant?.id))
   const latest = review => review.versions[review.versions.length - 1]
   const byId = id => list.value.find(r => r.id === id) ?? null
@@ -34,15 +41,60 @@ export const useReviewsStore = defineStore('reviews', () => {
     return { ...review, violations: known.violations, hitl: { ...known.hitl, ...review.hitl } }
   }
   async function refresh(id) { return upsert(await request(`/reviews/${id}`)) }
+  const isRunning = review => ['queued', 'analyzing'].includes(latest(review).status)
+  function setActivity(id, patch) {
+    activity.value = { ...activity.value, [id]: { ...activity.value[id], ...patch } }
+  }
+  function onEvent(id, event) {
+    const data = event.data
+    if (event.type === 'snapshot') { upsert(data); return }
+    const review = byId(id)
+    const version = review && latest(review)
+    if (!version || data.versionNo !== version.no) return
+    if (event.type === 'started') setActivity(id, { tool: null, state: null, retry: null })
+    else if (event.type === 'step_done' && Array.isArray(version.steps)) {
+      const steps = [...version.steps]
+      steps[data.step] = 100
+      version.steps = steps
+    } else if (event.type === 'tool_started') setActivity(id, { tool: data.tool, state: 'running' })
+    else if (event.type === 'tool_finished') setActivity(id, { tool: data.tool, state: data.ok ? 'done' : 'failed' })
+    else if (event.type === 'retry_scheduled') setActivity(id, { retry: data.attempt })
+    else if (event.type === 'completed' || event.type === 'failed') {
+      setActivity(id, { tool: null, state: null })
+      refresh(id).catch(() => {})
+      useCreditsStore().loadBalance().catch(() => {})
+    }
+  }
+  function follow(id) {
+    if (streams.has(id) || fallback.has(id) || streams.size >= MAX_STREAMS) return streams.has(id)
+    setActivity(id, { live: true })
+    streams.set(id, openReviewStream(id, {
+      onEvent: event => onEvent(id, event),
+      onClose: reason => {
+        streams.delete(id)
+        setActivity(id, { live: false })
+        if (reason === 'fallback') { fallback.add(id); poll() }
+      },
+    }))
+    return true
+  }
+  function closeStreams() {
+    for (const close of streams.values()) close()
+    streams.clear(); fallback.clear()
+  }
+  // 실행 중인 건은 SSE로 따라간다. 스트림을 열지 못한 건(연결 실패, 동시 구독 한도)만 1.5초 폴링을 유지한다.
   async function poll() {
     clearTimeout(pollTimer)
-    const running = list.value.filter(r => ['queued', 'analyzing'].includes(latest(r).status))
-    await Promise.allSettled(running.map(r => refresh(r.id)))
-    if (running.length && session.isAuthenticated) {
-      if (running.some(r => { const current = byId(r.id); return current && !['queued', 'analyzing'].includes(latest(current).status) }))
+    if (!session.isAuthenticated) return
+    const running = list.value.filter(isRunning)
+    const polled = running.filter(r => !follow(r.id))
+    await Promise.allSettled(polled.map(r => refresh(r.id)))
+    if (polled.length) {
+      if (polled.some(r => { const current = byId(r.id); return current && !isRunning(current) }))
         await useCreditsStore().loadBalance().catch(() => {})
       pollTimer = setTimeout(poll, 1500)
     }
+    for (const id of fallback) if (!running.some(r => r.id === id)) fallback.delete(id)
   }
   function form(input) {
     const data = new FormData()
@@ -84,9 +136,10 @@ export const useReviewsStore = defineStore('reviews', () => {
   async function unavailable() { throw new Error(t('ui.errors.retryUnavailable')) }
   watch(() => session.user?.id, async () => {
     clearTimeout(pollTimer)
+    closeStreams(); activity.value = {}
     items.value = []; await load(); poll()
   })
-  return { list, error, byId, latest, pendingApprovals, poll, createReview, createVersion, decide,
+  return { list, error, byId, latest, pendingApprovals, poll, activity, createReview, createVersion, decide,
     decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })

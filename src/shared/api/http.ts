@@ -61,7 +61,8 @@ function send(path: string, init: RequestInit, token: string | null) {
   return fetch(`/api/v1${path}`, { ...init, headers, cache: 'no-store' })
 }
 
-async function requestRaw(path: string, init: RequestInit = {}): Promise<Response> {
+/** 인증과 401 재발급을 거친 원본 응답. 스트림(SSE)처럼 본문을 직접 읽을 때 쓴다. */
+export async function requestRaw(path: string, init: RequestInit = {}): Promise<Response> {
   const token = sessionStorage.getItem(TOKEN_KEY)
   let response = await send(path, init, token)
   if (response.status === 401 && !AUTH_PATHS.has(path.split('?')[0])) {

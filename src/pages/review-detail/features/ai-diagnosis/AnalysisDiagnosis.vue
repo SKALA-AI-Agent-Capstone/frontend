@@ -10,12 +10,16 @@ import { REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { formatFileSize } from '@/shared/utils/format'
 import { t } from '@/shared/i18n'
+import { useReviewsStore } from '@/shared/stores/reviews'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 import AiDiagnosisModal from './AiDiagnosisModal.vue'
 import DiagnosisBackgroundStatus from './DiagnosisBackgroundStatus.vue'
 
 const { review, version } = useReviewDetail()
 const router = useRouter()
+const reviews = useReviewsStore()
+// SSE로 받은 최근 도구 실행과 재시도. 폴링으로 돌아간 경우에는 비어 있다.
+const activity = computed(() => reviews.activity[review.value.id] ?? {})
 
 const running = computed(() => [REVIEW_STATUS.QUEUED, REVIEW_STATUS.ANALYZING].includes(version.value.status))
 const phase = computed(() => {
@@ -78,6 +82,7 @@ function background() {
     :subject="subject"
     :phase="phase"
     :steps="steps"
+    :activity="activity"
     @background="background"
     @history="router.push({ name: ROUTE_NAMES.HISTORY })"
     @view-result="open = false"
