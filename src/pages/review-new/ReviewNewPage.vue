@@ -1,7 +1,7 @@
 <!-- 광고 자율심의 신청 (시안 krds_2) — 단일 입력 흐름 (FR-8) -->
 <script setup>
 import { t } from '@/shared/i18n'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { request } from '@/shared/api/http'
@@ -18,6 +18,10 @@ import EvidenceDocsSection from './features/evidence-docs/EvidenceDocsSection.vu
 import ReviewFormActions from './features/form-actions/ReviewFormActions.vue'
 import ProductInfoSection from './features/product-info/ProductInfoSection.vue'
 import CreditDialog from './features/credit-dialog/CreditDialog.vue'
+import AiDiagnosisModal from '@/pages/review-detail/features/ai-diagnosis/AiDiagnosisModal.vue'
+import DiagnosisBackgroundStatus from '@/pages/review-detail/features/ai-diagnosis/DiagnosisBackgroundStatus.vue'
+import { ANALYSIS_STEPS } from '@/shared/api/analysisApi'
+import { formatFileSize } from '@/shared/utils/format'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,6 +46,41 @@ const topUpOpen = ref(false) // 잔액이 모자랄 때 충전을 안내하는 �
 const error = ref('')
 const balanceLoaded = ref(false)
 const reviewCost = ref(null)
+const progressOpen = ref(false)
+const submissionInput = shallowRef(null)
+const acceptedId = ref(null)
+const submissionError = ref('')
+const preparingMessage = ref('')
+const progressReview = computed(() => (acceptedId.value && reviews.byId(acceptedId.value)) || {
+  id: null, productName: submissionInput.value?.product.name ?? '',
+})
+const progressVersion = computed(() => acceptedId.value && progressReview.value.versions
+  ? reviews.latest(progressReview.value)
+  : { no: (baseVersion?.no ?? 0) + 1, input: submissionInput.value ?? {}, error: submissionError.value })
+const progressPhase = computed(() => {
+  if (submissionError.value) return 'submission_failed'
+  if (!acceptedId.value) return 'preparing'
+  const status = progressVersion.value.status
+  return status === 'done' ? 'done' : status === 'failed' ? 'failed' : 'running'
+})
+const progressSteps = computed(() => {
+  const marks = progressVersion.value.steps ?? []
+  const firstOpen = ANALYSIS_STEPS.findIndex((_, i) => (marks[i] ?? 0) < 100)
+  return ANALYSIS_STEPS.map((step, i) => {
+    let state = (marks[i] ?? 0) >= 100 || progressPhase.value === 'done' ? 'done' : 'pending'
+    if (state !== 'done' && i === firstOpen && acceptedId.value)
+      state = progressPhase.value === 'failed' ? 'failed' : 'running'
+    return { ...step, state }
+  })
+})
+const progressSubject = computed(() => {
+  const { files = [], evidence = [] } = progressVersion.value.input
+  const first = files[0]
+  const counts = [t('reviewDetail.modal.adFiles', { count: files.length }),
+    evidence.length ? t('reviewDetail.modal.evidenceFiles', { count: evidence.length }) : null].filter(Boolean).join(', ')
+  return { title: first?.name ?? progressReview.value.productName,
+    meta: first ? `${formatFileSize(first.size)}, ${counts}` : counts }
+})
 onMounted(async () => {
   try {
     const config = await request('/billing/config')
@@ -72,26 +111,39 @@ async function submit() {
   if (submitting.value || !canSubmit.value) return // 중복 제출 방지
   submitting.value = true
   error.value = ''
+  submissionError.value = ''
+  acceptedId.value = null
+  submissionInput.value = {
+    product: { ...draft.product }, media: [...draft.media],
+    files: [...draft.files], evidence: [...draft.evidence],
+  }
+  confirmOpen.value = false
+  preparingMessage.value = t('reviewDetail.modal.checkingBalance')
+  progressOpen.value = true
   try {
+    // 첫 네트워크 요청 전에 모달을 렌더링한다. 접수 전에는 분석 단계를 완료로 표시하지 않는다.
+    await nextTick()
     await credits.loadBalance()
     balanceLoaded.value = true
     if (credits.balance < reviewCost.value) {
-      confirmOpen.value = false
+      progressOpen.value = false
       topUpOpen.value = true
       return
     }
-    confirmOpen.value = false
+    preparingMessage.value = t('reviewDetail.modal.uploading')
     const { reviewId } = baseReview.value
-      ? await reviews.createVersion(baseReview.value.id, draft)
-      : await reviews.createReview(draft)
+      ? await reviews.createVersion(baseReview.value.id, submissionInput.value)
+      : await reviews.createReview(submissionInput.value)
+    acceptedId.value = reviewId
     clearSaved()
-    await credits.loadBalance().catch(() => {})
-    await router.push({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: reviewId } })
+    credits.loadBalance().catch(() => {})
+    await router.push({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: reviewId },
+      state: { diagnosisOpen: progressOpen.value } })
   } catch (e) {
-    await credits.loadBalance().catch(() => {})
+    credits.loadBalance().catch(() => {})
     // 확인 창을 연 사이 잔액이 줄었으면 서버가 거절한다. 이때도 충전 안내 창으로 보낸다.
-    if (/INSUFFICIENT_CREDITS/.test(e.message)) { confirmOpen.value = false; topUpOpen.value = true }
-    else error.value = e.message
+    if (/INSUFFICIENT_CREDITS/.test(e.message)) { progressOpen.value = false; topUpOpen.value = true }
+    else { error.value = e.message; submissionError.value = e.message }
   } finally { submitting.value = false }
 }
 
@@ -120,6 +172,10 @@ function goTopUp() {
       {{ $t('reviewNew.versionAlert.text', { name: baseReview.productName, from: baseVersion.no, to: nextVersionLabel }) }}
     </BaseAlert>
 
+    <DiagnosisBackgroundStatus v-if="submitting && !progressOpen"
+      :done-count="progressSteps.filter(step => step.state === 'done').length"
+      :total="progressSteps.length" :file-name="progressSubject.title" @open="progressOpen = true" />
+
     <form class="apply-page__form" @submit.prevent="prepareSubmit">
       <ApplicantInfoSection />
       <ProductInfoSection />
@@ -131,6 +187,12 @@ function goTopUp() {
     <!-- 잔액이 충분할 때: 차감 확인 / 모자랄 때: 충전 안내 -->
     <CreditDialog v-model:open="confirmOpen" mode="confirm" :cost="reviewCost ?? 0" :balance="credits.balance" :busy="submitting" @confirm="submit" />
     <CreditDialog v-model:open="topUpOpen" mode="topup" :cost="reviewCost ?? 0" :balance="credits.balance" @confirm="goTopUp" />
+    <AiDiagnosisModal v-if="submissionInput" v-model:open="progressOpen"
+      :review="progressReview" :version="progressVersion" :subject="progressSubject"
+      :phase="progressPhase" :steps="progressSteps" :preparing-message="preparingMessage"
+      :activity="acceptedId ? reviews.activity[acceptedId] ?? {} : {}"
+      @background="progressOpen = false"
+      @history="router.push({ name: ROUTE_NAMES.HISTORY })" @view-result="progressOpen = false" />
   </div>
 </template>
 

@@ -10,6 +10,7 @@ defineProps({
 
 const emit = defineEmits(['close'])
 const dialogRef = ref(null)
+let scrollLocked = false
 
 function close() {
   open.value = false
@@ -21,18 +22,21 @@ function onKeydown(event) {
 }
 
 watch(open, async (isOpen) => {
-  document.body.style.overflow = isOpen ? 'hidden' : ''
   if (isOpen) {
+    document.body.style.overflow = 'hidden'
+    scrollLocked = true
     window.addEventListener('keydown', onKeydown)
     await nextTick()
     dialogRef.value?.focus()
   } else {
+    if (scrollLocked) document.body.style.overflow = ''
+    scrollLocked = false
     window.removeEventListener('keydown', onKeydown)
   }
-})
+}, { immediate: true })
 
 onBeforeUnmount(() => {
-  document.body.style.overflow = ''
+  if (scrollLocked) document.body.style.overflow = ''
   window.removeEventListener('keydown', onKeydown)
 })
 </script>
