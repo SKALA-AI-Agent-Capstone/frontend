@@ -187,7 +187,10 @@ function locationLabel(finding) {
   font-weight: var(--font-weight-bold);
 }
 .report__table-wrap { overflow-x: auto; }
-@media (max-width: 760px) { .report__table { min-width: 640px; } }
+@media (max-width: 760px) {
+  .report__table { min-width: 640px; }
+  .report__meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .report__table {
   width: 100%;
   border-collapse: collapse;

@@ -172,6 +172,7 @@ function retry(note) {
 .violation__title {
   font-size: var(--font-size-title-m);
   font-weight: var(--font-weight-bold);
+  overflow-wrap: anywhere;
 }
 .violation__basis {
   display: flex;

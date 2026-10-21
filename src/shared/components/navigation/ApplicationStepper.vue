@@ -112,7 +112,8 @@ function stateOf(no) {
   color: var(--color-primary);
 }
 
-@media (max-width: 600px) {
+/* 태블릿 폭에서는 네 칸이 좁아 영어 단계 이름이 칸을 넘친다 */
+@media (max-width: 900px) {
   .stepper {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-sm);

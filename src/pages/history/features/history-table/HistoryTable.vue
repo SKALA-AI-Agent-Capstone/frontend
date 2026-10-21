@@ -84,7 +84,7 @@ async function remove() {
 .rows { display: grid; }
 .row {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) 140px 130px 168px;
+  grid-template-columns: 56px minmax(0, 1fr) 176px 150px 168px;
   align-items: center;
   gap: 20px;
   padding: 14px 24px;
@@ -138,7 +138,7 @@ async function remove() {
 .row__delete:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 
 @media (max-width: 1180px) {
-  .row { grid-template-columns: 56px minmax(0, 1fr) 130px 168px; }
+  .row { grid-template-columns: 56px minmax(0, 1fr) 150px 168px; }
   .row__risk { display: none; }
 }
 @media (max-width: 760px) {
