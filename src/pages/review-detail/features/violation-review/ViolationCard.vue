@@ -18,6 +18,7 @@ import BaseCard from '@/shared/components/base/BaseCard.vue'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import BasisItem from '@/shared/components/review/BasisItem.vue'
 import { useReviewDetail } from '../../composables/useReviewDetail'
+import CheckList from './CheckList.vue'
 import RevisionOptions from './RevisionOptions.vue'
 import { t } from '@/shared/i18n'
 
@@ -104,6 +105,8 @@ function retry(note) {
       <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> {{ $t('reviewDetail.card.basisTitle') }}</p>
       <BasisItem v-for="(basis, i) in finding.basis" :key="`${basis.sourceId}-${i}`" :basis="basis" />
     </section>
+
+    <CheckList v-if="finding?.checks?.length || finding?.rules?.length" :checks="finding.checks ?? []" :rules="finding.rules ?? []" />
 
     <section v-if="finding?.references?.length" class="violation__refs" :aria-label="$t('reviewDetail.card.refsLabel')">
       <p class="violation__refs-title">{{ $t('reviewDetail.card.refsTitle') }}</p>

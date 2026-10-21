@@ -1,0 +1,37 @@
+{
+  "title": "Official record checks",
+  "rules": "Rules applied:",
+  "byType": "claim type",
+  "byPhrase": "phrase '{text}'",
+  "source": "Source: {source}",
+  "type": {
+    "functional_report": "Functional report",
+    "substantiation": "Substantiation",
+    "ingredient": "Ingredient standard",
+    "gmp": "GMP company",
+    "patent": "Patent"
+  },
+  "status": {
+    "consistent": "Within reported scope",
+    "mismatch": "Differs from report",
+    "not_found": "No report found",
+    "ambiguous": "Candidates only",
+    "evidence_missing": "No evidence submitted",
+    "evidence_submitted": "Evidence to compare",
+    "prohibited": "Prohibited ingredient",
+    "restricted": "Restricted ingredient",
+    "not_listed": "Not on banned or restricted lists",
+    "gmp_listed": "GMP certified",
+    "gmp_not_listed": "Not on GMP list",
+    "needs_input": "Input needed",
+    "unavailable": "Lookup failed"
+  },
+  "relation": {
+    "cites": "Cites",
+    "cited_by": "Cited by",
+    "implements": "Implements",
+    "implemented_by": "Implemented by",
+    "annex": "Annex",
+    "annex_of": "Uses this annex"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "title": "공식 기록 대조",
+  "rules": "적용 규칙:",
+  "byType": "주장 유형",
+  "byPhrase": "문구 '{text}'",
+  "source": "출처: {source}",
+  "type": {
+    "functional_report": "기능성 보고 대조",
+    "substantiation": "실증자료",
+    "ingredient": "성분 기준",
+    "gmp": "GMP 업체",
+    "patent": "특허"
+  },
+  "status": {
+    "consistent": "보고 범위 안",
+    "mismatch": "보고 기능과 다름",
+    "not_found": "보고품목 미조회",
+    "ambiguous": "후보만 있음",
+    "evidence_missing": "증빙 미제출",
+    "evidence_submitted": "증빙 대조 필요",
+    "prohibited": "사용 금지 원료",
+    "restricted": "사용 제한 원료",
+    "not_listed": "금지, 제한 목록에 없음",
+    "gmp_listed": "GMP 적합 업체",
+    "gmp_not_listed": "GMP 목록에 없음",
+    "needs_input": "정보 필요",
+    "unavailable": "조회 실패"
+  },
+  "relation": {
+    "cites": "인용",
+    "cited_by": "이 조항을 인용",
+    "implements": "상위 조항",
+    "implemented_by": "하위 규정",
+    "annex": "별표",
+    "annex_of": "이 별표를 쓰는 조항"
+  }
+}

@@ -31,6 +31,9 @@ export function provideReviewDetail() {
   const result = computed(() => version.value?.result ?? null)
   const findings = computed(() => result.value?.findings ?? [])
 
+  // 목록 API(/reviews)는 violations를 싣지 않는다. 이미 끝난 검토를 열 때도 상세를 한 번 받아 위반 행을 채운다.
+  watch(() => route.params.id, (id) => { if (id) reviews.refresh(String(id)).catch(() => {}) }, { immediate: true })
+
   // ── 문구별 위반과 HITL 결정 (violations는 항상 "최신 버전" 기준, 재검토 버전 구조 없음) ──
   const violations = computed(() => review.value?.violations ?? [])
   const hitl = computed(() => review.value?.hitl ?? null)

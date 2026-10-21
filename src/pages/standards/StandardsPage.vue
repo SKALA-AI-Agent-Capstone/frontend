@@ -21,7 +21,7 @@ onMounted(async () => {
   }
 })
 
-const ROUTE_LABEL = { legalize_kr: 'standards.route.legalize', 'legalize_kr+pdf': 'standards.route.legalizePdf', pdf: 'standards.route.pdf' }
+const ROUTE_LABEL = { legalize_kr: 'standards.route.legalize', 'legalize_kr+pdf': 'standards.route.legalizePdf', 'legalize_kr+lawapi': 'standards.route.legalizeLawapi', lawapi: 'standards.route.lawapi', pdf: 'standards.route.pdf' }
 const BANNER = {
   indexed: { tone: 'ok', title: 'standards.banner.indexed.title', text: 'standards.banner.indexed.text' },
   not_indexed: { tone: 'warn', title: 'standards.banner.notIndexed.title', text: 'standards.banner.notIndexed.text' },
@@ -29,6 +29,7 @@ const BANNER = {
 }
 const banner = computed(() => BANNER[status.value] ?? BANNER.unavailable)
 const legalizeDocs = computed(() => corpus.value.filter((d) => d.document_key.startsWith('legalize-kr:')))
+const lawDocs = computed(() => corpus.value.filter((d) => d.document_key.startsWith('legalize-kr:') || d.document_key.startsWith('lawapi:')))
 const articleCount = computed(() => legalizeDocs.value.reduce((sum, d) => sum + d.chunks, 0))
 
 // 문서마다 적재 상태를 글자와 함께 '적재됨' 여부로 돌려준다
@@ -40,6 +41,11 @@ function sourceStatus(source) {
     if (legalizeDocs.value.length) loaded = true
     parts.push(legalizeDocs.value.length ? t('standards.status.articles', { versions: legalizeDocs.value.length, articles: articleCount.value }) : t('standards.status.articlesMissing'))
   }
+  if (method.split('+').includes('lawapi')) {
+    const api = corpus.value.filter((d) => d.document_key === `lawapi:${source.id}`)
+    if (api.length) loaded = true
+    parts.push(api.length ? t('standards.status.lawapi', { version: api[api.length - 1].version_label, chunks: api.reduce((sum, d) => sum + d.chunks, 0) }) : t('standards.status.lawapiMissing'))
+  }
   if (method.split('+').includes('pdf')) {
     const pdf = corpus.value.filter((d) => d.document_key === `pdf:${source.id}` || d.document_key.startsWith(`pdf:${source.id}:`))
     if (pdf.length) loaded = true
@@ -50,7 +56,7 @@ function sourceStatus(source) {
 const API_ROLE = { business_realtime: 'standards.apiRole.realtime', supporting_reference: 'standards.apiRole.supporting' }
 const summary = computed(() => [
   { label: 'standards.summary.sources', value: sources.value.length },
-  { label: 'standards.summary.versions', value: legalizeDocs.value.length },
+  { label: 'standards.summary.versions', value: lawDocs.value.length },
   { label: 'standards.summary.articles', value: articleCount.value },
   { label: 'standards.summary.apis', value: apis.value.length },
 ])
