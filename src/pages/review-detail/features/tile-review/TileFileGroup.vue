@@ -104,9 +104,16 @@ const rows = computed(() =>
           <BaseBadge v-if="row.cards.length + row.notes.length" variant="danger">{{ $t('reviewDetail.tiles.textCount', { count: row.cards.length + row.notes.length }) }}</BaseBadge>
           <BaseBadge v-if="row.visual.length" variant="warning">{{ $t('reviewDetail.tiles.visualCount', { count: row.visual.length }) }}</BaseBadge>
         </header>
-        <div class="tile-row__frame" :style="row.frameStyle">
-          <img v-if="url" :src="url" alt="" class="tile-row__image" :style="row.imageStyle" @load="onLoad" />
-          <p v-else-if="!error" class="tile-row__loading">{{ $t('reviewDetail.tiles.loading') }}</p>
+        <div
+          class="tile-row__frame"
+          :class="{ 'tile-row__frame--focus': row.boxes.some((box) => box.id === activeFindingId) }"
+          :style="row.frameStyle"
+        >
+          <!-- 이미지만 잘라 내는 층. 번호 표시는 바깥 층에 두어 가장자리에서 잘리지 않는다 -->
+          <div class="tile-row__clip">
+            <img v-if="url" :src="url" alt="" class="tile-row__image" :style="row.imageStyle" @load="onLoad" />
+            <p v-else-if="!error" class="tile-row__loading">{{ $t('reviewDetail.tiles.loading') }}</p>
+          </div>
           <button
             v-for="box in row.boxes"
             :key="box.id"
@@ -206,9 +213,14 @@ const rows = computed(() =>
 }
 .tile-row__frame {
   position: relative;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+.tile-row__clip {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  border-radius: var(--radius-sm);
-  border: var(--border-width) solid var(--color-border);
+  border-radius: inherit;
   background: var(--color-bg-muted);
 }
 .tile-row__image {
@@ -222,34 +234,53 @@ const rows = computed(() =>
   font-size: var(--font-size-detail-m);
   color: var(--color-text-secondary);
 }
+/* 하이라이트: 사각 테두리 대신 형광펜처럼 옅게 칠하고 아래에 굵은 밑줄을 그어 문구를 짚는다 */
 .tile-row__box {
+  --tone: var(--color-info);
   position: absolute;
   padding: 0;
-  border: 2px solid var(--color-info-text);
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--color-info-text) 12%, transparent);
+  border: 0;
+  border-bottom: 3px solid var(--tone);
+  border-radius: 4px 4px 2px 2px;
+  background: color-mix(in srgb, var(--tone) 18%, transparent);
   cursor: pointer;
+  transition: background-color var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast);
 }
-.tile-row__box--high { border-color: var(--color-danger-text); background: color-mix(in srgb, var(--color-danger-text) 14%, transparent); }
-.tile-row__box--medium { border-color: var(--color-warning-text); background: color-mix(in srgb, var(--color-warning-text) 14%, transparent); }
-.tile-row__box--success { border-color: var(--color-success); background: color-mix(in srgb, var(--color-success) 14%, transparent); }
-.tile-row__box--active { box-shadow: 0 0 0 3px var(--color-primary); }
+.tile-row__box--high { --tone: var(--color-danger); }
+.tile-row__box--medium { --tone: #d98e04; }
+.tile-row__box--success { --tone: var(--color-success); }
+.tile-row__box:hover,
+.tile-row__box--active {
+  z-index: 1;
+  background: color-mix(in srgb, var(--tone) 30%, transparent);
+  box-shadow: 0 0 0 2px var(--tone), 0 0 0 5px color-mix(in srgb, var(--tone) 22%, transparent);
+}
+.tile-row__box:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
+/* 한 문구를 고르면 같은 구간의 다른 하이라이트는 흐리게 둔다 */
+.tile-row__frame--focus .tile-row__box:not(.tile-row__box--active):not(:hover) { opacity: 0.55; }
 .tile-row__box-no {
   position: absolute;
-  top: -0.7rem;
-  left: -0.7rem;
+  top: 50%;
+  left: 0;
   display: grid;
   place-items: center;
-  min-width: 1.4rem;
-  height: 1.4rem;
-  padding: 0 0.25rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0 0.5rem;
+  border: 2px solid var(--color-bg-surface);
   border-radius: var(--radius-full);
-  background: var(--color-text);
-  color: var(--color-on-primary);
-  font-size: 0.75rem;
+  background: var(--tone);
+  color: #fff;
+  font-size: 1.2rem;
   font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
   line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  /* 문구 왼쪽 바깥에 붙여 글자를 가리지 않는다 */
+  transform: translate(calc(-100% - 4px), -50%);
 }
+.tile-row__box--medium .tile-row__box-no { background: var(--color-warning-text); }
+.tile-row__box--active .tile-row__box-no { transform: translate(calc(-100% - 4px), -50%) scale(1.12); }
 .tile-row__items {
   display: flex;
   flex-direction: column;
