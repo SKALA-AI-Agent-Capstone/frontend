@@ -22,7 +22,16 @@ export const useReviewsStore = defineStore('reviews', () => {
   }
   async function load() {
     if (!session.isAuthenticated) { items.value = []; return }
-    try { items.value = await request('/reviews'); error.value = null } catch (e) { error.value = e.message }
+    try { items.value = (await request('/reviews')).map(keepDetail); error.value = null } catch (e) { error.value = e.message }
+  }
+  // 목록 API는 violations와 canApprove를 싣지 않는다. 상세로 먼저 받아 둔 건을 목록이 늦게 덮으면
+  // 수정안 카드가 통째로 사라지므로, 최신 버전이 그대로일 때만 상세 값을 이어 붙인다.
+  function keepDetail(review) {
+    const known = items.value.find(r => r.id === review.id)
+    if (!known?.violations || !review.versions?.length) return review
+    const [before, after] = [latest(known), latest(review)]
+    if (before.no !== after.no || before.status !== after.status) return review
+    return { ...review, violations: known.violations, hitl: { ...known.hitl, ...review.hitl } }
   }
   async function refresh(id) { return upsert(await request(`/reviews/${id}`)) }
   async function poll() {

@@ -8,6 +8,8 @@ import { onUnmounted, ref, watch } from 'vue'
 import { requestBlob } from '@/shared/api/http'
 
 const cache = new Map() // key → { url, refs }
+// 아직 받는 중인 요청. 같은 원본을 여러 곳이 동시에 열어도 한 번만 내려받는다.
+const pending = new Map() // key → Promise<Blob>
 
 function keyOf(reviewId, assetId) {
   return `${reviewId}:${assetId}`
@@ -42,8 +44,11 @@ export function useAssetImage(reviewId, assetId) {
       return
     }
     try {
-      const blob = await requestBlob(`/reviews/${id}/assets/${asset}`)
-      cache.set(key, { url: URL.createObjectURL(blob), refs: 1 })
+      if (!pending.has(key)) pending.set(key, requestBlob(`/reviews/${id}/assets/${asset}`).finally(() => pending.delete(key)))
+      const blob = await pending.get(key)
+      const entry = cache.get(key)
+      if (entry) entry.refs += 1
+      else cache.set(key, { url: URL.createObjectURL(blob), refs: 1 })
       heldKey = key
       url.value = cache.get(key).url
     } catch (e) {
