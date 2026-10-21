@@ -88,7 +88,10 @@ async function decide(action) {
     <p v-else-if="version.approval.state !== 'pending'" class="approval__note">{{ $t('reviewDetail.approval.saved') }}</p>
     <p v-else class="approval__note">{{ $t('reviewDetail.approval.noPermission') }}</p>
 
-    <BaseAlert v-if="version.approval.agentResume === 'pending'" variant="warning">{{ $t('reviewDetail.approval.resumePending') }}</BaseAlert>
+    <BaseAlert v-if="version.approval.agentResume === 'pending'" variant="info">{{ $t('reviewDetail.approval.resumePending') }}</BaseAlert>
+    <BaseAlert v-else-if="version.approval.agentResume === 'failed'" variant="warning">
+      {{ $t('reviewDetail.approval.resumeFailed', { error: version.approval.agentResumeError || '-' }) }}
+    </BaseAlert>
     <ApprovalHistory :history="version.approval.history" :version-no="version.no" />
   </BaseCard>
 </template>

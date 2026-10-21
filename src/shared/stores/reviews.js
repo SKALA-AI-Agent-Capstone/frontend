@@ -42,6 +42,8 @@ export const useReviewsStore = defineStore('reviews', () => {
   }
   async function refresh(id) { return upsert(await request(`/reviews/${id}`)) }
   const isRunning = review => ['queued', 'analyzing'].includes(latest(review).status)
+  // 결정 뒤 Agent 재개를 기다리는 건도 resume_completed 또는 resume_failed를 받을 때까지 따라간다.
+  const needsStream = review => isRunning(review) || latest(review).approval?.agentResume === 'pending'
   function setActivity(id, patch) {
     activity.value = { ...activity.value, [id]: { ...activity.value[id], ...patch } }
   }
@@ -61,7 +63,6 @@ export const useReviewsStore = defineStore('reviews', () => {
     else if (event.type === 'retry_scheduled') setActivity(id, { retry: data.attempt })
     else if (event.type === 'completed' || event.type === 'failed') {
       setActivity(id, { tool: null, state: null })
-      refresh(id).catch(() => {})
       useCreditsStore().loadBalance().catch(() => {})
     }
   }
@@ -70,10 +71,17 @@ export const useReviewsStore = defineStore('reviews', () => {
     setActivity(id, { live: false })
     streams.set(id, openReviewStream(id, {
       onEvent: event => onEvent(id, event),
-      onClose: reason => {
+      onClose: async reason => {
         streams.delete(id)
         setActivity(id, { live: false })
-        if (reason === 'fallback') { fallback.add(id); poll() }
+        if (reason === 'cancelled') return
+        if (reason === 'fallback') fallback.add(id)
+        else {
+          // Remove the old subscription before fetching the phase that follows it.
+          try { await refresh(id) }
+          catch { fallback.add(id) }
+        }
+        if (session.isAuthenticated) poll()
       },
     }))
     return true
@@ -86,11 +94,11 @@ export const useReviewsStore = defineStore('reviews', () => {
   async function poll() {
     clearTimeout(pollTimer)
     if (!session.isAuthenticated) return
-    const running = list.value.filter(isRunning)
+    const running = list.value.filter(needsStream)
     const polled = running.filter(r => !follow(r.id))
     await Promise.allSettled(polled.map(r => refresh(r.id)))
     if (polled.length) {
-      if (polled.some(r => { const current = byId(r.id); return current && !isRunning(current) }))
+      if (polled.some(r => { const current = byId(r.id); return current && !needsStream(current) }))
         await useCreditsStore().loadBalance().catch(() => {})
       pollTimer = setTimeout(poll, 1500)
     }
@@ -118,7 +126,9 @@ export const useReviewsStore = defineStore('reviews', () => {
   const createReview = input => submit('/reviews', input)
   const createVersion = (id, input) => submit(`/reviews/${id}/re-review`, input)
   async function decide(id, versionNo, state, comment) {
-    return upsert(await request(`/reviews/${id}/decision`, { method: 'POST', body: JSON.stringify({ versionNo, state, comment }) }))
+    const review = upsert(await request(`/reviews/${id}/decision`, { method: 'POST', body: JSON.stringify({ versionNo, state, comment }) }))
+    poll() // 결정은 저장됐고 Agent 재개는 서버 큐가 처리한다. 결과를 SSE로 받는다.
+    return review
   }
   async function decideViolation(id, violationId, body) {
     return upsert(await request(`/reviews/${id}/violations/${violationId}/decision`, { method: 'POST', body: JSON.stringify(body) }))

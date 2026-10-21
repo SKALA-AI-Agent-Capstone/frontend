@@ -134,7 +134,8 @@
     "oldVersion": "This is an earlier version. Approval is only possible on the latest version.",
     "saved": "The reviewer decision for this version has been saved.",
     "noPermission": "Only reviewers or admins can approve, reject or request changes.",
-    "resumePending": "The decision was saved, but resuming the run is still pending. Automatic retry is not connected yet."
+    "resumePending": "The decision is saved and the AI run is being finished. Temporary errors are retried automatically.",
+    "resumeFailed": "The decision is saved, but the AI run could not be finished ({error}). The decision and credits are not affected. Please tell an administrator."
   },
   "modal": {
     "preparing": "Submitting your review",
