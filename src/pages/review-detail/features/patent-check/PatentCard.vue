@@ -125,7 +125,7 @@ const inputId = `patent-${props.patent.id}`
 .patent__trace {
   font-size: var(--font-size-detail-s);
   color: var(--color-text-secondary);
-  word-break: break-all;
+  overflow-wrap: anywhere; /* break-all은 영어 단어를 중간에서 자른다 */
 }
 .patent__confirm {
   display: flex;

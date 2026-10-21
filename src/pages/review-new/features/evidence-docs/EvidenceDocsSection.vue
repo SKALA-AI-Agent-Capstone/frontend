@@ -91,7 +91,7 @@ const { draft, requirements, addEvidence } = useReviewDraft()
   flex: 1;
   min-width: 0;
   font-size: var(--font-size-body-s);
-  word-break: break-all;
+  overflow-wrap: anywhere; /* break-all은 영어 단어를 중간에서 자른다 */
 }
 .evidence-item__size {
   font-size: var(--font-size-detail-s);

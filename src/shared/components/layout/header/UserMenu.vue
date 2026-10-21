@@ -119,25 +119,22 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
   box-shadow: var(--shadow-level-2);
 }
 .user-menu__info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-xs) var(--space-md);
   margin: 0 0 var(--space-md);
   font-size: var(--font-size-detail-m);
 }
 .user-menu__info div {
-  display: flex;
-  gap: var(--space-sm);
+  display: contents;
 }
 .user-menu__info dt {
-  flex-shrink: 0;
-  width: 4rem;
   color: var(--color-text-secondary);
 }
 .user-menu__info dd {
   margin: 0;
   font-weight: var(--font-weight-bold);
-  word-break: break-all;
+  overflow-wrap: anywhere; /* break-all은 영어 단어를 중간에서 자른다 */
 }
 .user-menu__links {
   display: grid;

@@ -374,8 +374,10 @@ const EMPTY = {
 
 .rows { display: grid; }
 .row {
+  /* 줄마다 따로 그리는 그리드라 칸 너비를 고정해야 모든 줄이 같은 자리에 맞는다.
+     너비는 가장 긴 영어 문구(High risk of violation, Changes requested, Submit new version) 기준 */
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) 140px 150px minmax(112px, auto);
+  grid-template-columns: 56px minmax(0, 1fr) 176px 150px 180px;
   align-items: center;
   gap: 20px;
   padding: 14px 24px;
@@ -434,13 +436,13 @@ const EMPTY = {
 @media (max-width: 1180px) {
   .running__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .status { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .row { grid-template-columns: 56px minmax(0, 1fr) 140px minmax(112px, auto); }
+  .row { grid-template-columns: 56px minmax(0, 1fr) 150px 180px; }
   .row__risk { display: none; }
 }
 @media (max-width: 760px) {
   .running__list { grid-template-columns: 1fr; }
   .status { display: flex; overflow-x: auto; gap: 8px; scrollbar-width: none; }
-  .status__card { min-width: 112px; padding: 12px 14px; }
+  .status__card { flex: none; min-width: 112px; padding: 12px 14px; }
   .status__count { font-size: 2.2rem; }
   .list__head { padding: 14px 16px; }
   .row { grid-template-columns: 56px minmax(0, 1fr); gap: 12px 14px; padding: 14px 16px; }
