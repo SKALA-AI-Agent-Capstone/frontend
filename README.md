@@ -69,7 +69,11 @@ VITE_*나 소스에 키를 넣지 않는다. ChatGPT 구독은 이 서비스의 
 - 화면 주소: `/api/`로 시작하지 않는 모든 주소는 `index.html`로 보내 새로고침해도 화면이 열린다.
 - 환경 변수: 필요 없다. 클라이언트에 키나 토큰을 넣지 않는다.
 
-### API 연결 (백엔드 주소가 생긴 뒤)
+### API 연결
+
+현재 Render 백엔드 주소는 `https://backend-6pdq.onrender.com`이고 `vercel.json`의 첫 번째 `rewrites` 규칙이 `/api/*`를 그쪽으로 넘긴다. 주소가 바뀌면 그 규칙만 고친다.
+
+#### 규칙 형식
 
 로그인 유지 쿠키는 `SameSite=Strict`라서 브라우저가 화면과 같은 도메인으로 `/api`를 불러야 한다. `vercel.json`의 `rewrites` 맨 앞에 아래 규칙을 넣어 Vercel이 백엔드로 넘기게 한다. 주소는 실제 Render 서비스 주소로 바꾼다.
 
