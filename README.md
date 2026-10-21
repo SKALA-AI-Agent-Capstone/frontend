@@ -61,6 +61,32 @@ Vite의 /api 요청은 기본 http://127.0.0.1:8080 으로 전달한다. API_PRO
 실제 모델 호출에는 backend의 OPENAI_API_KEY가 필요하다. 식약처와 KIPRIS 키도 서버에만 둔다.
 VITE_*나 소스에 키를 넣지 않는다. ChatGPT 구독은 이 서비스의 API 키가 아니다.
 
+## Vercel 배포
+
+화면(이 저장소)은 Vercel에 올리고, Spring Boot API는 따로 띄운다(Render 예정). 설정은 `vercel.json`에 있다.
+
+- 빌드: `npm ci` 후 `npm run build`, 결과는 `dist`. Node 버전은 `package.json`의 `engines`를 따른다.
+- 화면 주소: `/api/`로 시작하지 않는 모든 주소는 `index.html`로 보내 새로고침해도 화면이 열린다.
+- 환경 변수: 필요 없다. 클라이언트에 키나 토큰을 넣지 않는다.
+
+### API 연결
+
+현재 Render 백엔드 주소는 `https://backend-6pdq.onrender.com`이고 `vercel.json`의 첫 번째 `rewrites` 규칙이 `/api/*`를 그쪽으로 넘긴다. 주소가 바뀌면 그 규칙만 고친다.
+
+#### 규칙 형식
+
+로그인 유지 쿠키는 `SameSite=Strict`라서 브라우저가 화면과 같은 도메인으로 `/api`를 불러야 한다. `vercel.json`의 `rewrites` 맨 앞에 아래 규칙을 넣어 Vercel이 백엔드로 넘기게 한다. 주소는 실제 Render 서비스 주소로 바꾼다.
+
+```json
+{ "source": "/api/:path*", "destination": "https://<render-서비스>.onrender.com/api/:path*" }
+```
+
+백엔드 쪽에서 맞출 값:
+
+- `PAYMENT_RETURN_URL`: `https://<vercel-도메인>/credits` (토스 결제 후 돌아올 주소)
+- `JWT_REFRESH_COOKIE_SECURE`: `true` (기본값, HTTPS에서만 쿠키 전송)
+- Vercel이 같은 도메인으로 넘겨 주므로 CORS 설정은 필요 없다.
+
 ## 협업과 검증
 
 팀원의 시작 기준은 main이다. 후속 기능은 main에서 짧은 feat 브랜치를 만들어 PR로 반영한다.

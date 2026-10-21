@@ -12,12 +12,6 @@
   "versions": "Review versions",
   "failedTitle": "Analysis failed",
   "resubmit": "Resubmit the original as a new version",
-  "credit": {
-    "released": "{count} credits returned after analysis failed",
-    "charged": "{count} credits used for this review",
-    "balance": "Current balance:",
-    "loading": "Checking your balance."
-  },
   "bar": {
     "progress": "{done} of {total} phrases decided",
     "ready": "All {total} phrases decided; approve or re-review next",
@@ -67,7 +61,11 @@
     "materials": "Material needed",
     "phrases": "{count} phrase(s)",
     "unanalyzed": "Not judged",
-    "holdCount": "{count} phrase(s) on hold because a lookup failed. This is not a problem in the ad; retry or check directly."
+    "holdCount": "{count} phrase(s) on hold because a lookup failed. This is not a problem in the ad; retry or check directly.",
+    "chartLabel": "Bar chart of phrases by next action, {total} in total",
+    "filterLabel": "Filter by next action",
+    "all": "All",
+    "allHint": "Click a bar or button to show only that action in the list below."
   },
   "revision": {
     "manualRequired": "Enter the copy you want to use.",
@@ -235,6 +233,12 @@
     "concern": "To check: {concern}",
     "adjacent": "Context from nearby sections or the comparison image is needed.",
     "region": "Analyzed region y={from}~{to}%. This does not confirm exact wrinkle positions or actual efficacy."
+  },
+  "credit": {
+    "released": "{count} credits returned after analysis failed",
+    "charged": "{count} credits used for this review",
+    "balance": "Current balance:",
+    "loading": "Checking your balance."
   },
   "tiles": {
     "title": "Review by section",

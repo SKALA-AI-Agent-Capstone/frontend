@@ -28,5 +28,11 @@
   "pay": "Pay",
   "done": "Test payment complete",
   "current": "Current credits:",
-  "again": "Choose another package"
+  "again": "Choose another package",
+  "balanceNow": "Current balance",
+  "unit": "credits",
+  "perCredit": "KRW {price} per credit",
+  "summary": "Payment details",
+  "payAmount": "Pay {amount}",
+  "best": "Lowest price per credit"
 }
