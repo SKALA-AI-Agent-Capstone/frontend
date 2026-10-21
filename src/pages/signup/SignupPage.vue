@@ -6,8 +6,11 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { safeRedirect } from '@/shared/utils/redirect'
 import AuthShell from '@/shared/components/layout/AuthShell.vue'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
+import { useLegalDocument } from '@/shared/composables/useLegalDocument'
 import '@/pages/login/auth-form.css'
 import { t } from '@/shared/i18n'
+
+const { openPrivacyPolicy, openTerms } = useLegalDocument()
 
 const session = useSessionStore()
 const router = useRouter()
@@ -87,12 +90,12 @@ async function submit() {
         <label class="auth-consent__item">
           <input type="checkbox" v-model="consentTerms" required />
           {{ $t('auth.signup.consent.terms') }}
-          <RouterLink :to="{ name: ROUTE_NAMES.TERMS }" target="_blank">{{ $t('auth.signup.consent.view') }}</RouterLink>
+          <button type="button" @click="openTerms">{{ $t('auth.signup.consent.view') }}</button>
         </label>
         <label class="auth-consent__item">
           <input type="checkbox" v-model="consentPrivacy" required />
           {{ $t('auth.signup.consent.privacy') }} ({{ $t('auth.signup.consent.privacyItems') }})
-          <RouterLink :to="{ name: ROUTE_NAMES.PRIVACY_POLICY }" target="_blank">{{ $t('auth.signup.consent.view') }}</RouterLink>
+          <button type="button" @click="openPrivacyPolicy">{{ $t('auth.signup.consent.view') }}</button>
         </label>
       </fieldset>
 

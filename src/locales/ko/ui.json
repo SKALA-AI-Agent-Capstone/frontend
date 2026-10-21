@@ -26,6 +26,7 @@
   },
   "cancel": "취소",
   "confirm": "확인",
+  "close": "닫기",
   "select": "선택해주세요",
   "dropzone": {
     "filled": "파일 {count}개를 올렸습니다",

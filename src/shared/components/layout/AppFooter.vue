@@ -3,11 +3,13 @@
   안내 문장은 한 줄에 한 문장씩 두어 넓은 화면에서도 문장 중간에서 꺾이지 않게 한다.
 -->
 <script setup>
-import { RouterLink } from 'vue-router'
 import { FOOTER, FOOTER_LINKS, SITE } from '@/shared/constants/site'
+import { useLegalDocument } from '@/shared/composables/useLegalDocument'
 import PageContainer from './PageContainer.vue'
 
 const year = new Date().getFullYear()
+const { openPrivacyPolicy, openTerms } = useLegalDocument()
+const OPEN_BY_KIND = { privacy: openPrivacyPolicy, terms: openTerms }
 </script>
 
 <template>
@@ -31,7 +33,9 @@ const year = new Date().getFullYear()
       </ul>
 
       <nav class="legal-links" aria-label="법적 고지">
-        <RouterLink v-for="link in FOOTER_LINKS" :key="link.label" :to="link.to">{{ link.label }}</RouterLink>
+        <button v-for="link in FOOTER_LINKS" :key="link.label" type="button" @click="OPEN_BY_KIND[link.kind]()">
+          {{ link.label }}
+        </button>
       </nav>
 
       <div class="app-footer__bottom">
@@ -92,10 +96,16 @@ const year = new Date().getFullYear()
   margin-bottom: 12px;
   font-size: var(--font-size-detail-s);
 }
-.legal-links a {
+.legal-links button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-detail-s);
   color: var(--color-text-secondary);
   text-decoration: underline;
   text-underline-offset: 3px;
+  cursor: pointer;
 }
 .app-footer__bottom {
   display: flex;

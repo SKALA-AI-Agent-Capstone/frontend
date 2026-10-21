@@ -6,9 +6,11 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { safeRedirect } from '@/shared/utils/redirect'
 import AuthShell from '@/shared/components/layout/AuthShell.vue'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
+import { useLegalDocument } from '@/shared/composables/useLegalDocument'
 import './auth-form.css'
 import { t } from '@/shared/i18n'
 
+const { openPrivacyPolicy, openTerms } = useLegalDocument()
 const session = useSessionStore()
 const router = useRouter()
 const route = useRoute()
@@ -54,8 +56,8 @@ async function submit() {
     </form>
     <p class="auth-privacy-notice">
       <i18n-t keypath="auth.login.privacyNotice" scope="global">
-        <template #terms><RouterLink :to="{ name: ROUTE_NAMES.TERMS }" target="_blank">{{ $t('ui.titles.terms') }}</RouterLink></template>
-        <template #privacy><RouterLink :to="{ name: ROUTE_NAMES.PRIVACY_POLICY }" target="_blank">{{ $t('ui.titles.privacyPolicy') }}</RouterLink></template>
+        <template #terms><button type="button" @click="openTerms">{{ $t('ui.titles.terms') }}</button></template>
+        <template #privacy><button type="button" @click="openPrivacyPolicy">{{ $t('ui.titles.privacyPolicy') }}</button></template>
       </i18n-t>
     </p>
     <p class="auth-switch">

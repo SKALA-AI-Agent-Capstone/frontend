@@ -26,6 +26,7 @@
   },
   "cancel": "Cancel",
   "confirm": "Confirm",
+  "close": "Close",
   "select": "Select",
   "dropzone": {
     "filled": "{count} file(s) uploaded",

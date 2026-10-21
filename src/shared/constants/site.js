@@ -46,8 +46,8 @@ export const LANGUAGES = Object.freeze([
 // 푸터 — 서비스 이름과 운영 정보 → 안내 문장(한 줄에 한 문장) → 저작권과 비공식 서비스 안내
 const FOOTER_NOTICE_KEYS = ['common.footer.storageNotice', 'common.footer.photoNotice', 'common.site.demoNotice']
 export const FOOTER_LINKS = Object.freeze([
-  translated({ to: { name: ROUTE_NAMES.PRIVACY_POLICY } }, { label: 'ui.titles.privacyPolicy' }),
-  translated({ to: { name: ROUTE_NAMES.TERMS } }, { label: 'ui.titles.terms' }),
+  translated({ kind: 'privacy' }, { label: 'ui.titles.privacyPolicy' }),
+  translated({ kind: 'terms' }, { label: 'ui.titles.terms' }),
 ])
 export const FOOTER = translated({
   contacts: [translated({}, { term: 'common.footer.contactTerm', desc: 'common.footer.contactDesc' })],
