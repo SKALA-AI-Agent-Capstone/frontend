@@ -134,7 +134,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
 .user-menu__info dd {
   margin: 0;
   font-weight: var(--font-weight-bold);
-  word-break: break-all;
+  overflow-wrap: anywhere; /* break-all은 영어 단어를 중간에서 자른다 */
 }
 .user-menu__links {
   display: grid;

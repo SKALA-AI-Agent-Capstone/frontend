@@ -5,7 +5,7 @@
   },
   "title": "Submit a cosmetic ad pre-review",
   "titleVersion": "Review a new ad version",
-  "description": "Upload a PDF or image and the copy and photos are analyzed separately, with related statute candidates for each phrase.\nLegality is decided by your reviewer.",
+  "description": "Upload a PDF or image, and AI analyzes the copy and photos separately.\nEach phrase gets candidate legal articles. Your reviewer decides legality.",
   "badge": "Internal pre-review",
   "versionAlert": {
     "title": "This revision will be reviewed as a new version",
