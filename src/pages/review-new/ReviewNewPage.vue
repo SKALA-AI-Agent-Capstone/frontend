@@ -7,10 +7,8 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { request } from '@/shared/api/http'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
-import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import ApplicationStepper from '@/shared/components/navigation/ApplicationStepper.vue'
-import CreditEstimate from '@/shared/components/review/CreditEstimate.vue'
 import { useCreditsStore } from '@/shared/stores/credits'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { provideReviewDraft } from './composables/useReviewDraft'
@@ -19,6 +17,7 @@ import ApplicantInfoSection from './features/applicant-info/ApplicantInfoSection
 import EvidenceDocsSection from './features/evidence-docs/EvidenceDocsSection.vue'
 import ReviewFormActions from './features/form-actions/ReviewFormActions.vue'
 import ProductInfoSection from './features/product-info/ProductInfoSection.vue'
+import CreditDialog from './features/credit-dialog/CreditDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,7 +42,6 @@ const topUpOpen = ref(false) // 잔액이 모자랄 때 충전을 안내하는 �
 const error = ref('')
 const balanceLoaded = ref(false)
 const reviewCost = ref(null)
-const shortfall = computed(() => Math.max(0, (reviewCost.value ?? 0) - credits.balance))
 onMounted(async () => {
   try {
     const config = await request('/billing/config')
@@ -130,25 +128,13 @@ function goTopUp() {
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
       <ReviewFormActions :submitting="submitting || checkingBalance" :version-label="nextVersionLabel" />
     </form>
-    <BaseConfirmDialog v-model:open="confirmOpen" :title="$t('reviewNew.credit.confirmTitle')" :confirm-label="$t('reviewNew.credit.confirmButton', { count: reviewCost })" :busy="submitting" @confirm="submit">
-      <CreditEstimate :required="reviewCost" :label="$t('reviewNew.credit.cost')" :note="$t('reviewNew.credit.note')" show-remaining />
-    </BaseConfirmDialog>
-
-    <!-- 잔액이 모자랄 때: 충전 안내 -->
-    <BaseConfirmDialog
-      v-model:open="topUpOpen"
-      :title="$t('reviewNew.credit.topUpTitle')"
-      :confirm-label="$t('reviewNew.credit.topUpAction')"
-      @confirm="goTopUp"
-    >
-      <p class="topup__lead">{{ $t('reviewNew.credit.topUpText', { cost: reviewCost, shortfall }) }}</p>
-      <CreditEstimate :required="reviewCost ?? 0" :note="$t('reviewNew.credit.topUpNote')" hide-shortfall />
-    </BaseConfirmDialog>
+    <!-- 잔액이 충분할 때: 차감 확인 / 모자랄 때: 충전 안내 -->
+    <CreditDialog v-model:open="confirmOpen" mode="confirm" :cost="reviewCost ?? 0" :balance="credits.balance" :busy="submitting" @confirm="submit" />
+    <CreditDialog v-model:open="topUpOpen" mode="topup" :cost="reviewCost ?? 0" :balance="credits.balance" @confirm="goTopUp" />
   </div>
 </template>
 
 <style scoped>
-.topup__lead { margin-bottom: var(--space-md); color: var(--color-text); }
 .apply-page,
 .apply-page__form {
   display: flex;

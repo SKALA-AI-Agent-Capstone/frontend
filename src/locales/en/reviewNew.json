@@ -68,7 +68,6 @@
   },
   "credit": {
     "topUpTitle": "Not enough credits",
-    "topUpText": "Each review needs {cost} credits. Top up {shortfall} more credits to continue.",
     "topUpAction": "Go to top up",
     "topUpNote": "Your product details are saved as a draft. Upload your files again after topping up.",
     "loadFailed": "Could not load credit information. Please try again shortly.",
@@ -77,6 +76,12 @@
     "confirmTitle": "Start this review?",
     "confirmButton": "Use {count} credits and start review",
     "cost": "Credits to use",
-    "note": "Credits are deducted when the review starts and returned automatically if analysis fails."
+    "note": "Credits are deducted when the review starts and returned automatically if analysis fails.",
+    "confirmLead": "These credits are deducted and analysis starts right away.",
+    "receiptBalance": "Current balance",
+    "receiptCost": "This review",
+    "receiptAfter": "Balance after review",
+    "topUpLead": "Each review needs {cost} credits.",
+    "shortfallLabel": "Credits short"
   }
 }

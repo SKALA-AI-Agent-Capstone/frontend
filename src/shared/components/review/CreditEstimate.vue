@@ -13,7 +13,6 @@ const props = defineProps({
   breakdown: { type: String, default: '' },
   note: { type: String, default: '' },
   showRemaining: { type: Boolean, default: false },
-  hideShortfall: { type: Boolean, default: false }, // 부모가 따로 충전을 안내하면 숨긴다
 })
 
 const credits = useCreditsStore()
@@ -22,14 +21,14 @@ const check = computed(() => credits.precheck(props.required))
 
 <template>
   <div class="estimate">
-    <dl class="estimate__list" :class="{ 'estimate__list--three': showRemaining }">
+    <dl class="estimate__list">
       <div><dt>{{ label || $t('common.creditEstimate.expected') }}</dt><dd>{{ $t('credits.amount', { count: formatNumber(required) }) }}</dd></div>
       <div><dt>{{ $t('common.creditEstimate.balance') }}</dt><dd>{{ $t('credits.amount', { count: formatNumber(check.balance) }) }}</dd></div>
       <div v-if="showRemaining"><dt>{{ $t('common.creditEstimate.remaining') }}</dt><dd>{{ check.ok ? $t('credits.amount', { count: formatNumber(check.balance - required) }) : '—' }}</dd></div>
     </dl>
     <p v-if="breakdown" class="estimate__breakdown">{{ breakdown }}</p>
     <p class="estimate__note">{{ note || $t('common.creditEstimate.note') }}</p>
-    <BaseAlert v-if="!check.ok && !hideShortfall" variant="danger" :title="$t('common.creditEstimate.shortageTitle')" aria-live="polite">
+    <BaseAlert v-if="!check.ok" variant="danger" :title="$t('common.creditEstimate.shortageTitle')" aria-live="polite">
       <div class="estimate__shortfall">
         <span>{{ $t('common.creditEstimate.shortage', { count: formatNumber(check.shortfall) }) }}</span>
         <BaseButton variant="outline" size="sm" icon="add" :to="{ name: ROUTE_NAMES.CREDITS }">
@@ -51,10 +50,6 @@ const check = computed(() => credits.precheck(props.required))
   grid-template-columns: 1fr 1fr;
   gap: var(--space-sm);
   margin: 0;
-}
-.estimate__list--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-@media (max-width: 600px) {
-  .estimate__list--three { grid-template-columns: 1fr 1fr; }
 }
 .estimate__list div {
   display: flex;

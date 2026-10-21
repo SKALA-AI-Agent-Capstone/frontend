@@ -8,7 +8,7 @@ import { useCreditsStore } from '@/shared/stores/credits'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import ScreenTitle from '@/shared/components/layout/ScreenTitle.vue'
-import CreditCoins from './CreditCoins.vue'
+import CreditCoins from '@/shared/components/review/CreditCoins.vue'
 
 const session = useSessionStore()
 const credits = useCreditsStore()
