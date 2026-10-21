@@ -9,9 +9,9 @@ import { formatNumber } from '@/shared/utils/format'
 
 const props = defineProps({
   required: { type: Number, required: true },
-  label: { type: String, default: '예상 사용' },
+  label: { type: String, default: '' },
   breakdown: { type: String, default: '' },
-  note: { type: String, default: '처리 완료 후 실제 사용량으로 확정 차감됩니다.' },
+  note: { type: String, default: '' },
   showRemaining: { type: Boolean, default: false },
 })
 
@@ -22,17 +22,17 @@ const check = computed(() => credits.precheck(props.required))
 <template>
   <div class="estimate">
     <dl class="estimate__list">
-      <div><dt>{{ label }}</dt><dd>{{ formatNumber(required) }} 크레딧</dd></div>
-      <div><dt>현재 잔액</dt><dd>{{ formatNumber(check.balance) }} 크레딧</dd></div>
-      <div v-if="showRemaining"><dt>검사 후 예상 잔액</dt><dd>{{ check.ok ? formatNumber(check.balance - required) : '—' }}{{ check.ok ? ' 크레딧' : '' }}</dd></div>
+      <div><dt>{{ label || $t('common.creditEstimate.expected') }}</dt><dd>{{ $t('credits.amount', { count: formatNumber(required) }) }}</dd></div>
+      <div><dt>{{ $t('common.creditEstimate.balance') }}</dt><dd>{{ $t('credits.amount', { count: formatNumber(check.balance) }) }}</dd></div>
+      <div v-if="showRemaining"><dt>{{ $t('common.creditEstimate.remaining') }}</dt><dd>{{ check.ok ? $t('credits.amount', { count: formatNumber(check.balance - required) }) : '—' }}</dd></div>
     </dl>
     <p v-if="breakdown" class="estimate__breakdown">{{ breakdown }}</p>
-    <p class="estimate__note">{{ note }}</p>
-    <BaseAlert v-if="!check.ok" variant="danger" title="크레딧이 부족합니다" aria-live="polite">
+    <p class="estimate__note">{{ note || $t('common.creditEstimate.note') }}</p>
+    <BaseAlert v-if="!check.ok" variant="danger" :title="$t('common.creditEstimate.shortageTitle')" aria-live="polite">
       <div class="estimate__shortfall">
-        <span>{{ formatNumber(check.shortfall) }} 크레딧이 더 필요합니다.</span>
+        <span>{{ $t('common.creditEstimate.shortage', { count: formatNumber(check.shortfall) }) }}</span>
         <BaseButton variant="outline" size="sm" icon="add" :to="{ name: ROUTE_NAMES.CREDITS }">
-          크레딧 충전하기
+          {{ $t('common.creditEstimate.topUp') }}
         </BaseButton>
       </div>
     </BaseAlert>
