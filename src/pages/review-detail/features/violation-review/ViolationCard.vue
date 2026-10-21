@@ -10,7 +10,7 @@
 import { computed } from 'vue'
 import { emptyBasisText } from '@/shared/constants/legal'
 import { SEVERITY, SEVERITY_LABEL } from '@/shared/constants/review'
-import { useAssetImage } from '@/shared/composables/useAssetImage'
+import FindingImageCrop from '@/shared/components/review/FindingImageCrop.vue'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
@@ -26,11 +26,10 @@ const props = defineProps({
   number: { type: Number, required: true },
 })
 
-const { review, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result } = useReviewDetail()
+const { review, version, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result } = useReviewDetail()
 
-// 원본 이미지는 보존한다(2026-10-20 설계 변경) — 문구가 속한 이미지/페이지 원본을 함께 보여준다.
-const assetId = computed(() => props.finding?.location?.fileId ?? null)
-const { url: assetImageUrl } = useAssetImage(computed(() => review.value?.id), assetId)
+const sourceAsset = computed(() => [...(version.value?.input?.files ?? []), ...(version.value?.input?.evidence ?? [])]
+  .find((asset) => asset.id === props.finding?.location?.fileId))
 
 const severity = computed(() => SEVERITY_LABEL[props.finding?.severity ?? SEVERITY.LOW])
 const decided = computed(() => Boolean(props.violation.finalResolution))
@@ -94,7 +93,11 @@ function retry(note) {
       {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}: {{ finding.escalation.reason }}
     </BaseAlert>
 
-    <img v-if="assetImageUrl" :src="assetImageUrl" :alt="`${locationLabel} 원본`" class="violation__image" />
+    <FindingImageCrop v-if="finding?.location?.fileId && review?.id"
+      :review-id="review.id" :asset-id="finding.location.fileId"
+      :asset-name="finding.location.fileName ?? sourceAsset?.name ?? '광고 이미지'"
+      :mime="sourceAsset?.mime ?? ''" :focus-region="finding.location.bbox"
+      focus-label="문구가 추출된 위치" />
 
     <p v-if="finding">{{ finding.reason }}</p>
     <p v-if="!finding?.basis?.length">{{ emptyBasisText(finding, result) }}</p>
@@ -183,13 +186,6 @@ function retry(note) {
   font-size: var(--font-size-label-s);
   font-weight: var(--font-weight-bold);
   color: var(--color-danger-text);
-}
-.violation__image {
-  max-width: 100%;
-  max-height: 20rem;
-  object-fit: contain;
-  border-radius: var(--radius-md);
-  border: var(--border-width) solid var(--color-border);
 }
 .violation__refs {
   display: flex;
