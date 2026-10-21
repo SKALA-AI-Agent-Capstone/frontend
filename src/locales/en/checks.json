@@ -24,7 +24,12 @@
     "gmp_listed": "GMP certified",
     "gmp_not_listed": "Not on GMP list",
     "needs_input": "Input needed",
-    "unavailable": "Lookup failed"
+    "unavailable": "Lookup failed",
+    "evidence_supports": "Supported by evidence",
+    "evidence_mismatch": "Different test submitted",
+    "evidence_conditions": "Test conditions differ",
+    "evidence_not_covering": "Not in evidence",
+    "evidence_unread": "Evidence unreadable"
   },
   "relation": {
     "cites": "Cites",

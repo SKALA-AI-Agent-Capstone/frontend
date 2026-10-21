@@ -23,7 +23,8 @@
     "report": "기능성 보고번호 또는 심사결과통지서",
     "amount": "성분 함량 자료",
     "gmp": "제조업체 GMP 근거",
-    "endorsement": "인증, 심사, 추천의 근거 자료"
+    "endorsement": "인증, 심사, 추천의 근거 자료",
+    "rightTest": "광고 효능과 같은 항목을 측정한 시험 보고서"
   },
   "filter": {
     "all": "전체 {count}",

@@ -164,15 +164,41 @@
   },
   "evidence": {
     "title": "증빙 대조",
-    "flags": "대조 결과",
-    "notDone": "증빙 자동 대조는 미완료입니다. 추출 본문과 판독 상태를 확인하세요.",
-    "status": "추출 상태: {status}",
-    "text": "증빙 추출 본문",
-    "required": "주장별 필요 서류",
-    "requiredNone": "필요 서류 자동 판정은 아직 연결되지 않았습니다.",
+    "text": "추출한 증빙 본문 보기",
     "submitted": "제출 서류",
     "submittedNone": "제출된 증빙서류가 없습니다.",
-    "publicData": "공공데이터 교차검증 (보조)"
+    "publicData": "공공데이터 교차검증 (보조)",
+    "matchTitle": "광고 주장 {count}건을 증빙과 대조했습니다",
+    "verdict": {
+      "supports": "뒷받침함",
+      "different_test": "다른 시험",
+      "condition_mismatch": "조건 다름",
+      "not_covered": "증빙에 없음"
+    },
+    "needed": "추가로 받을 자료: {what}",
+    "noClaims": "증빙과 대조할 수치, 시험 주장이 광고에 없습니다.",
+    "read": "{pages}쪽 읽음",
+    "kind": "자료 종류",
+    "measures": "측정 항목",
+    "period": "시험 기간",
+    "subjects": "대상",
+    "institution": "시험 기관",
+    "result": "결과",
+    "kinds": {
+      "efficacy_test": "효능 시험",
+      "safety_test": "안전성, 자극 시험",
+      "certificate": "인증서, 등록증",
+      "other": "기타 자료"
+    },
+    "failure": {
+      "EVIDENCE_PAGE_LIMIT": "80쪽을 넘어 읽지 않았습니다. 필요한 부분만 나눠 올려 주세요.",
+      "FILE_TOO_LARGE": "파일이 25MB를 넘어 읽지 않았습니다.",
+      "DOCUMENT_FETCH_FAILED": "원본을 불러오지 못했습니다. 보관 기간이 지났을 수 있어 다시 올려 주세요.",
+      "DOCUMENT_PARSE_FAILED": "파일 형식을 읽지 못했습니다. PDF나 이미지로 다시 올려 주세요.",
+      "OCR_UNAVAILABLE": "스캔된 {page}쪽의 글자를 인식하지 못했습니다.",
+      "PDF_PAGE_LIMIT": "페이지 수 한도를 넘어 읽지 않았습니다.",
+      "DOCUMENT_UNREADABLE_OR_EXPIRED": "문서를 읽지 못했습니다. 이전 방식으로 분석된 결과라 이유가 기록되지 않았습니다."
+    }
   },
   "patent": {
     "title": "특허 확인",

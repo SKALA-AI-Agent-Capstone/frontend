@@ -50,6 +50,8 @@ const basis = computed(() => props.finding?.basis ?? [])
 const action = computed(() => actionFor(props.finding))
 const nextStep = computed(() => nextStepFor(props.finding))
 const checks = computed(() => props.finding?.checks ?? [])
+// 증빙을 실제로 대조한 결과는 카드 본문에 그대로 보여 준다(어느 문서의 무엇이 다른지).
+const evidenceNote = computed(() => checks.value.find((c) => c.detail?.match)?.summary ?? null)
 const ruleLabels = computed(() => [...new Set((props.finding?.rules ?? []).map((r) => r.label))])
 const basisLabel = computed(() => {
   if (!basis.value.length) return t('reviewDetail.card.basisNone')
@@ -113,6 +115,7 @@ function retry(note) {
     <img v-if="assetImageUrl && !tileMode" :src="assetImageUrl" :alt="$t('reviewDetail.original.alt', { name: locationLabel })" class="violation__image" />
 
     <p v-if="finding" class="violation__reason">{{ finding.reason }}</p>
+    <p v-if="evidenceNote && !decided" class="violation__evidence">{{ evidenceNote }}</p>
     <p v-if="finding && !decided" class="violation__next" :class="`violation__next--${action}`">{{ nextStep }}</p>
     <RevisionOptions
       :violation="violation"
@@ -201,6 +204,9 @@ function retry(note) {
 .violation__reason {
   font-size: var(--font-size-body-s);
   color: var(--color-text-secondary);
+}
+.violation__evidence {
+  font-size: var(--font-size-body-s);
 }
 .violation__next {
   padding: var(--space-xs) var(--space-md);

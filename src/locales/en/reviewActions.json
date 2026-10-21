@@ -23,7 +23,8 @@
     "report": "the functional report number or review notice",
     "amount": "ingredient amount data",
     "gmp": "the manufacturer's GMP record",
-    "endorsement": "proof of the certification, review or endorsement"
+    "endorsement": "proof of the certification, review or endorsement",
+    "rightTest": "a test report measuring the advertised effect"
   },
   "filter": {
     "all": "All {count}",
