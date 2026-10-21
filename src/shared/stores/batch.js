@@ -10,6 +10,7 @@ import { computed, ref } from 'vue'
 import { delay } from '@/shared/api/mock/delay'
 import { FILE_KIND, REVIEW_STATUS } from '@/shared/constants/review'
 import { uid } from '@/shared/utils/format'
+import { t } from '@/shared/i18n'
 import { useReviewsStore } from './reviews'
 
 const CONCURRENCY = 2
@@ -91,7 +92,7 @@ export const useBatchStore = defineStore('batch', () => {
       job.progress = 20
       if (/fail|오류/i.test(job.fileName) && job.attempts === 1) {
         await delay(600)
-        throw new Error('파일 변환 중 오류 (목업)')
+        throw new Error(t('ui.errors.batchMock'))
       }
       const campaign = campaigns.value.find((c) => c.id === job.campaignId)
       const { reviewId, versionNo, done } = reviews.createReview(
@@ -102,7 +103,7 @@ export const useBatchStore = defineStore('batch', () => {
       job.progress = 40
       await done
       const version = reviews.byId(reviewId)?.versions.find((v) => v.no === versionNo)
-      if (version?.status !== REVIEW_STATUS.DONE) throw new Error(version?.error ?? '분석 실패')
+      if (version?.status !== REVIEW_STATUS.DONE) throw new Error(version?.error ?? t('review.status.failed'))
       job.progress = 100
       job.status = JOB_STATUS.DONE
     } catch (error) {

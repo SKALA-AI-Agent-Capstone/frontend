@@ -1,4 +1,5 @@
 export const TOKEN_KEY = 'beauty-review:access-token'
+import { t } from '@/shared/i18n'
 
 // 인증 자체를 다루는 경로는 401을 받아도 재발급하지 않는다.
 const AUTH_PATHS = new Set(['/users/signup', '/users/login', '/users/refresh', '/users/logout'])
@@ -26,7 +27,7 @@ function clearToken() {
 
 async function errorOf(response: Response) {
   const error = await response.json().catch(() => ({}))
-  return new Error(error.message || error.detail || `요청 실패 (${response.status})`)
+  return new Error(error.message || error.detail || t('ui.requestFailed', { status: response.status }))
 }
 
 async function refreshOnce(retried = false): Promise<AuthSession | null> {

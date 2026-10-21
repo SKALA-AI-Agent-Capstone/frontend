@@ -1,0 +1,69 @@
+{
+  "crumbs": {
+    "section": "기업 광고 검토",
+    "page": "PDF와 이미지 검토 신청"
+  },
+  "title": "화장품 광고 사전검토 신청",
+  "titleVersion": "광고 새 버전 검토",
+  "description": "PDF 또는 이미지를 올리면 문구와 사진을 각각 분석하고, 문구마다 관련 법령 조문 후보를 찾습니다.\n적법 여부는 담당자가 판단합니다.",
+  "badge": "기업 내부 사전검토",
+  "versionAlert": {
+    "title": "수정본을 새 버전으로 재심의합니다",
+    "text": "'{name}' v{from} 내용을 불러왔습니다. 제출하면 {to}로 저장되며, 이전 버전의 승인 이력은 그대로 유지됩니다."
+  },
+  "ad": {
+    "title": "3. 광고 매체 및 광고물",
+    "aside": "게시 예정 채널 복수 선택 가능",
+    "channels": "광고 매체 구분 (복수 선택)",
+    "fileLabel": "광고 PDF 또는 이미지 파일",
+    "fileHint": "파일당 최대 25 MiB, 광고 파일 최대 5개, 전체 제출 75 MiB. 올린 원본은 검토 결과와 함께 서버에 보존됩니다.",
+    "dropTitle": "광고물 파일을 드래그하여 놓으세요",
+    "dropDescription": "인쇄 포스터, 온라인 배너, 상세페이지 (JPG, PNG, WebP, PDF). 문구와 사진을 별도 분석합니다. 선택한 광고는 분석 시 OpenAI API로 전송됩니다.",
+    "filled": "광고 파일 {count}개를 올렸습니다"
+  },
+  "applicant": {
+    "title": "1. 신청인 정보",
+    "aside": "* 표시는 필수 입력 항목입니다.",
+    "company": "업체명 (상호)",
+    "companyHint": "로그인 계정의 소속 기업으로 자동 입력됩니다.",
+    "name": "담당자",
+    "email": "담당자 이메일",
+    "emailHint": "로그인 계정 정보, 이메일 발송은 미구현"
+  },
+  "evidence": {
+    "title": "4. 증빙 서류 사전 체크리스트",
+    "aside": "선택 제출, 원문 추출 결과를 확인합니다",
+    "intro": "보유한 시험자료나 제품 관련 자료를 선택 제출하세요. 이번 최소 기능은 증빙 본문을 추출하며, 제품과 시험 조건의 의미 대조 및 주장별 필요 서류 자동 추천은 후속 단계입니다.",
+    "dropTitle": "증빙서류를 끌어다 놓거나 선택하세요",
+    "dropDescription": "심사, 보고서, 전성분표, 인체적용, 인체외시험 결과서, 인증서, 특허, 상표등록증, 원산지증명서 (PDF, JPG, PNG)",
+    "filled": "증빙서류 {count}개를 올렸습니다",
+    "listLabel": "제출 증빙서류",
+    "carried": "이전 버전 제출",
+    "typeLabel": "{name} 서류 유형",
+    "typePlaceholder": "서류 유형 선택",
+    "noteLabel": "자료 확인:",
+    "note": "법령 검색이 연결되기 전에는 제출 자료만으로 광고의 적법 여부나 실증 충족 여부를 확정하지 않습니다."
+  },
+  "requirement": {
+    "prohibited": "증빙 불가, 문구 수정 필요",
+    "provided": "제출 완료",
+    "missing": "미제출",
+    "prohibitedText": "의약품 오인, 전문가 추천 표현은 증빙 서류로 허용되지 않습니다.",
+    "needed": "필요 서류: {docs}"
+  },
+  "actions": {
+    "saveDraft": "제품정보 임시저장",
+    "startVersion": "{version} 재검토 시작",
+    "start": "검토 시작"
+  },
+  "product": {
+    "title": "2. 제품 기본정보",
+    "aside": "광고 대상 제품과 공식 조회에 사용할 정보",
+    "name": "제품명",
+    "namePlaceholder": "용기와 포장에 기재된 제품명",
+    "category": "품목 유형",
+    "reportNo": "기능성화장품 심사 또는 보고번호",
+    "reportNoHint": "입력한 번호와 제품명은 검토 실행 시 서버에서 대조합니다. 공식 API 키와 조회 경로가 없으면 미확인으로 표시하며, 적합 판정으로 처리하지 않습니다.",
+    "reportNoPlaceholder": "보유 자료의 심사 또는 보고번호"
+  }
+}

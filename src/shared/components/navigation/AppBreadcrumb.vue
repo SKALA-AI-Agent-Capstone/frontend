@@ -9,12 +9,12 @@ defineProps({
 </script>
 
 <template>
-  <nav class="breadcrumb" aria-label="현재 위치">
+  <nav class="breadcrumb" :aria-label="$t('ui.breadcrumb')">
     <ol class="breadcrumb__list">
       <li class="breadcrumb__item">
         <RouterLink :to="{ name: ROUTE_NAMES.DASHBOARD }" class="breadcrumb__link">
           <BaseIcon name="home" size="xs" />
-          <span>대시보드</span>
+          <span>{{ $t('common.nav.dashboard') }}</span>
         </RouterLink>
       </li>
       <li v-for="(item, index) in items" :key="item.label" class="breadcrumb__item">

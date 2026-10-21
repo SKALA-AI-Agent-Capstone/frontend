@@ -1,0 +1,66 @@
+{
+  "title": "Laws and notices",
+  "description": "Official source documents used in reviews and the status of external API connections.",
+  "loadError": "Could not load the source status.",
+  "loadingTitle": "Checking status",
+  "loadingText": "Loading what has been indexed.",
+  "route": {
+    "legalize": "legalize-kr articles",
+    "legalizePdf": "legalize-kr articles + PDF",
+    "pdf": "PDF"
+  },
+  "banner": {
+    "indexed": {
+      "title": "Legal search is on",
+      "text": "Reviews look up related articles in the loaded sources. Results are statute candidates, not legality rulings."
+    },
+    "notIndexed": {
+      "title": "Legal sources not loaded",
+      "text": "Nothing is loaded yet, so review results have no legal grounds. An admin needs to load them with scripts/ingest_rag.py."
+    },
+    "unavailable": {
+      "title": "Legal search service unavailable",
+      "text": "Could not get the index status from the search service. Legal search may fail during reviews."
+    }
+  },
+  "status": {
+    "articles": "{versions} version(s), {articles} articles",
+    "articlesMissing": "Articles not loaded",
+    "pdf": "PDF, {chunks} chunks",
+    "pdfMissing": "PDF not loaded",
+    "missing": "Not loaded"
+  },
+  "apiRole": {
+    "realtime": "Queried live during reviews",
+    "supporting": "Available as a tool, not yet called in reviews"
+  },
+  "summary": {
+    "sources": "Source documents",
+    "versions": "Loaded law versions",
+    "articles": "Loaded articles",
+    "apis": "External APIs",
+    "unit": "-"
+  },
+  "sources": {
+    "title": "Public source documents",
+    "source": "Document",
+    "version": "Candidate version",
+    "route": "Collected via",
+    "status": "Load status",
+    "checkCurrent": "Current version to confirm",
+    "empty": "No source documents registered."
+  },
+  "versions": {
+    "title": "Loaded law versions",
+    "law": "Law",
+    "promulgated": "Promulgated",
+    "effective": "In force",
+    "articles": "Articles",
+    "now": "present"
+  },
+  "apis": {
+    "title": "External APIs",
+    "empty": "No external APIs connected."
+  },
+  "note": "Keys and approval permissions are checked on the server, and reading the official spec does not mean real responses were verified. Laws and standards are indexed in the knowledge schema (pgvector) for search, while patents and product data are queried live through APIs."
+}

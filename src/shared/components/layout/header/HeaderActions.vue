@@ -1,4 +1,4 @@
-<!-- 헤더 우측: 배치 진행 , 크레딧 잔액 , 사용자 메뉴 , 전체메뉴 -->
+<!-- 헤더 우측: 배치 진행 , 크레딧 잔액 , 사용자 메뉴 -->
 <script setup>
 import { watch } from 'vue'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -9,11 +9,6 @@ import { useBatchStore } from '@/shared/stores/batch'
 import { useCreditsStore } from '@/shared/stores/credits'
 import { formatNumber } from '@/shared/utils/format'
 import UserMenu from './UserMenu.vue'
-
-defineProps({
-  menuOpen: { type: Boolean, default: false },
-})
-defineEmits(['toggle-menu'])
 
 const credits = useCreditsStore()
 const session = useSessionStore()
@@ -35,27 +30,17 @@ watch(() => session.user?.id, async (id) => {
       aria-live="polite"
     >
       <BaseIcon name="progress_activity" class="spin" />
-      <span class="header-action__label">배치 {{ batch.summary.done }}/{{ batch.summary.total }}</span>
+      <span class="header-action__label">{{ $t('ui.header.batch', { done: batch.summary.done, total: batch.summary.total }) }}</span>
     </RouterLink>
     <RouterLink v-if="session.can(PERMISSIONS.CREDITS_CHARGE)" :to="{ name: ROUTE_NAMES.CREDITS }" class="header-action">
       <BaseIcon name="add_circle" />
-      <span class="header-action__label">크레딧 충전</span>
+      <span class="header-action__label">{{ $t('ui.header.charge') }}</span>
     </RouterLink>
-    <RouterLink v-if="session.user" :to="{ name: ROUTE_NAMES.CREDITS }" class="header-action" aria-label="현재 크레딧 잔액">
+    <RouterLink v-if="session.user" :to="{ name: ROUTE_NAMES.CREDITS }" class="header-action" :aria-label="$t('ui.header.balance')">
       <BaseIcon name="toll" />
-      <span class="header-action__label">{{ formatNumber(credits.balance) }} 크레딧</span>
+      <span class="header-action__label">{{ $t('ui.header.credits', { count: formatNumber(credits.balance) }) }}</span>
     </RouterLink>
     <UserMenu />
-    <button
-      type="button"
-      class="header-action header-action--mobile"
-      :aria-expanded="menuOpen"
-      aria-controls="mobile-menu"
-      @click="$emit('toggle-menu')"
-    >
-      <BaseIcon :name="menuOpen ? 'close' : 'menu'" />
-      <span class="header-action__label">전체메뉴</span>
-    </button>
   </div>
 </template>
 
@@ -83,23 +68,12 @@ watch(() => session.user?.id, async (id) => {
 .header-action--batch {
   color: var(--color-primary);
 }
-.header-action--mobile {
-  display: none;
-}
-.spin {
-  animation: spin 1s linear infinite;
-}
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@media (max-width: 1024px) {
-  .header-action--mobile {
-    display: inline-flex;
-  }
-}
 @media (max-width: 600px) {
   .header-action {
     flex-direction: column;

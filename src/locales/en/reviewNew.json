@@ -1,0 +1,69 @@
+{
+  "crumbs": {
+    "section": "Company ad review",
+    "page": "Submit a PDF or image review"
+  },
+  "title": "Submit a cosmetic ad pre-review",
+  "titleVersion": "Review a new ad version",
+  "description": "Upload a PDF or image and the copy and photos are analyzed separately, with related statute candidates for each phrase.\nLegality is decided by your reviewer.",
+  "badge": "Internal pre-review",
+  "versionAlert": {
+    "title": "This revision will be reviewed as a new version",
+    "text": "Loaded '{name}' v{from}. Submitting saves it as {to}, and earlier approval history is kept."
+  },
+  "ad": {
+    "title": "3. Ad channels and creatives",
+    "aside": "Select all planned channels",
+    "channels": "Ad channels (select all that apply)",
+    "fileLabel": "Ad PDF or image files",
+    "fileHint": "Up to 25 MiB per file, 5 ad files, 75 MiB in total. Uploaded originals are kept on the server with the results.",
+    "dropTitle": "Drag your ad files here",
+    "dropDescription": "Print posters, online banners, product pages (JPG, PNG, WebP, PDF). Copy and photos are analyzed separately. Selected ads are sent to the OpenAI API for analysis.",
+    "filled": "{count} ad file(s) uploaded"
+  },
+  "applicant": {
+    "title": "1. Applicant",
+    "aside": "* marks required fields.",
+    "company": "Company name",
+    "companyHint": "Filled in from your account's company.",
+    "name": "Contact",
+    "email": "Contact email",
+    "emailHint": "From your account. Email sending is not implemented."
+  },
+  "evidence": {
+    "title": "4. Evidence checklist",
+    "aside": "Optional, the extracted text is shown for checking",
+    "intro": "Optionally submit test data or product documents you have. This version extracts the document text; matching product and test conditions and recommending documents per claim come later.",
+    "dropTitle": "Drag evidence files here or choose them",
+    "dropDescription": "Reviews, reports, ingredient lists, human or in-vitro test reports, certificates, patents, trademark registrations, certificates of origin (PDF, JPG, PNG)",
+    "filled": "{count} evidence file(s) uploaded",
+    "listLabel": "Submitted evidence",
+    "carried": "From previous version",
+    "typeLabel": "Document type for {name}",
+    "typePlaceholder": "Choose a document type",
+    "noteLabel": "Note:",
+    "note": "Until legal search is connected, submitted documents alone do not settle whether the ad is legal or sufficiently substantiated."
+  },
+  "requirement": {
+    "prohibited": "Not allowed with evidence, change the copy",
+    "provided": "Submitted",
+    "missing": "Not submitted",
+    "prohibitedText": "Drug-like or expert-endorsement claims cannot be justified with evidence.",
+    "needed": "Required documents: {docs}"
+  },
+  "actions": {
+    "saveDraft": "Save product info",
+    "startVersion": "Start {version} review",
+    "start": "Start review"
+  },
+  "product": {
+    "title": "2. Product basics",
+    "aside": "Used to identify the product and for official lookups",
+    "name": "Product name",
+    "namePlaceholder": "Product name as printed on the package",
+    "category": "Product type",
+    "reportNo": "Functional cosmetic review or report number",
+    "reportNoHint": "The number and product name are checked on the server during review. Without an official API key and route, it shows as unverified and is never treated as a compliance ruling.",
+    "reportNoPlaceholder": "Review or report number from your documents"
+  }
+}

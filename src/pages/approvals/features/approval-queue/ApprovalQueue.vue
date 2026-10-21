@@ -1,78 +1,129 @@
-<!-- 승인 대기 목록 (FR-6) — 분석 완료 + 승인 대기 상태의 최신 버전 -->
+<!-- 승인 대기 목록 (FR-6) — 분석 완료 + 승인 대기 상태의 최신 버전. 오래 기다린 건부터 보인다. -->
 <script setup>
-import { SEVERITY } from '@/shared/constants/review'
+import { computed } from 'vue'
+import { SEVERITY_LABEL, SEVERITY_ORDER } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
-import BaseCard from '@/shared/components/base/BaseCard.vue'
-import BaseEmptyState from '@/shared/components/base/BaseEmptyState.vue'
-import SeveritySummary from '@/shared/components/review/SeveritySummary.vue'
+import ReviewThumb from '@/shared/components/review/ReviewThumb.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { formatDateTime } from '@/shared/utils/format'
 
 const reviews = useReviewsStore()
-const highCount = (version) => version.result.findings.filter((f) => f.severity === SEVERITY.HIGH).length
+const waitedSince = ({ review, version }) => new Date(version.result.analyzedAt ?? review.updatedAt).getTime() || 0
+const items = computed(() =>
+  [...reviews.pendingApprovals].sort((a, b) => waitedSince(a) - waitedSince(b)),
+)
+const severityCounts = (version) =>
+  SEVERITY_ORDER.map((severity) => ({
+    severity,
+    ...SEVERITY_LABEL[severity],
+    count: version.result.findings.filter((f) => f.severity === severity).length,
+  }))
 </script>
 
 <template>
-  <BaseEmptyState
-    v-if="!reviews.pendingApprovals.length"
-    icon="task_alt"
-    title="승인 대기 중인 검토가 없습니다"
-  />
-  <ul v-else class="queue">
-    <li v-for="{ review, version } in reviews.pendingApprovals" :key="review.id">
-      <BaseCard tag="article" class="item" :aria-label="review.productName">
-        <div class="item__main">
-          <p class="item__title">
-            {{ review.productName }} <span class="item__version">v{{ version.no }}</span>
+  <section class="list" :aria-label="$t('approvals.listLabel')">
+    <ul v-if="items.length" class="rows">
+      <li v-for="{ review, version } in items" :key="review.id" class="row">
+        <ReviewThumb :review="review" :version="version" />
+        <div class="row__main">
+          <RouterLink :to="{ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id } }" class="row__name">
+            {{ review.productName }}
+          </RouterLink>
+          <p class="row__meta">
+            <span class="row__version">v{{ version.no }}</span>
+            <span>{{ version.authorName ?? review.authorName ?? $t('dashboard.unknownAuthor') }}</span>
+            <span>{{ $t('approvals.analyzedAt', { time: formatDateTime(version.result.analyzedAt) }) }}</span>
+            <span v-if="version.no > 1" class="row__tag">{{ $t('approvals.revision') }}</span>
           </p>
-          <p class="item__meta">
-            {{ review.id }} ,  작성 {{ version.authorName }} ,  분석 {{ formatDateTime(version.result.analyzedAt) }}
-            <template v-if="version.no > 1"> ,  수정본 재검토</template>
-          </p>
-          <SeveritySummary :findings="version.result.findings" compact />
         </div>
-        <BaseButton
-          :variant="highCount(version) ? 'secondary' : 'outline'"
-          icon-right="chevron_right"
-          :to="{ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id } }"
-        >
-          검토하기
+        <ul class="severity" :aria-label="$t('ui.severitySummary')">
+          <li v-for="item in severityCounts(version)" :key="item.severity" class="severity__chip" :class="[`tone-${item.variant}`, { 'is-zero': !item.count }]">
+            {{ item.short }} <strong>{{ item.count }}</strong>
+          </li>
+        </ul>
+        <BaseButton variant="secondary" size="sm" icon-right="chevron_right" :to="{ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id } }">
+          {{ $t('approvals.review') }}
         </BaseButton>
-      </BaseCard>
-    </li>
-  </ul>
+      </li>
+    </ul>
+    <div v-else class="list__empty">
+      <p class="list__empty-title">{{ $t('approvals.empty') }}</p>
+      <p class="list__empty-text">{{ $t('approvals.emptyText') }}</p>
+    </div>
+  </section>
 </template>
 
 <style scoped>
-.queue {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
+.list {
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: 12px;
+  overflow: clip;
 }
-.item {
-  display: flex;
+.rows { display: grid; }
+.row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto 120px;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-md);
+  gap: 20px;
+  padding: 14px 24px;
+  border-bottom: var(--border-width) solid var(--color-border);
+  transition: background-color var(--transition-fast);
 }
-.item__main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  min-width: 0;
-}
-.item__title {
-  font-size: var(--font-size-title-s);
+.row:last-child { border-bottom: 0; }
+.row:hover { background: var(--color-bg-page); }
+.row__name {
+  font-size: var(--font-size-body-m);
   font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
-.item__version {
-  font-size: var(--font-size-detail-m);
-  color: var(--color-text-secondary);
-}
-.item__meta {
+.row__name:hover { color: var(--color-primary); }
+.row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin-top: 4px;
   font-size: var(--font-size-detail-s);
   color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.row__version {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--color-bg-muted);
+  font-weight: var(--font-weight-bold);
+}
+.row__tag { color: var(--color-info-text); font-weight: var(--font-weight-bold); }
+
+.severity { display: flex; gap: 6px; }
+.severity__chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-detail-s);
+  white-space: nowrap;
+}
+.severity__chip strong { margin-left: 2px; font-variant-numeric: tabular-nums; }
+.tone-danger { background: var(--color-danger-surface); color: var(--color-danger-text); }
+.tone-warning { background: var(--color-warning-surface); color: var(--color-warning-text); }
+.tone-info { background: var(--color-info-surface); color: var(--color-info-text); }
+.severity__chip.is-zero { background: var(--color-bg-muted); color: var(--color-text-secondary); }
+
+.list__empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  padding: 72px 24px;
+  text-align: center;
+}
+.list__empty-title { font-size: var(--font-size-body-l); font-weight: var(--font-weight-bold); }
+.list__empty-text { color: var(--color-text-secondary); }
+
+@media (max-width: 760px) {
+  .row { grid-template-columns: 56px minmax(0, 1fr); gap: 12px 14px; padding: 14px 16px; }
+  .severity { grid-column: 2; flex-wrap: wrap; }
+  .row :deep(.base-button) { grid-column: 1 / -1; }
 }
 </style>

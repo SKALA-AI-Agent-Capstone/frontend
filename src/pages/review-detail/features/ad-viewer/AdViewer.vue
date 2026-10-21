@@ -6,6 +6,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { SEVERITY, SEVERITY_LABEL } from '@/shared/constants/review'
+import { t as tr } from '@/shared/i18n'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
 import BaseSectionHeader from '@/shared/components/base/BaseSectionHeader.vue'
@@ -28,14 +29,14 @@ const blocks = computed(() =>
     .map((t) => ({
       ...t,
       key: t.id,
-      label: t.location.kind === 'copy' ? '광고 카피' : t.location.fileName,
+      label: t.location.kind === 'copy' ? tr('reviewDetail.viewer.copy') : t.location.fileName,
       findings: findings.value.filter((f) =>
         f.textId === t.id,
       ),
     })),
 )
 
-const fileLabel = computed(() => version.value.input.files[0]?.name ?? '광고 문구')
+const fileLabel = computed(() => version.value.input.files[0]?.name ?? tr('reviewDetail.viewer.adText'))
 const legend = computed(() =>
   [SEVERITY.HIGH, SEVERITY.MEDIUM, SEVERITY.LOW]
     .map((s) => ({
@@ -49,7 +50,7 @@ const legend = computed(() =>
 
 <template>
   <BaseCard id="ad-viewer" tag="section" class="viewer" aria-labelledby="viewer-heading">
-    <BaseSectionHeader title="광고물 위반 위치 인터랙티브 뷰어" heading-id="viewer-heading" size="md" icon="image_search">
+    <BaseSectionHeader :title="$t('reviewDetail.viewer.title')" heading-id="viewer-heading" size="md" icon="image_search">
       <BaseBadge>{{ fileLabel }}</BaseBadge>
     </BaseSectionHeader>
 
@@ -61,12 +62,12 @@ const legend = computed(() =>
         :revised="decidedFindingIds.has(active.id)"
       />
       <div class="viewer__canvas">
-        <figure class="poster" :style="{ fontSize: `${zoom}%` }" :aria-label="`${review.productName} 광고물`">
+        <figure class="poster" :style="{ fontSize: `${zoom}%` }" :aria-label="$t('reviewDetail.viewer.posterLabel', { name: review.productName })">
           <p class="poster__brand">{{ review.productName }}</p>
           <div v-for="block in blocks" :key="block.key" class="poster__block">
             <p class="poster__label">
               {{ block.label }}
-              <BaseBadge v-if="block.mock">목업 OCR</BaseBadge>
+              <BaseBadge v-if="block.mock">{{ $t('reviewDetail.viewer.mockOcr') }}</BaseBadge>
             </p>
             <HighlightedText
               :text="block.text"
@@ -84,7 +85,7 @@ const legend = computed(() =>
 
     <ul v-if="legend.length" class="legend">
       <li v-for="item in legend" :key="item.severity" class="legend__item" :class="`legend__item--${item.severity}`">
-        {{ item.numbers.join(', ') }}번: {{ item.label }}
+        {{ $t('reviewDetail.viewer.legend', { numbers: item.numbers.join(', '), label: item.label }) }}
       </li>
     </ul>
   </BaseCard>

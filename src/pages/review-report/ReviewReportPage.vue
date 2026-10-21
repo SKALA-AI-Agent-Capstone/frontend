@@ -7,6 +7,7 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseEmptyState from '@/shared/components/base/BaseEmptyState.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
+import { currentLocale, t } from '@/shared/i18n'
 import ReportDocument from './features/report-document/ReportDocument.vue'
 
 const route = useRoute()
@@ -25,10 +26,10 @@ function print() {
 
 function downloadHtml() {
   const styles = [...document.querySelectorAll('style, link[rel="stylesheet"]')].map((el) => el.outerHTML).join('\n')
-  const title = document.createElement('title'); title.textContent = `${review.value.productName} 검토 리포트`
-  const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8">${title.outerHTML}${styles}</head><body>${docRef.value.$el.outerHTML}</body></html>`
+  const title = document.createElement('title'); title.textContent = t('report.docTitle', { name: review.value.productName })
+  const html = `<!doctype html><html lang="${currentLocale()}"><head><meta charset="utf-8">${title.outerHTML}${styles}</head><body>${docRef.value.$el.outerHTML}</body></html>`
   const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
-  const a = Object.assign(document.createElement('a'), { href: url, download: `${review.value.id}_v${version.value.no}_리포트.html` })
+  const a = Object.assign(document.createElement('a'), { href: url, download: `${review.value.id}_v${version.value.no}_${t('report.fileSuffix')}.html` })
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -36,15 +37,15 @@ function downloadHtml() {
 
 <template>
   <div class="report-page">
-    <BaseEmptyState v-if="!version" icon="search_off" title="리포트를 만들 수 없습니다" description="분석이 끝난 검토 건만 리포트를 받을 수 있습니다." />
+    <BaseEmptyState v-if="!version" icon="search_off" :title="$t('report.emptyTitle')" :description="$t('report.emptyText')" />
     <template v-else>
       <div class="report-page__toolbar">
         <BaseButton variant="ghost" icon="arrow_back" :to="{ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id }, query: { v: version.no } }">
-          결과로 돌아가기
+          {{ $t('report.back') }}
         </BaseButton>
         <div class="report-page__actions">
-          <BaseButton variant="outline" icon="code" @click="downloadHtml">문서(HTML) 저장</BaseButton>
-          <BaseButton icon="picture_as_pdf" @click="print">인쇄 , PDF 저장</BaseButton>
+          <BaseButton variant="outline" icon="code" @click="downloadHtml">{{ $t('report.saveHtml') }}</BaseButton>
+          <BaseButton icon="picture_as_pdf" @click="print">{{ $t('report.print') }}</BaseButton>
         </div>
       </div>
       <ReportDocument ref="docRef" :review="review" :version="version" />

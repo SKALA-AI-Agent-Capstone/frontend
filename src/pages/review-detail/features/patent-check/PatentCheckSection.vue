@@ -23,12 +23,12 @@ async function onConfirm(patentId, number) {
 <template>
   <BaseCard tag="section" class="patents" aria-labelledby="patents-title">
     <BaseSectionHeader
-      title="특허 확인"
+      :title="$t('reviewDetail.patent.title')"
       heading-id="patents-title"
       size="md"
     />
     <BaseAlert v-if="error" variant="danger" aria-live="assertive">{{ error }}</BaseAlert>
-    <p v-if="!result.patents.length" class="patents__empty">추출된 특허번호가 없습니다.</p>
+    <p v-if="!result.patents.length" class="patents__empty">{{ $t('reviewDetail.patent.empty') }}</p>
     <PatentCard
       v-for="patent in result.patents"
       :key="patent.id"

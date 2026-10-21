@@ -15,41 +15,43 @@ const { draft, requirements, addEvidence } = useReviewDraft()
 </script>
 
 <template>
-  <FormSection title="4. 증빙 서류 사전 체크리스트" aside="선택 제출, 원문 추출 결과를 확인합니다" :columns="1">
+  <FormSection :title="$t('reviewNew.evidence.title')" :aside="$t('reviewNew.evidence.aside')" :columns="1">
     <p class="evidence-intro">
-      보유한 시험자료나 제품 관련 자료를 선택 제출하세요. 이번 최소 기능은 증빙 본문을 추출하며, 제품과 시험 조건의 의미 대조 및 주장별 필요 서류 자동 추천은 후속 단계입니다.
+      {{ $t('reviewNew.evidence.intro') }}
     </p>
     <div v-if="requirements.length" class="requirement-list">
       <EvidenceRequirementRow v-for="req in requirements" :key="req.claimType" :requirement="req" />
     </div>
 
     <BaseFileDropzone
-      title="증빙서류를 끌어다 놓거나 선택하세요"
-      description="심사, 보고서, 전성분표, 인체적용, 인체외시험 결과서, 인증서, 특허, 상표등록증, 원산지증명서 (PDF, JPG, PNG)"
+      :title="$t('reviewNew.evidence.dropTitle')"
+      :description="$t('reviewNew.evidence.dropDescription')"
       accept=".pdf,.jpg,.jpeg,.png"
       multiple
+      :count="draft.evidence.length"
+      :filled-title="$t('reviewNew.evidence.filled', { count: draft.evidence.length })"
       @select="addEvidence"
     />
 
-    <ul v-if="draft.evidence.length" class="evidence-list" aria-label="제출 증빙서류">
+    <ul v-if="draft.evidence.length" class="evidence-list" :aria-label="$t('reviewNew.evidence.listLabel')">
       <li v-for="(doc, index) in draft.evidence" :key="doc.id" class="evidence-item">
         <BaseIcon name="description" size="sm" class="evidence-item__icon" />
         <span class="evidence-item__name">
           {{ doc.name }}
           <span class="evidence-item__size">{{ formatFileSize(doc.size) }}</span>
-          <BaseBadge v-if="doc.carried">이전 버전 제출</BaseBadge>
+          <BaseBadge v-if="doc.carried">{{ $t('reviewNew.evidence.carried') }}</BaseBadge>
         </span>
-        <label class="sr-only" :for="`doc-type-${doc.id}`">{{ doc.name }} 서류 유형</label>
-        <BaseSelect :id="`doc-type-${doc.id}`" v-model="doc.docType" :options="DOC_TYPE_OPTIONS" placeholder="서류 유형 선택" class="evidence-item__type" />
+        <label class="sr-only" :for="`doc-type-${doc.id}`">{{ $t('reviewNew.evidence.typeLabel', { name: doc.name }) }}</label>
+        <BaseSelect :id="`doc-type-${doc.id}`" v-model="doc.docType" :options="DOC_TYPE_OPTIONS" :placeholder="$t('reviewNew.evidence.typePlaceholder')" class="evidence-item__type" />
         <button type="button" class="evidence-item__remove" @click="draft.evidence.splice(index, 1)">
           <BaseIcon name="close" size="sm" />
-          <span class="sr-only">{{ doc.name }} 삭제</span>
+          <span class="sr-only">{{ $t('ui.attachments.remove', { name: doc.name }) }}</span>
         </button>
       </li>
     </ul>
 
     <BaseAlert variant="neutral">
-      <strong>자료 확인:</strong> 법령 검색이 연결되기 전에는 제출 자료만으로 광고의 적법 여부나 실증 충족 여부를 확정하지 않습니다.
+      <strong>{{ $t('reviewNew.evidence.noteLabel') }}</strong> {{ $t('reviewNew.evidence.note') }}
     </BaseAlert>
   </FormSection>
 </template>

@@ -1,5 +1,6 @@
 <!-- 사전 체크리스트 1행 (시안 krds_2 증빙 체크리스트 행 스타일) — 주장별 필요 서류 제출 여부 (FR-10) -->
 <script setup>
+import { t } from '@/shared/i18n'
 import { computed } from 'vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
@@ -9,10 +10,10 @@ const props = defineProps({
 })
 
 const status = computed(() => {
-  if (props.requirement.prohibited) return { label: '증빙 불가 ,  문구 수정 필요', variant: 'danger' }
+  if (props.requirement.prohibited) return { label: t('reviewNew.requirement.prohibited'), variant: 'danger' }
   return props.requirement.docs.every((d) => d.provided)
-    ? { label: '제출 완료', variant: 'success' }
-    : { label: '미제출', variant: 'warning' }
+    ? { label: t('reviewNew.requirement.provided'), variant: 'success' }
+    : { label: t('reviewNew.requirement.missing'), variant: 'warning' }
 })
 </script>
 
@@ -24,8 +25,8 @@ const status = computed(() => {
         {{ requirement.claimLabel }}
       </p>
       <p class="row__desc">
-        <template v-if="requirement.prohibited">의약품 오인, 전문가 추천 표현은 증빙 서류로 허용되지 않습니다.</template>
-        <template v-else>필요 서류: {{ requirement.docs.map((d) => d.label).join(', ') }}</template>
+        <template v-if="requirement.prohibited">{{ $t('reviewNew.requirement.prohibitedText') }}</template>
+        <template v-else>{{ $t('reviewNew.requirement.needed', { docs: requirement.docs.map((d) => d.label).join(', ') }) }}</template>
       </p>
     </div>
     <BaseBadge :variant="status.variant">{{ status.label }}</BaseBadge>

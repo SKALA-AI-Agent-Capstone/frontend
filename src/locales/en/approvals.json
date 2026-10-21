@@ -1,0 +1,11 @@
+{
+  "title": "Awaiting approval",
+  "description": "Check the possible violations and grounds AI found, then approve, request changes or reject.",
+  "responsibility": "The approver holds final responsibility for publishing.",
+  "listLabel": "Approval queue",
+  "analyzedAt": "Analyzed {time}",
+  "revision": "Revised version",
+  "review": "Review",
+  "empty": "No reviews are awaiting approval",
+  "emptyText": "Analyzed ads appear here, longest-waiting first."
+}

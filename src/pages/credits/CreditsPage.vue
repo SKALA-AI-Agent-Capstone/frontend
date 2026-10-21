@@ -1,4 +1,5 @@
 <script setup>
+import { t } from '@/shared/i18n'
 import { computed, onMounted, ref } from 'vue'
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk'
 import { request } from '@/shared/api/http'
@@ -18,7 +19,7 @@ const busy = ref(false)
 const tossConsent = ref(false)
 const error = ref('')
 const selectedPackage = computed(() => CREDIT_PACKAGES.find((item) => item.credits === packageCredits.value))
-const formatWon = (amount) => `${amount.toLocaleString('ko-KR')}원`
+const formatWon = (amount) => t('credits.won', { amount: amount.toLocaleString('ko-KR') })
 const enabled = computed(() => config.value.tossEnabled)
 
 async function beginPayment() {
@@ -30,7 +31,7 @@ async function beginPayment() {
     })
     const sdk = await loadTossPayments(order.clientKey)
     const paymentRequest = {
-      orderId: order.orderId, orderName: `${order.credits} 크레딧`,
+      orderId: order.orderId, orderName: t('credits.orderName', { count: order.credits }),
       successUrl: `${window.location.origin}/credits?provider=toss`,
       failUrl: `${window.location.origin}/credits?payment=failed`,
     }
@@ -40,7 +41,7 @@ async function beginPayment() {
       const paymentWindow = await widgets.renderPaymentWindow({ orderName: paymentRequest.orderName })
       paymentWindow.on('paymentRequest', async () => {
         try { await widgets.requestPayment(paymentRequest) }
-        catch (cause) { error.value = cause instanceof Error ? cause.message : '결제를 시작하지 못했습니다.' }
+        catch (cause) { error.value = cause instanceof Error ? cause.message : t('credits.startFailed') }
       })
       paymentWindow.on('cancel', () => { busy.value = false })
     } else {
@@ -51,7 +52,7 @@ async function beginPayment() {
       })
     }
   } catch (cause) {
-    error.value = cause instanceof Error ? cause.message : '결제를 시작하지 못했습니다.'
+    error.value = cause instanceof Error ? cause.message : t('credits.startFailed')
   } finally {
     busy.value = false
   }
@@ -65,18 +66,18 @@ onMounted(async () => {
     const orderId = params.get('orderId')
     if (provider && orderId) {
       busy.value = true
-      if (provider !== 'toss') throw new Error('알 수 없는 결제수단입니다.')
+      if (provider !== 'toss') throw new Error(t('credits.unknownProvider'))
       const result = await request(`/billing/orders/${encodeURIComponent(orderId)}/confirm-toss`, {
         method: 'POST', body: JSON.stringify({ paymentKey: params.get('paymentKey'), amount: Number(params.get('amount')) }),
       })
       credits.setBalance(result.balance)
       step.value = 'done'
     } else if (params.get('payment')) {
-      error.value = '결제가 취소되었거나 실패했습니다.'
+      error.value = t('credits.cancelled')
     }
     if (window.location.search) window.history.replaceState({}, '', '/credits')
   } catch (cause) {
-    error.value = cause instanceof Error ? cause.message : '결제 상태를 확인하지 못했습니다.'
+    error.value = cause instanceof Error ? cause.message : t('credits.confirmFailed')
   } finally {
     busy.value = false
   }
@@ -87,43 +88,43 @@ onMounted(async () => {
   <main class="credits-page">
     <header class="credits-page__header">
       <p class="credits-page__eyebrow">CREDITS</p>
-      <h1>크레딧 충전</h1>
-      <p>금액권을 선택하고 결제하세요.</p>
+      <h1>{{ $t('credits.title') }}</h1>
+      <p>{{ $t('credits.lead') }}</p>
     </header>
     <BaseCard v-if="!session.can(PERMISSIONS.CREDITS_CHARGE)" tag="section" class="credits-page__card">
-      <h2>충전 권한이 없습니다</h2>
+      <h2>{{ $t('credits.noPermission') }}</h2>
     </BaseCard>
     <template v-else>
       <p v-if="error" role="alert" class="credits-page__error">{{ error }}</p>
       <BaseCard v-if="step === 'select'" tag="section" class="credits-page__card">
-        <h2>충전할 금액권</h2>
-        <fieldset class="credits-page__packages"><legend class="sr-only">크레딧 금액권</legend>
+        <h2>{{ $t('credits.packages') }}</h2>
+        <fieldset class="credits-page__packages"><legend class="sr-only">{{ $t('credits.packagesLegend') }}</legend>
           <label v-for="item in CREDIT_PACKAGES" :key="item.credits" class="credits-page__package" :class="{ 'credits-page__package--selected': packageCredits === item.credits }">
             <input v-model="packageCredits" type="radio" name="credit-package" :value="item.credits" />
-            <strong>{{ item.credits.toLocaleString('ko-KR') }} 크레딧</strong><span>{{ formatWon(item.price) }}</span>
-            <small v-if="item.discountPercent">{{ item.discountPercent }}% 할인</small>
+            <strong>{{ $t('credits.amount', { count: item.credits.toLocaleString('ko-KR') }) }}</strong><span>{{ formatWon(item.price) }}</span>
+            <small v-if="item.discountPercent">{{ $t('credits.discount', { percent: item.discountPercent }) }}</small>
           </label>
         </fieldset>
         <dl class="credits-page__summary">
-          <div><dt>결제수단</dt><dd>토스페이</dd></div>
-          <div><dt>결제 금액</dt><dd>{{ formatWon(selectedPackage.price) }}</dd></div>
+          <div><dt>{{ $t('credits.method') }}</dt><dd>{{ $t('credits.tossPay') }}</dd></div>
+          <div><dt>{{ $t('credits.total') }}</dt><dd>{{ formatWon(selectedPackage.price) }}</dd></div>
         </dl>
-        <p v-if="config.tossMode === 'window'" class="credits-page__hint">토스 결제창에서 결제수단을 선택합니다.</p>
-        <p v-if="!enabled" class="credits-page__hint">토스 테스트 키를 백엔드에 설정하면 결제창을 열 수 있습니다.</p>
+        <p v-if="config.tossMode === 'window'" class="credits-page__hint">{{ $t('credits.windowHint') }}</p>
+        <p v-if="!enabled" class="credits-page__hint">{{ $t('credits.keyHint') }}</p>
         <label v-if="config.tossMode === 'legacy'" class="credits-page__consent">
           <input v-model="tossConsent" type="checkbox" />
-          <span>토스페이 결제 진행에 동의합니다.
-            <a href="https://pages.tosspayments.com/terms/user" target="_blank" rel="noopener noreferrer">전자금융거래 약관</a> ·
-            <a href="https://pages.tosspayments.com/terms/privacy/consent1privacy/consent1" target="_blank" rel="noopener noreferrer">개인정보 수집·이용</a> ·
-            <a href="https://pages.tosspayments.com/terms/privacy/consent2privacy/consent2" target="_blank" rel="noopener noreferrer">제3자 제공</a>
+          <span>{{ $t('credits.consent') }}
+            <a href="https://pages.tosspayments.com/terms/user" target="_blank" rel="noopener noreferrer">{{ $t('credits.terms') }}</a>,
+            <a href="https://pages.tosspayments.com/terms/privacy/consent1privacy/consent1" target="_blank" rel="noopener noreferrer">{{ $t('credits.privacy') }}</a>,
+            <a href="https://pages.tosspayments.com/terms/privacy/consent2privacy/consent2" target="_blank" rel="noopener noreferrer">{{ $t('credits.thirdParty') }}</a>
           </span>
         </label>
-        <BaseButton :disabled="!enabled || busy || (config.tossMode === 'legacy' && !tossConsent)" @click="beginPayment">{{ busy ? '처리 중' : '결제' }}</BaseButton>
+        <BaseButton :disabled="!enabled || busy || (config.tossMode === 'legacy' && !tossConsent)" @click="beginPayment">{{ busy ? $t('credits.busy') : $t('credits.pay') }}</BaseButton>
       </BaseCard>
       <BaseCard v-else tag="section" class="credits-page__card" aria-live="polite">
-        <h2>테스트 결제 완료</h2>
-        <p>현재 크레딧: <strong>{{ credits.balance.toLocaleString('ko-KR') }} 크레딧</strong></p>
-        <BaseButton @click="step = 'select'">다른 금액권 선택하기</BaseButton>
+        <h2>{{ $t('credits.done') }}</h2>
+        <p>{{ $t('credits.current') }} <strong>{{ $t('credits.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></p>
+        <BaseButton @click="step = 'select'">{{ $t('credits.again') }}</BaseButton>
       </BaseCard>
     </template>
   </main>

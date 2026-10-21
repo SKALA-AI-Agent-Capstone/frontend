@@ -1,0 +1,55 @@
+{
+  "tabs": {
+    "todo": "처리할 일",
+    "analyzing": "분석 중",
+    "pending": "승인 대기",
+    "changes": "수정 요청",
+    "closed": "결정 완료",
+    "all": "전체"
+  },
+  "actions": {
+    "decide": "결정하기",
+    "newVersion": "새 버전 신청",
+    "retry": "다시 신청",
+    "progress": "진행 보기",
+    "result": "결과 보기"
+  },
+  "empty": {
+    "todo": "지금 처리할 검토가 없습니다.",
+    "analyzing": "분석 중인 검토가 없습니다.",
+    "pending": "승인을 기다리는 검토가 없습니다.",
+    "changes": "수정 요청을 받은 검토가 없습니다.",
+    "closed": "승인되거나 반려된 검토가 없습니다.",
+    "all": "아직 신청한 검토가 없습니다."
+  },
+  "loadError": "검토 목록을 불러오지 못했습니다.",
+  "running": {
+    "title": "분석 중 {count}건",
+    "all": "분석 중 {count}건 모두 보기"
+  },
+  "statusLabel": "검토 상태",
+  "historyAll": "심의 이력 전체 보기",
+  "unknownAuthor": "작성자 미상",
+  "emptyText": "PDF나 이미지 광고를 올리면 AI가 문구와 사진의 위반 소지를 확인하고, 이곳에서 진행 상태를 볼 수 있습니다.",
+  "firstReview": "첫 검토 신청하기",
+  "more": {
+    "recent": "최근 {count}건만 보입니다.",
+    "link": "전체 {count}건은 심의 이력에서 볼 수 있습니다"
+  },
+  "scope": "법령 근거는 적재된 화장품법 조문에서 찾고, 적법 판정과 점수는 만들지 않습니다. 법령 검색, OpenAI, 공공 API 상태는 결과마다 표시됩니다.",
+  "start": {
+    "title": "새로 시작하기",
+    "new": {
+      "title": "광고 검토 신청",
+      "action": "새 검토"
+    },
+    "pending": {
+      "title": "승인 대기",
+      "action": "승인 대기 보기"
+    },
+    "history": {
+      "title": "지난 결과 보기",
+      "action": "심의 이력"
+    }
+  }
+}

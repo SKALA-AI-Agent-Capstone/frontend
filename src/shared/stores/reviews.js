@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { request } from '@/shared/api/http'
 import { useSessionStore } from './session'
+import { t } from '@/shared/i18n'
 
 export const useReviewsStore = defineStore('reviews', () => {
   const session = useSessionStore()
@@ -33,11 +34,11 @@ export const useReviewsStore = defineStore('reviews', () => {
     const data = new FormData()
     data.append('metadata', JSON.stringify({ product: input.product, media: input.media, evidence: input.evidence.map(e => ({ docType: e.docType })) }))
     for (const file of input.files) {
-      if (!(file.file instanceof File)) throw new Error('광고 원본 파일을 다시 선택해 주세요.')
+      if (!(file.file instanceof File)) throw new Error(t('ui.errors.reselectAd'))
       data.append('files', file.file)
     }
     for (const evidence of input.evidence) {
-      if (!(evidence.file instanceof File)) throw new Error('증빙 원본 파일을 다시 선택해 주세요.')
+      if (!(evidence.file instanceof File)) throw new Error(t('ui.errors.reselectEvidence'))
       data.append('evidence', evidence.file)
     }
     return data
@@ -66,12 +67,12 @@ export const useReviewsStore = defineStore('reviews', () => {
     return true
   }
   async function deleteAll() { const result = await request('/reviews', { method: 'DELETE' }); await load(); return result.deleted }
-  async function unavailable() { throw new Error('이 재시도 기능은 후속 구현 대상입니다. 원본 파일로 새 버전을 신청해 주세요.') }
+  async function unavailable() { throw new Error(t('ui.errors.retryUnavailable')) }
   watch(() => session.user?.id, async () => {
     clearTimeout(pollTimer)
     items.value = []; await load(); poll()
   })
-  return { list, error, byId, latest, pendingApprovals, createReview, createVersion, decide,
+  return { list, error, byId, latest, pendingApprovals, poll, createReview, createVersion, decide,
     decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })

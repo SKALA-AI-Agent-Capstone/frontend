@@ -12,7 +12,7 @@ defineProps({
     <li v-for="req in requirements" :key="req.claimType" class="requirement">
       <p class="requirement__claim">{{ req.claimLabel }}</p>
       <p v-if="req.prohibited" class="requirement__doc requirement__doc--prohibited">
-        <BaseIcon name="block" size="xs" /> 증빙으로 허용되지 않는 표현 — 문구 수정 필요
+        <BaseIcon name="block" size="xs" /> {{ $t('ui.requirement.prohibited') }}
       </p>
       <p
         v-for="doc in req.docs"
@@ -22,7 +22,7 @@ defineProps({
       >
         <BaseIcon :name="doc.provided ? 'check_circle' : 'radio_button_unchecked'" size="xs" />
         {{ doc.label }}
-        <span class="sr-only">{{ doc.provided ? '제출됨' : '미제출' }}</span>
+        <span class="sr-only">{{ doc.provided ? $t('ui.requirement.provided') : $t('ui.requirement.missing') }}</span>
       </p>
     </li>
   </ul>

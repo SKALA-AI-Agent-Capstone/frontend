@@ -19,6 +19,7 @@ import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import BasisItem from '@/shared/components/review/BasisItem.vue'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 import RevisionOptions from './RevisionOptions.vue'
+import { t } from '@/shared/i18n'
 
 const props = defineProps({
   violation: { type: Object, required: true },
@@ -26,7 +27,7 @@ const props = defineProps({
   number: { type: Number, required: true },
 })
 
-const { review, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result } = useReviewDetail()
+const { review, hitl, activeFindingId, focusFinding, decideViolation, requestViolationRewrite, result } = useReviewDetail()
 
 // 원본 이미지는 보존한다(2026-10-20 설계 변경) — 문구가 속한 이미지/페이지 원본을 함께 보여준다.
 const assetId = computed(() => props.finding?.location?.fileId ?? null)
@@ -37,8 +38,8 @@ const decided = computed(() => Boolean(props.violation.finalResolution))
 const variant = computed(() => (decided.value ? 'success' : props.finding?.severity === SEVERITY.HIGH ? 'danger' : 'default'))
 const locationLabel = computed(() => {
   const location = props.finding?.location
-  if (!location) return '원문 위치 정보 없음'
-  return location.kind === 'copy' ? '광고 카피' : `이미지 , ${location.fileName}`
+  if (!location) return t('reviewDetail.card.noLocation')
+  return location.kind === 'copy' ? t('reviewDetail.viewer.copy') : t('reviewDetail.card.image', { name: location.fileName })
 })
 
 function decide(resolution, extra) {
@@ -66,12 +67,12 @@ function retry(note) {
       <div class="violation__title-wrap">
         <p class="violation__meta">
           <BaseBadge :variant="decided ? 'success' : severity.variant" :solid="decided">
-            {{ decided ? '확정됨' : severity.label }}
+            {{ decided ? $t('reviewDetail.card.decided') : severity.label }}
           </BaseBadge>
-          <span>{{ finding?.basis?.[0]?.article }} , {{ locationLabel }}</span>
+          <span>{{ [finding?.basis?.[0]?.article, locationLabel].filter(Boolean).join(', ') }}</span>
         </p>
         <h3 :id="`finding-${violation.id}-title`" class="violation__title">
-          {{ finding?.category || finding?.title || '확인할 문구' }} ("{{ violation.textExcerpt }}")
+          {{ finding?.category || finding?.title || $t('reviewDetail.card.untitled') }} ("{{ violation.textExcerpt }}")
         </h3>
       </div>
       <BaseButton
@@ -81,7 +82,7 @@ function retry(note) {
         icon="location_searching"
         @click="focusFinding(finding.id, { scrollTo: 'viewer' })"
       >
-        문제지점 보기
+        {{ $t('reviewDetail.card.locate') }}
       </BaseButton>
     </header>
 
@@ -89,29 +90,34 @@ function retry(note) {
       v-if="finding?.escalation"
       :variant="severity.variant"
       icon="trending_up"
-      title="증빙 대조 결과 판정 상향"
+      :title="$t('reviewDetail.card.escalated')"
     >
       {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}: {{ finding.escalation.reason }}
     </BaseAlert>
 
-    <img v-if="assetImageUrl" :src="assetImageUrl" :alt="`${locationLabel} 원본`" class="violation__image" />
+    <img v-if="assetImageUrl" :src="assetImageUrl" :alt="$t('reviewDetail.original.alt', { name: locationLabel })" class="violation__image" />
 
     <p v-if="finding">{{ finding.reason }}</p>
     <p v-if="!finding?.basis?.length">{{ emptyBasisText(finding, result) }}</p>
-    <section v-if="finding?.basis?.length" class="violation__basis" aria-label="위반 근거">
-      <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> 관련 법령 조문 후보 (검색 결과, 위반 판정 아님)</p>
+    <section v-if="finding?.basis?.length" class="violation__basis" :aria-label="$t('reviewDetail.card.basisLabel')">
+      <p class="violation__basis-title"><BaseIcon name="gavel" size="sm" /> {{ $t('reviewDetail.card.basisTitle') }}</p>
       <BasisItem v-for="(basis, i) in finding.basis" :key="`${basis.sourceId}-${i}`" :basis="basis" />
     </section>
 
-    <section v-if="finding?.references?.length" class="violation__refs" aria-label="참고 사례">
-      <p class="violation__refs-title">과거 적발,심의 사례 (보조 참고)</p>
+    <section v-if="finding?.references?.length" class="violation__refs" :aria-label="$t('reviewDetail.card.refsLabel')">
+      <p class="violation__refs-title">{{ $t('reviewDetail.card.refsTitle') }}</p>
       <p v-for="ref in finding.references" :key="ref.id" class="violation__ref">
-        <BaseBadge v-if="!ref.verified" variant="warning">출처 미검증</BaseBadge>
+        <BaseBadge v-if="!ref.verified" variant="warning">{{ $t('reviewDetail.card.unverified') }}</BaseBadge>
         {{ ref.summary }}
       </p>
     </section>
 
-    <RevisionOptions :violation="violation" @decide="decide" @retry="retry" />
+    <RevisionOptions
+      :violation="violation"
+      :decide="decide"
+      :retry="retry"
+      :editable="(hitl?.status ?? 'pending') === 'pending'"
+    />
   </BaseCard>
 </template>
 

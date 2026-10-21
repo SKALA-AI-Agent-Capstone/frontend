@@ -6,7 +6,7 @@ const props = defineProps({
   max: { type: Number, default: 100 },
   variant: { type: String, default: 'primary' }, // primary | danger | success
   marker: { type: Number, default: null }, // 기준선 위치 (예: 승인 기준 90)
-  label: { type: String, default: '진행률' },
+  label: { type: String, default: null },
 })
 
 const percent = computed(() => Math.min(100, Math.max(0, (props.value / props.max) * 100)))
@@ -19,7 +19,7 @@ const markerPercent = computed(() =>
   <div
     class="progress"
     role="progressbar"
-    :aria-label="label"
+    :aria-label="label ?? $t('ui.progress')"
     :aria-valuenow="value"
     aria-valuemin="0"
     :aria-valuemax="max"

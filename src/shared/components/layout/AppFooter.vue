@@ -44,14 +44,14 @@ import OperatorIdentifier from './footer/OperatorIdentifier.vue'
               {{ link.label }}
               <template v-if="link.external">
                 <BaseIcon name="open_in_new" size="xs" />
-                <span class="sr-only">(새 창 열림)</span>
+                <span class="sr-only">{{ $t('ui.newWindow') }}</span>
               </template>
             </a>
           </li>
         </ul>
       </div>
 
-      <nav aria-label="정책 링크">
+      <nav :aria-label="$t('ui.footer.policyLinks')">
         <ul class="policy">
           <li v-for="link in FOOTER.policyLinks" :key="link.label">
             <a :href="link.href" class="policy__link" :class="{ 'policy__link--emphasis': link.emphasis }">
@@ -61,7 +61,7 @@ import OperatorIdentifier from './footer/OperatorIdentifier.vue'
         </ul>
       </nav>
 
-      <p class="app-footer__retention">{{ FOOTER.retentionNotice }} ,  {{ SITE.demoNotice }}</p>
+      <p class="app-footer__retention">{{ FOOTER.retentionNotice }} {{ SITE.demoNotice }}</p>
       <div class="app-footer__copyright">
         <p>{{ FOOTER.copyright }}</p>
         <span class="kogl">{{ FOOTER.kogl }}</span>

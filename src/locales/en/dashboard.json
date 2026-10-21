@@ -1,0 +1,55 @@
+{
+  "tabs": {
+    "todo": "To do",
+    "analyzing": "Analyzing",
+    "pending": "Awaiting approval",
+    "changes": "Changes requested",
+    "closed": "Decided",
+    "all": "All"
+  },
+  "actions": {
+    "decide": "Decide",
+    "newVersion": "Submit new version",
+    "retry": "Submit again",
+    "progress": "View progress",
+    "result": "View result"
+  },
+  "empty": {
+    "todo": "Nothing to handle right now.",
+    "analyzing": "No reviews are being analyzed.",
+    "pending": "No reviews are awaiting approval.",
+    "changes": "No reviews have change requests.",
+    "closed": "No reviews have been approved or rejected.",
+    "all": "You have not submitted any reviews yet."
+  },
+  "loadError": "Could not load the review list.",
+  "running": {
+    "title": "{count} analyzing",
+    "all": "View all {count} analyzing"
+  },
+  "statusLabel": "Review status",
+  "historyAll": "View full history",
+  "unknownAuthor": "Unknown author",
+  "emptyText": "Upload a PDF or image ad and AI checks the copy and photos for possible violations. You can follow the progress here.",
+  "firstReview": "Submit your first review",
+  "more": {
+    "recent": "Showing the latest {count}.",
+    "link": "See all {count} in review history"
+  },
+  "scope": "Legal grounds come from loaded Cosmetics Act articles, and no legality ruling or score is produced. Legal search, OpenAI and public API status is shown on each result.",
+  "start": {
+    "title": "Get started",
+    "new": {
+      "title": "Submit an ad review",
+      "action": "New review"
+    },
+    "pending": {
+      "title": "Awaiting approval",
+      "action": "View pending"
+    },
+    "history": {
+      "title": "Past results",
+      "action": "Review history"
+    }
+  }
+}

@@ -75,6 +75,8 @@ defineProps({
   font-weight: var(--font-weight-bold);
 }
 .page-heading__desc {
+  /* 설명 문자열의 줄바꿈 문자를 그대로 줄바꿈으로 보여 준다 */
+  white-space: pre-line;
   font-size: var(--font-size-body-m);
   line-height: var(--line-height-base);
   color: var(--color-text-secondary);

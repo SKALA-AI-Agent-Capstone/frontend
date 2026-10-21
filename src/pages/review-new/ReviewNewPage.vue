@@ -1,11 +1,11 @@
 <!-- 광고 자율심의 신청 (시안 krds_2) — 단일 입력 흐름 (FR-8) -->
 <script setup>
+import { t } from '@/shared/i18n'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
-import BaseInfoChip from '@/shared/components/base/BaseInfoChip.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import ApplicationStepper from '@/shared/components/navigation/ApplicationStepper.vue'
 import { useCreditsStore } from '@/shared/stores/credits'
@@ -32,7 +32,7 @@ const { draft, estimate, canSubmit, clearSaved } = provideReviewDraft({
   initialCopy: typeof route.query.copy === 'string' ? route.query.copy : '',
 })
 
-const breadcrumbs = [{ label: '기업 광고 검토' }, { label: 'PDF와 이미지 검토 신청' }]
+const breadcrumbs = computed(() => [{ label: t('reviewNew.crumbs.section') }, { label: t('reviewNew.crumbs.page') }])
 const submitting = ref(false)
 const error = ref('')
 
@@ -54,21 +54,17 @@ async function submit() {
   <div class="apply-page">
     <BaseCard padding="xl">
       <PageHeading
-        :title="baseReview ? '광고 새 버전 검토' : '화장품 광고 사전검토 신청'"
-        description="PDF 또는 이미지를 올리면 문구와 사진을 각각 분석하고, 문구마다 관련 법령 조문 후보를 찾습니다. 적법 여부는 담당자가 판단합니다."
-        badge="기업 내부 사전검토"
+        :title="baseReview ? $t('reviewNew.titleVersion') : $t('reviewNew.title')"
+        :description="$t('reviewNew.description')"
+        :badge="$t('reviewNew.badge')"
         :breadcrumbs="breadcrumbs"
       >
-        <template #aside>
-          <BaseInfoChip>AI 사전 진단: <strong>파일과 분석 구간 수에 따라 달라집니다</strong></BaseInfoChip>
-        </template>
         <ApplicationStepper :current="1" />
       </PageHeading>
     </BaseCard>
 
-    <BaseAlert v-if="baseReview" variant="info" title="수정본을 새 버전으로 재심의합니다">
-      '{{ baseReview.productName }}' v{{ baseVersion.no }} 내용을 불러왔습니다. 제출하면 {{ nextVersionLabel }}로 저장되며,
-      이전 버전의 승인 이력은 그대로 유지됩니다.
+    <BaseAlert v-if="baseReview" variant="info" :title="$t('reviewNew.versionAlert.title')">
+      {{ $t('reviewNew.versionAlert.text', { name: baseReview.productName, from: baseVersion.no, to: nextVersionLabel }) }}
     </BaseAlert>
 
     <form class="apply-page__form" @submit.prevent="submit">

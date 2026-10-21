@@ -1,4 +1,4 @@
-<!-- 검토 이력 목록 (FR-9 재조회, 재다운로드, FR-12 개별 삭제) -->
+<!-- 검토 이력 목록 (FR-9 재조회, 재다운로드, FR-12 개별 삭제) — 줄마다 썸네일, 진행 단계, 리포트와 삭제 -->
 <script setup>
 import { ref } from 'vue'
 import { REVIEW_STATUS, SEVERITY } from '@/shared/constants/review'
@@ -6,7 +6,8 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
-import ReviewStatusBadge from '@/shared/components/review/ReviewStatusBadge.vue'
+import ReviewStage from '@/shared/components/review/ReviewStage.vue'
+import ReviewThumb from '@/shared/components/review/ReviewThumb.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { formatDateTime } from '@/shared/utils/format'
 
@@ -29,111 +30,121 @@ async function remove() {
 </script>
 
 <template>
-  <BaseAlert v-if="error" variant="danger">{{error}}</BaseAlert>
-  <div class="table-wrap">
-    <table class="history-table">
-      <caption class="sr-only">검토 이력</caption>
-      <thead>
-        <tr>
-          <th scope="col">제품 ,  캠페인</th>
-          <th scope="col">버전</th>
-          <th scope="col">상태</th>
-          <th scope="col" class="num">위반 소지 높음</th>
-          <th scope="col">작성자</th>
-          <th scope="col">최근 변경</th>
-          <th scope="col"><span class="sr-only">작업</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="{ review, version } in rows" :key="review.id">
-          <td>
-            <RouterLink :to="{ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id } }" class="history-table__link">
-              {{ review.productName }}
-            </RouterLink>
-            <p class="history-table__sub">{{ review.id }}<template v-if="review.campaign"> ,  {{ review.campaign.name }}</template></p>
-          </td>
-          <td>v{{ version.no }}</td>
-          <td><ReviewStatusBadge :version="version" /></td>
-          <td class="num">{{ highCount(version) ?? '-' }}</td>
-          <td>{{ review.authorName }}</td>
-          <td>{{ formatDateTime(review.updatedAt) }}</td>
-          <td>
-            <div class="history-table__actions">
-              <BaseButton
-                v-if="version.status === REVIEW_STATUS.DONE"
-                variant="ghost"
-                size="sm"
-                icon="download"
-                :to="{ name: ROUTE_NAMES.REVIEW_REPORT, params: { id: review.id } }"
-              >
-                리포트
-              </BaseButton>
-              <BaseButton v-if="reviews.canDelete(review)" variant="ghost" size="sm" icon="delete" @click="target = review">
-                삭제
-              </BaseButton>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
+  <ul class="rows" :aria-label="$t('history.title')">
+    <li v-for="{ review, version } in rows" :key="review.id" class="row">
+      <ReviewThumb :review="review" :version="version" />
+      <div class="row__main">
+        <RouterLink :to="{ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id } }" class="row__name">
+          {{ review.productName }}
+        </RouterLink>
+        <p class="row__meta">
+          <span class="row__version">v{{ version.no }}</span>
+          <span>{{ review.authorName ?? $t('dashboard.unknownAuthor') }}</span>
+          <span>{{ formatDateTime(review.updatedAt) }}</span>
+          <span v-if="review.campaign">{{ review.campaign.name }}</span>
+          <span class="row__id">{{ review.id }}</span>
+        </p>
+      </div>
+      <p class="row__risk" :class="{ 'is-high': highCount(version) > 0 }">
+        <template v-if="highCount(version) !== null">{{ $t('review.severity.high') }} <strong>{{ highCount(version) }}</strong></template>
+        <template v-else>-</template>
+      </p>
+      <ReviewStage :version="version" />
+      <div class="row__actions">
+        <BaseButton
+          v-if="version.status === REVIEW_STATUS.DONE"
+          variant="outline"
+          size="sm"
+          icon="download"
+          :to="{ name: ROUTE_NAMES.REVIEW_REPORT, params: { id: review.id } }"
+        >
+          {{ $t('history.report') }}
+        </BaseButton>
+        <button v-if="reviews.canDelete(review)" type="button" class="row__delete" @click="target = review">
+          <span class="sr-only">{{ review.productName }}</span> {{ $t('history.delete') }}
+        </button>
+      </div>
+    </li>
+  </ul>
 
   <BaseConfirmDialog
     :open="Boolean(target)"
-    title="검토 건을 삭제할까요?"
-    confirm-label="삭제"
+    :title="$t('history.confirmOneTitle')"
+    :confirm-label="$t('history.delete')"
     danger
     @update:open="(v) => !v && (target = null)"
     @confirm="remove"
   >
-    '{{ target?.productName }}'의 모든 버전과 판정, 근거, 승인 이력이 삭제되며 되돌릴 수 없습니다.
+    {{ $t('history.confirmOneText', { name: target?.productName }) }}
   </BaseConfirmDialog>
 </template>
 
 <style scoped>
-.table-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius-lg);
-  border: var(--border-width) solid var(--color-border);
-  background: var(--color-bg-surface);
-}
-.history-table {
-  width: 100%;
-  min-width: 80rem;
-  border-collapse: collapse;
-  font-size: var(--font-size-body-s);
-}
-.history-table th,
-.history-table td {
-  padding: var(--space-sm) var(--space-md);
+.rows { display: grid; }
+.row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 140px 130px 168px;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 24px;
   border-bottom: var(--border-width) solid var(--color-border);
-  text-align: left;
-  vertical-align: middle;
+  transition: background-color var(--transition-fast);
 }
-.history-table th {
-  background: var(--color-bg-page);
-  font-size: var(--font-size-label-s);
+.row:last-child { border-bottom: 0; }
+.row:hover { background: var(--color-bg-page); }
+.row__name {
+  font-size: var(--font-size-body-m);
   font-weight: var(--font-weight-bold);
-  white-space: nowrap;
+  color: var(--color-text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
-.history-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-/* KRDS 표: 숫자는 오른쪽 정렬 */
-.history-table .num {
-  text-align: right;
-}
-.history-table__link {
-  font-weight: var(--font-weight-bold);
-  text-decoration: underline;
-}
-.history-table__sub {
+.row__name:hover { color: var(--color-primary); }
+.row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin-top: 4px;
   font-size: var(--font-size-detail-s);
   color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
 }
-.history-table__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2xs);
+.row__version {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--color-bg-muted);
+  font-weight: var(--font-weight-bold);
+}
+.row__id { color: var(--color-text-disabled); }
+.row__risk { font-size: var(--font-size-detail-s); color: var(--color-text-disabled); white-space: nowrap; }
+.row__risk strong { font-size: var(--font-size-body-s); font-variant-numeric: tabular-nums; }
+.row__risk.is-high { color: var(--color-danger-text); }
+.row__actions { display: flex; justify-content: flex-end; align-items: center; gap: 4px; }
+.row__delete {
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-sm-2);
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-label-s);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+.row__delete:hover { background: var(--color-danger-surface); color: var(--color-danger-text); }
+.row__delete:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+
+@media (max-width: 1180px) {
+  .row { grid-template-columns: 56px minmax(0, 1fr) 130px 168px; }
+  .row__risk { display: none; }
+}
+@media (max-width: 760px) {
+  .row { grid-template-columns: 56px minmax(0, 1fr); gap: 12px 14px; padding: 14px 16px; }
+  .row > .stage { grid-column: 2; grid-template-columns: auto 1fr; align-items: center; gap: 10px; }
+  .row__actions { grid-column: 1 / -1; justify-content: stretch; }
+  .row__actions > * { flex: 1; }
 }
 </style>

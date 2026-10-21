@@ -13,8 +13,8 @@ defineProps({
 
 <template>
   <div class="history">
-    <p class="history__title">v{{ versionNo }} 승인 이력</p>
-    <p v-if="!history.length" class="history__empty">아직 처리 이력이 없습니다.</p>
+    <p class="history__title">{{ $t('reviewDetail.approval.history', { version: versionNo }) }}</p>
+    <p v-if="!history.length" class="history__empty">{{ $t('reviewDetail.approval.historyEmpty') }}</p>
     <ol v-else class="history__list">
       <li v-for="(item, i) in [...history].reverse()" :key="i" class="history__item">
         <p class="history__head">
