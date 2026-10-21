@@ -88,7 +88,9 @@
     "history": "심의 이력",
     "approvals": "승인 대기",
     "credits": "크레딧",
-    "standards": "법령, 고시 자료실"
+    "standards": "법령, 고시 자료실",
+    "privacyPolicy": "개인정보 처리방침",
+    "terms": "이용약관"
   },
   "publicData": {
     "cancelledTitle": "취하 정보가 있는 보고품목입니다. 담당자 확인이 필요합니다",

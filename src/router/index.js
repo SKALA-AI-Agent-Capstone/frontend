@@ -80,6 +80,18 @@ const routes = [
     component: () => import('@/pages/standards/StandardsPage.vue'),
     meta: { title: 'ui.titles.standards', navKey: NAV_KEYS.STANDARDS },
   },
+  {
+    path: '/privacy-policy',
+    name: ROUTE_NAMES.PRIVACY_POLICY,
+    component: () => import('@/pages/privacy-policy/PrivacyPolicyPage.vue'),
+    meta: { title: 'ui.titles.privacyPolicy', layout: 'blank', public: true },
+  },
+  {
+    path: '/terms',
+    name: ROUTE_NAMES.TERMS,
+    component: () => import('@/pages/terms/TermsPage.vue'),
+    meta: { title: 'ui.titles.terms', layout: 'blank', public: true },
+  },
   { path: '/:pathMatch(.*)*', redirect: { name: ROUTE_NAMES.DASHBOARD } },
 ]
 

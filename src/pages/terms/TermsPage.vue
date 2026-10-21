@@ -1,0 +1,132 @@
+<!--
+  이용약관 — 캡스톤 프로젝트 초안. 결제(크레딧)가 있는 서비스라 전자상거래법 관련 조항은
+  최소한으로만 담았으니 실제 게시 전 법률 전문가 검토가 특히 중요하다.
+-->
+<script setup>
+import { RouterLink } from 'vue-router'
+import PageContainer from '@/shared/components/layout/PageContainer.vue'
+import { ROUTE_NAMES } from '@/shared/constants/routes'
+import { SITE } from '@/shared/constants/site'
+</script>
+
+<template>
+  <PageContainer tag="article" class="legal">
+    <h1>{{ SITE.orgName }} 이용약관</h1>
+    <p class="legal__meta">시행일자: 2026-10-21</p>
+
+    <h2>제1조 (목적)</h2>
+    <p>
+      이 약관은 {{ SITE.orgName }}(이하 "회사")가 제공하는 화장품 광고 문구·이미지에 대한 AI 기반
+      사전 검토 서비스(이하 "서비스")의 이용과 관련하여 회사와 이용자의 권리, 의무 및 책임사항을
+      규정함을 목적으로 합니다.
+    </p>
+
+    <h2>제2조 (정의)</h2>
+    <ol>
+      <li>"서비스"란 회사가 제공하는 화장품 광고 사전검토 서비스를 말합니다.</li>
+      <li>"이용자"란 이 약관에 따라 서비스를 이용하는 회원을 말합니다.</li>
+      <li>"회원"이란 서비스에 개인정보를 제공하여 회원등록을 한 자로서, 서비스를 지속적으로 이용할 수 있는 자를 말합니다.</li>
+    </ol>
+
+    <h2>제3조 (약관의 효력 및 변경)</h2>
+    <ol>
+      <li>이 약관은 서비스 화면에 게시함으로써 효력이 발생합니다.</li>
+      <li>회사는 관련 법령을 위배하지 않는 범위에서 이 약관을 개정할 수 있으며, 개정 시 적용일자 및 개정사유를 명시하여 사전에 공지합니다.</li>
+    </ol>
+
+    <h2>제4조 (회원가입)</h2>
+    <ol>
+      <li>이용자는 회사가 정한 가입 양식에 따라 회원정보를 기입한 후 이 약관과 개인정보 수집·이용에 동의함으로써 회원가입을 신청합니다.</li>
+      <li>
+        회사는 다음 각 호에 해당하는 신청에 대해서는 승낙을 하지 않거나 사후에 이용계약을 해지할
+        수 있습니다.
+        <ul>
+          <li>타인의 명의를 이용한 경우</li>
+          <li>허위의 정보를 기재한 경우</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h2>제5조 (개인정보의 보호)</h2>
+    <p>
+      회사는 관련 법령이 정하는 바에 따라 이용자의 개인정보를 보호하기 위해 노력합니다. 개인정보의
+      수집·이용·제공 등에 관한 자세한 사항은
+      <RouterLink :to="{ name: ROUTE_NAMES.PRIVACY_POLICY }">개인정보처리방침</RouterLink>을 따릅니다.
+    </p>
+
+    <h2>제6조 (이용자의 의무)</h2>
+    <p>이용자는 다음 행위를 하여서는 안 됩니다.</p>
+    <ol>
+      <li>신청 또는 변경 시 허위내용의 등록</li>
+      <li>타인의 정보 도용</li>
+      <li>법령상 허용되지 않는 광고 문구·자료의 업로드</li>
+    </ol>
+
+    <h2>제7조 (서비스의 제공 및 변경)</h2>
+    <p>
+      회사는 화장품 광고 문구·이미지에 대한 AI 기반 사전검토를 제공하며, 서비스의 내용이 변경되는
+      경우 변경사유 및 내용을 사전에 공지합니다. 검토 결과는 참고용이며, 실제 법령 적합 여부의
+      최종 판단은 담당자 및 관계 기관의 확인을 따라야 합니다.
+    </p>
+
+    <h2>제8조 (크레딧 및 결제)</h2>
+    <p>
+      서비스 이용(검토 1건)에는 크레딧이 차감되며, 크레딧은 결제 대행사(토스페이먼츠)를 통해 충전할
+      수 있습니다. 결제·환불에 관한 사항은 관계 법령 및 결제 대행사의 정책을 따릅니다.
+    </p>
+
+    <h2>제9조 (계약해지 및 이용제한)</h2>
+    <p>
+      이용자는 언제든지 회원탈퇴를 요청하여 이용계약을 해지할 수 있습니다. 회원탈퇴 시 개인정보의
+      처리(파기 또는 보유)는
+      <RouterLink :to="{ name: ROUTE_NAMES.PRIVACY_POLICY }">개인정보처리방침</RouterLink>의 보유·이용기간을
+      따릅니다.
+    </p>
+
+    <h2>제10조 (책임제한)</h2>
+    <p>회사는 천재지변 등 불가항력으로 인하여 서비스를 제공할 수 없는 경우 책임이 면제됩니다.</p>
+
+    <h2>제11조 (준거법 및 관할법원)</h2>
+    <p>
+      이 약관은 대한민국 법령에 따라 규율되고 해석되며, 서비스 이용과 관련하여 분쟁이 발생한 경우
+      민사소송법상의 관할법원에 소를 제기합니다.
+    </p>
+
+    <h2>부칙</h2>
+    <p>이 약관은 2026-10-21부터 적용됩니다.</p>
+
+    <p class="legal__disclaimer">
+      ⚠️ 이 문서는 AI가 코드 스캔 결과를 바탕으로 자동 생성한 캡스톤 프로젝트용 초안이며 법률 자문이
+      아닙니다. 특히 결제·환불·청약철회 등 전자상거래 관련 조항은 충분히 다루지 않았으므로 실제 서비스
+      게시 전 반드시 법률 전문가의 검토를 받으시기 바랍니다.
+    </p>
+  </PageContainer>
+</template>
+
+<style scoped>
+.legal {
+  max-width: 48rem;
+  padding-block: var(--space-2xl, 48px) var(--space-4xl, 96px);
+  line-height: 1.7;
+}
+.legal h1 {
+  font-size: var(--font-size-title-xl, 28px);
+  margin-bottom: var(--space-xs, 8px);
+}
+.legal h2 {
+  margin-top: var(--space-2xl, 40px);
+  font-size: var(--font-size-title-m, 18px);
+}
+.legal__meta {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xl, 32px);
+}
+.legal__disclaimer {
+  margin-top: var(--space-2xl, 40px);
+  padding: var(--space-md, 16px);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-bg-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-detail-m, 13px);
+}
+</style>

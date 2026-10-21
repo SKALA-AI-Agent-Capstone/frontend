@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useSessionStore } from '@/shared/stores/session'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -21,7 +21,17 @@ const password = ref('')
 const busy = ref(false)
 const error = ref('')
 
+// 개인정보 보호법 제15조,제22조 — 가입에 필요한 최소 동의. 마케팅 동의 항목은 없다(마케팅 발송 기능 없음).
+const consentTerms = ref(false)
+const consentPrivacy = ref(false)
+const consentAll = computed({
+  get: () => consentTerms.value && consentPrivacy.value,
+  set: (checked) => { consentTerms.value = checked; consentPrivacy.value = checked },
+})
+const canSubmit = computed(() => consentTerms.value && consentPrivacy.value)
+
 async function submit() {
+  if (!canSubmit.value) { error.value = t('auth.signup.consent.required'); return }
   busy.value = true
   error.value = ''
   try {
@@ -68,8 +78,26 @@ async function submit() {
         />
         <span id="signup-password-hint" class="auth-field__hint">{{ $t('auth.signup.passwordHint') }}</span>
       </label>
+
+      <fieldset class="auth-consent">
+        <label class="auth-consent__item">
+          <input type="checkbox" v-model="consentAll" />
+          {{ $t('auth.signup.consent.all') }}
+        </label>
+        <label class="auth-consent__item">
+          <input type="checkbox" v-model="consentTerms" required />
+          {{ $t('auth.signup.consent.terms') }}
+          <RouterLink :to="{ name: ROUTE_NAMES.TERMS }" target="_blank">{{ $t('auth.signup.consent.view') }}</RouterLink>
+        </label>
+        <label class="auth-consent__item">
+          <input type="checkbox" v-model="consentPrivacy" required />
+          {{ $t('auth.signup.consent.privacy') }} ({{ $t('auth.signup.consent.privacyItems') }})
+          <RouterLink :to="{ name: ROUTE_NAMES.PRIVACY_POLICY }" target="_blank">{{ $t('auth.signup.consent.view') }}</RouterLink>
+        </label>
+      </fieldset>
+
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
-      <button type="submit" class="auth-submit" :disabled="busy" :aria-busy="busy || undefined">
+      <button type="submit" class="auth-submit" :disabled="busy || !canSubmit" :aria-busy="busy || undefined">
         {{ busy ? $t('auth.signup.busy') : $t('auth.signup.submit') }}
       </button>
     </form>

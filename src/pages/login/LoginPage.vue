@@ -52,6 +52,12 @@ async function submit() {
         {{ busy ? $t('auth.login.busy') : $t('auth.login.submit') }}
       </button>
     </form>
+    <p class="auth-privacy-notice">
+      <i18n-t keypath="auth.login.privacyNotice" scope="global">
+        <template #terms><RouterLink :to="{ name: ROUTE_NAMES.TERMS }" target="_blank">{{ $t('ui.titles.terms') }}</RouterLink></template>
+        <template #privacy><RouterLink :to="{ name: ROUTE_NAMES.PRIVACY_POLICY }" target="_blank">{{ $t('ui.titles.privacyPolicy') }}</RouterLink></template>
+      </i18n-t>
+    </p>
     <p class="auth-switch">
       {{ $t('auth.login.switchLead') }}
       <RouterLink :to="{ name: ROUTE_NAMES.SIGNUP, query: route.query.redirect ? { redirect: route.query.redirect } : {} }">{{ $t('auth.login.switch') }}</RouterLink>
