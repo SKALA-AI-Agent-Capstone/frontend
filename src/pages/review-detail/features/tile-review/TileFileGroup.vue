@@ -84,11 +84,9 @@ const rows = computed(() =>
       :id="`tile-${row.tile.id}`"
       :key="row.tile.id"
       class="tile-row"
-      :aria-label="$t('reviewDetail.tiles.frameLabel', { name: fileName, n: row.tile.index + 1 })"
     >
       <div class="tile-row__media">
         <header class="tile-row__head">
-          <strong>{{ $t('reviewDetail.tiles.tile', { n: row.tile.index + 1 }) }}</strong>
           <BaseBadge v-if="row.cards.length" variant="danger">{{ $t('reviewDetail.tiles.textCount', { count: row.cards.length }) }}</BaseBadge>
           <BaseBadge v-if="row.visual.length" variant="warning">{{ $t('reviewDetail.tiles.visualCount', { count: row.visual.length }) }}</BaseBadge>
         </header>
@@ -155,10 +153,6 @@ const rows = computed(() =>
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-xs);
-}
-.tile-row__head strong {
-  margin-right: auto;
-  font-size: var(--font-size-label-s);
 }
 .tile-row__frame {
   position: relative;
