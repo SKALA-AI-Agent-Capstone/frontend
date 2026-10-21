@@ -6,19 +6,18 @@ import { request } from '@/shared/api/http'
 import { useSessionStore } from '@/shared/stores/session'
 import { useCreditsStore } from '@/shared/stores/credits'
 import { PERMISSIONS } from '@/shared/constants/roles'
-import { CREDIT_PACKAGES } from '@/shared/constants/pricing'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
 
 const session = useSessionStore()
 const credits = useCreditsStore()
 const step = ref('select')
-const packageCredits = ref(100)
-const config = ref({ tossEnabled: false, tossClientKey: '', tossMode: 'legacy' })
+const packageCredits = ref(null)
+const config = ref({ tossEnabled: false, tossClientKey: '', tossMode: 'legacy', packages: [] })
 const busy = ref(false)
 const tossConsent = ref(false)
 const error = ref('')
-const selectedPackage = computed(() => CREDIT_PACKAGES.find((item) => item.credits === packageCredits.value))
+const selectedPackage = computed(() => config.value.packages.find((item) => item.credits === packageCredits.value))
 const formatWon = (amount) => t('credits.won', { amount: amount.toLocaleString('ko-KR') })
 const enabled = computed(() => config.value.tossEnabled)
 
@@ -60,6 +59,7 @@ async function beginPayment() {
 onMounted(async () => {
   try {
     config.value = await request('/billing/config')
+    packageCredits.value = config.value.packages[0]?.credits ?? null
     await credits.loadBalance()
     const params = new URLSearchParams(window.location.search)
     const provider = params.get('provider')
@@ -96,10 +96,10 @@ onMounted(async () => {
     </BaseCard>
     <template v-else>
       <p v-if="error" role="alert" class="credits-page__error">{{ error }}</p>
-      <BaseCard v-if="step === 'select'" tag="section" class="credits-page__card">
+      <BaseCard v-if="step === 'select' && selectedPackage" tag="section" class="credits-page__card">
         <h2>{{ $t('credits.packages') }}</h2>
         <fieldset class="credits-page__packages"><legend class="sr-only">{{ $t('credits.packagesLegend') }}</legend>
-          <label v-for="item in CREDIT_PACKAGES" :key="item.credits" class="credits-page__package" :class="{ 'credits-page__package--selected': packageCredits === item.credits }">
+          <label v-for="item in config.packages" :key="item.credits" class="credits-page__package" :class="{ 'credits-page__package--selected': packageCredits === item.credits }">
             <input v-model="packageCredits" type="radio" name="credit-package" :value="item.credits" />
             <strong>{{ $t('credits.amount', { count: item.credits.toLocaleString('ko-KR') }) }}</strong><span>{{ formatWon(item.price) }}</span>
             <small v-if="item.discountPercent">{{ $t('credits.discount', { percent: item.discountPercent }) }}</small>
@@ -124,7 +124,7 @@ onMounted(async () => {
         </label>
         <BaseButton :disabled="!enabled || busy || (config.tossMode === 'legacy' && !tossConsent)" @click="beginPayment">{{ busy ? $t('credits.busy') : $t('credits.pay') }}</BaseButton>
       </BaseCard>
-      <BaseCard v-else tag="section" class="credits-page__card" aria-live="polite">
+      <BaseCard v-else-if="step === 'done'" tag="section" class="credits-page__card" aria-live="polite">
         <h2>{{ $t('credits.done') }}</h2>
         <p>{{ $t('credits.current') }} <strong>{{ $t('credits.amount', { count: credits.balance.toLocaleString('ko-KR') }) }}</strong></p>
         <BaseButton @click="step = 'select'">{{ $t('credits.again') }}</BaseButton>

@@ -41,6 +41,15 @@
     "charge": "Top-up",
     "usage": "Usage"
   },
+  "creditEstimate": {
+    "expected": "Estimated usage",
+    "note": "Actual usage is finalized after processing.",
+    "balance": "Current balance",
+    "remaining": "Estimated balance after review",
+    "shortageTitle": "Not enough credits",
+    "shortage": "You need {count} more credits.",
+    "topUp": "Top up credits"
+  },
   "analysis": {
     "prepare": {
       "title": "Prepare files",
