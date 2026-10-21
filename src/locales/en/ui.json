@@ -26,6 +26,7 @@
   },
   "cancel": "Cancel",
   "confirm": "Confirm",
+  "close": "Close",
   "select": "Select",
   "dropzone": {
     "filled": "{count} file(s) uploaded",
@@ -88,7 +89,9 @@
     "history": "Review history",
     "approvals": "Awaiting approval",
     "credits": "Credits",
-    "standards": "Laws and notices"
+    "standards": "Laws and notices",
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms of Service"
   },
   "publicData": {
     "cancelledTitle": "This reported item has withdrawal records. A reviewer needs to check it",
