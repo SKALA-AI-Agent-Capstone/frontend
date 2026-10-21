@@ -15,11 +15,6 @@ export function provideReviewDetail() {
   const reviews = useReviewsStore()
 
   const review = computed(() => reviews.byId(String(route.params.id)))
-  // 목록 응답(GET /reviews)에는 hitl만 있고 violations가 없다. 상세를 열 때 단건 응답으로 채워야
-  // 새로고침이나 재진입 후에도 문구 카드와 결정 버튼이 보인다.
-  watch(() => route.params.id, (id) => {
-    if (id) reviews.refresh(String(id)).catch(() => { /* 목록 데이터로 계속 표시한다. */ })
-  }, { immediate: true })
   const latestNo = computed(() => (review.value ? reviews.latest(review.value).no : null))
   const versionNo = computed({
     get: () => Number(route.query.v) || latestNo.value,
