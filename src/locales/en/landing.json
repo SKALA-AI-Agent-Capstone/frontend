@@ -181,27 +181,5 @@
       "alt": "Perfume ad of a woman in a pink dress and a Pierrot on a moonlit balustrade."
     },
     "unknownCreator": "Unknown artist"
-  },
-  "reader": {
-    "portrait": "Portrait, {ratio}x the width",
-    "landscape": "Landscape, {ratio}x the height",
-    "square": "Nearly square",
-    "sampleError": "Could not load the sample image. Please try again shortly.",
-    "typeError": "Only PDF, JPG, PNG and WEBP files can be uploaded.",
-    "readError": "Could not read the image. Check that the file is not damaged.",
-    "title": "Read an ad file",
-    "file": "File",
-    "format": "Format",
-    "size": "Size",
-    "pages": "Pages",
-    "pagesValue": "Checked on server",
-    "ratio": "Ratio",
-    "pixels": "Pixels",
-    "copy": "Copy",
-    "copyText": "Flags possible violations and finds legal grounds.",
-    "photo": "Photos",
-    "photoText": "Reviewed separately from the copy. No real efficacy ruling.",
-    "pick": "Choose my ad file",
-    "samples": "Vintage cosmetic ad samples"
   }
 }

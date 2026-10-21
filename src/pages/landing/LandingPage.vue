@@ -15,7 +15,6 @@ import {
   REVIEW_STATUS_LABEL,
   VIOLATION_RESOLUTION_LABEL,
 } from '@/shared/constants/review'
-import AdFileReader from './features/AdFileReader.vue'
 import { ARCHIVE_ADS } from './archive'
 import { useReveal } from './useReveal'
 import { t } from '@/shared/i18n'
@@ -109,7 +108,8 @@ function start() {
       </div>
       <div class="hero__stage">
         <div class="hero__top"><LanguageMenu class="hero__lang" /><RouterLink :to="{ name: ROUTE_NAMES.LOGIN }" class="hero__login">{{ $t('landing.login') }}</RouterLink></div>
-        <AdFileReader class="fade-up" />
+        <!-- 로그인 화면 왼쪽과 같은 마스코트. 남색 위에서 묻히지 않게 흰 테두리 그림을 쓴다 -->
+        <img :src="brandAsset('vero-body-outline.png')" alt="" width="560" height="623" class="hero__mascot fade-up" />
       </div>
     </section>
 
@@ -409,6 +409,13 @@ function start() {
   display: grid;
   place-items: center;
   padding: 96px var(--frame) 64px;
+}
+.hero__mascot {
+  width: min(100%, 440px);
+  height: auto;
+  max-height: 68svh;
+  object-fit: contain;
+  display: block;
 }
 .hero__top {
   position: absolute;
@@ -879,6 +886,7 @@ function start() {
   }
   .hero { grid-template-columns: 1fr; }
   .hero__stage { order: -1; min-height: 58svh; padding-top: 88px; }
+  .hero__mascot { width: min(70%, 320px); max-height: 46svh; }
   .hero__copy { padding-top: 32px; }
   .hero__copy .wordmark { position: absolute; top: 40px; left: var(--frame); z-index: 1; }
   .hero { position: relative; }
