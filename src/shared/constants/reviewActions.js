@@ -20,11 +20,14 @@ const REVISE_RULES = new Set(['drug', 'absolute_comparison'])
 // 객관적으로 확인되지 않은 효능 규칙 중 표현 자체가 문제인 말. 탄력, 윤기 같은 일반 표현은 여기에 넣지 않는다.
 const REVISE_WORDS = /되돌|회춘|젊어|리프팅|안티에이징|재생/
 const REVISE_STATUS = new Set(['mismatch', 'prohibited'])
-const HOLD_STATUS = new Set(['unavailable'])
+const HOLD_STATUS = new Set(['unavailable', 'evidence_unread'])
 // 대조 결과 상태 → 요청할 자료. 같은 자료는 요약에서 한 줄로 묶는다.
 const MATERIAL_BY_STATUS = {
   evidence_missing: 'test',
   evidence_submitted: 'compare',
+  evidence_mismatch: 'rightTest',
+  evidence_conditions: 'rightTest',
+  evidence_not_covering: 'test',
   not_found: 'report',
   ambiguous: 'report',
   restricted: 'amount',

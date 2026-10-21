@@ -162,15 +162,41 @@
   },
   "evidence": {
     "title": "Evidence check",
-    "flags": "Check results",
-    "notDone": "Automatic evidence matching is not finished. Check the extracted text and reading status.",
-    "status": "Extraction status: {status}",
-    "text": "Extracted evidence text",
-    "required": "Documents required per claim",
-    "requiredNone": "Automatic document requirements are not connected yet.",
+    "text": "Show extracted evidence text",
     "submitted": "Submitted documents",
     "submittedNone": "No evidence documents were submitted.",
-    "publicData": "Public data cross-check (supporting)"
+    "publicData": "Public data cross-check (supporting)",
+    "matchTitle": "{count} ad claims compared with the evidence",
+    "verdict": {
+      "supports": "Supported",
+      "different_test": "Different test",
+      "condition_mismatch": "Conditions differ",
+      "not_covered": "Not in evidence"
+    },
+    "needed": "Also request: {what}",
+    "noClaims": "The ad has no numeric or test claims to compare with the evidence.",
+    "read": "{pages} pages read",
+    "kind": "Type",
+    "measures": "Measured",
+    "period": "Period",
+    "subjects": "Subjects",
+    "institution": "Institution",
+    "result": "Result",
+    "kinds": {
+      "efficacy_test": "Efficacy test",
+      "safety_test": "Safety or irritation test",
+      "certificate": "Certificate",
+      "other": "Other"
+    },
+    "failure": {
+      "EVIDENCE_PAGE_LIMIT": "Over 80 pages, not read. Upload only the needed part.",
+      "FILE_TOO_LARGE": "Over 25 MB, not read.",
+      "DOCUMENT_FETCH_FAILED": "Could not load the original; it may have expired. Upload it again.",
+      "DOCUMENT_PARSE_FAILED": "Could not read this file format. Upload a PDF or image.",
+      "OCR_UNAVAILABLE": "Could not recognize text on scanned page {page}.",
+      "PDF_PAGE_LIMIT": "Over the page limit, not read.",
+      "DOCUMENT_UNREADABLE_OR_EXPIRED": "Could not read the document. This older result did not record why."
+    }
   },
   "patent": {
     "title": "Patent check",

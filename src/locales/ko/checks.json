@@ -24,7 +24,12 @@
     "gmp_listed": "GMP 적합 업체",
     "gmp_not_listed": "GMP 목록에 없음",
     "needs_input": "정보 필요",
-    "unavailable": "조회 실패"
+    "unavailable": "조회 실패",
+    "evidence_supports": "증빙이 뒷받침",
+    "evidence_mismatch": "다른 시험 제출",
+    "evidence_conditions": "시험 조건 다름",
+    "evidence_not_covering": "증빙에 없음",
+    "evidence_unread": "증빙 읽기 실패"
   },
   "relation": {
     "cites": "인용",
