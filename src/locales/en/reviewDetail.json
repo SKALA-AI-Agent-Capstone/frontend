@@ -158,7 +158,23 @@
     "closeContinue": "Close and continue",
     "adFiles": "Ad files: {count}",
     "evidenceFiles": "Evidence: {count}",
-    "showProgress": "Show progress"
+    "showProgress": "Show progress",
+    "activity": {
+      "live": "Live updates",
+      "now": "Now: {tool}",
+      "toolState": {
+        "running": "running",
+        "done": "done",
+        "failed": "failed"
+      },
+      "retry": "Retrying after a temporary error (after attempt {attempt})",
+      "tools": {
+        "legal_basis": "Searching legal basis",
+        "structure_evidence": "Reading evidence documents",
+        "verify_functional_approval": "Checking MFDS functional reports",
+        "verify_patent": "Checking patent registration"
+      }
+    }
   },
   "evidence": {
     "title": "Evidence check",

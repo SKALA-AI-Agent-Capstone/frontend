@@ -17,6 +17,7 @@ const props = defineProps({
   subject: { type: Object, required: true }, // { title, meta }
   phase: { type: String, required: true }, // running | done | failed
   steps: { type: Array, required: true }, // [{ id, title, description, state }]
+  activity: { type: Object, default: () => ({}) }, // SSE: { tool, state, retry, live }
 })
 
 const emit = defineEmits(['history', 'background', 'view-result'])
@@ -67,6 +68,14 @@ function background() {
         <ol class="progress__bar" aria-hidden="true">
           <li v-for="step in steps" :key="step.id" :class="`is-${step.state}`"></li>
         </ol>
+        <p v-if="phase === 'running' && (activity.live || activity.tool || activity.retry)" class="activity">
+          <span v-if="activity.live" class="activity__live">{{ $t('reviewDetail.modal.activity.live') }}</span>
+          <span v-if="activity.tool" class="activity__tool" :class="`is-${activity.state}`">
+            {{ $t('reviewDetail.modal.activity.now', { tool: $te(`reviewDetail.modal.activity.tools.${activity.tool}`) ? $t(`reviewDetail.modal.activity.tools.${activity.tool}`) : activity.tool }) }}
+            ({{ $t(`reviewDetail.modal.activity.toolState.${activity.state}`) }})
+          </span>
+          <span v-if="activity.retry" class="activity__retry">{{ $t('reviewDetail.modal.activity.retry', { attempt: activity.retry }) }}</span>
+        </p>
       </div>
 
       <ol class="steps">
@@ -164,6 +173,12 @@ function background() {
 .progress__bar li.is-done { background: var(--color-primary); }
 .progress__bar li.is-running { background: var(--color-primary-subtle); }
 .progress__bar li.is-failed { background: var(--color-danger); }
+
+.activity { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: var(--font-size-detail-s); color: var(--color-text-secondary); }
+.activity__live { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--font-weight-bold); color: var(--color-success-text); }
+.activity__live::before { content: ''; width: 8px; height: 8px; border-radius: var(--radius-full); background: currentColor; }
+.activity__tool { overflow-wrap: anywhere; }
+.activity__tool.is-failed, .activity__retry { color: var(--color-danger-text); }
 
 .steps { display: grid; }
 .step {

@@ -158,7 +158,23 @@
     "closeContinue": "닫고 계속 진행",
     "adFiles": "광고 파일 {count}개",
     "evidenceFiles": "증빙 {count}개",
-    "showProgress": "진행 상황 보기"
+    "showProgress": "진행 상황 보기",
+    "activity": {
+      "live": "실시간 연결됨",
+      "now": "지금: {tool}",
+      "toolState": {
+        "running": "실행 중",
+        "done": "완료",
+        "failed": "실패"
+      },
+      "retry": "일시적인 오류로 다시 시도합니다 ({attempt}번째 시도 후)",
+      "tools": {
+        "legal_basis": "법령 근거 검색",
+        "structure_evidence": "증빙서류 읽기",
+        "verify_functional_approval": "식약처 기능성 보고 조회",
+        "verify_patent": "특허 등록 조회"
+      }
+    }
   },
   "evidence": {
     "title": "증빙 대조",
