@@ -7,10 +7,8 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { request } from '@/shared/api/http'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
-import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import ApplicationStepper from '@/shared/components/navigation/ApplicationStepper.vue'
-import CreditEstimate from '@/shared/components/review/CreditEstimate.vue'
 import { useCreditsStore } from '@/shared/stores/credits'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { provideReviewDraft } from './composables/useReviewDraft'
@@ -19,6 +17,7 @@ import ApplicantInfoSection from './features/applicant-info/ApplicantInfoSection
 import EvidenceDocsSection from './features/evidence-docs/EvidenceDocsSection.vue'
 import ReviewFormActions from './features/form-actions/ReviewFormActions.vue'
 import ProductInfoSection from './features/product-info/ProductInfoSection.vue'
+import CreditDialog from './features/credit-dialog/CreditDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -30,7 +29,7 @@ const baseReview = computed(() => (route.query.from ? reviews.byId(String(route.
 const baseVersion = baseReview.value ? reviews.latest(baseReview.value) : null
 const nextVersionLabel = baseReview.value ? `v${baseVersion.no + 1}` : null
 
-const { draft, canSubmit, clearSaved } = provideReviewDraft({
+const { draft, canSubmit, clearSaved, saveDraft } = provideReviewDraft({
   baseVersion,
   initialCopy: typeof route.query.copy === 'string' ? route.query.copy : '',
 })
@@ -39,10 +38,10 @@ const breadcrumbs = computed(() => [{ label: t('reviewNew.crumbs.section') }, { 
 const submitting = ref(false)
 const checkingBalance = ref(false)
 const confirmOpen = ref(false)
+const topUpOpen = ref(false) // 잔액이 모자랄 때 충전을 안내하는 창
 const error = ref('')
 const balanceLoaded = ref(false)
 const reviewCost = ref(null)
-const canAfford = computed(() => balanceLoaded.value && reviewCost.value > 0 && credits.balance >= reviewCost.value)
 onMounted(async () => {
   try {
     const config = await request('/billing/config')
@@ -60,8 +59,11 @@ async function prepareSubmit() {
   try {
     await credits.loadBalance()
     balanceLoaded.value = true
-    if (credits.balance < reviewCost.value) throw new Error(t('reviewNew.credit.insufficient', { count: reviewCost.value }))
-    confirmOpen.value = true
+    // 검토 비용을 서버에서 받지 못했으면 금액 없이 확인 창을 열지 않는다
+    if (!reviewCost.value) throw new Error(t('reviewNew.credit.loadFailed'))
+    // 시작 버튼은 막지 않고, 누른 때 잔액에 따라 차감 확인 창이나 충전 안내 창을 연다
+    if (credits.balance < reviewCost.value) topUpOpen.value = true
+    else confirmOpen.value = true
   } catch (e) { error.value = e.message }
   finally { checkingBalance.value = false }
 }
@@ -73,7 +75,11 @@ async function submit() {
   try {
     await credits.loadBalance()
     balanceLoaded.value = true
-    if (credits.balance < reviewCost.value) throw new Error(t('reviewNew.credit.insufficient', { count: reviewCost.value }))
+    if (credits.balance < reviewCost.value) {
+      confirmOpen.value = false
+      topUpOpen.value = true
+      return
+    }
     confirmOpen.value = false
     const { reviewId } = baseReview.value
       ? await reviews.createVersion(baseReview.value.id, draft)
@@ -82,10 +88,18 @@ async function submit() {
     await credits.loadBalance().catch(() => {})
     await router.push({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: reviewId } })
   } catch (e) {
-    error.value = /INSUFFICIENT_CREDITS/.test(e.message)
-      ? t('reviewNew.credit.insufficientUpdated') : e.message
     await credits.loadBalance().catch(() => {})
+    // 확인 창을 연 사이 잔액이 줄었으면 서버가 거절한다. 이때도 충전 안내 창으로 보낸다.
+    if (/INSUFFICIENT_CREDITS/.test(e.message)) { confirmOpen.value = false; topUpOpen.value = true }
+    else error.value = e.message
   } finally { submitting.value = false }
+}
+
+// 충전 화면으로 가기 전에 입력한 글자는 임시 저장한다. 올린 파일은 저장되지 않아 돌아와서 다시 올려야 한다.
+function goTopUp() {
+  saveDraft()
+  topUpOpen.value = false
+  router.push({ name: ROUTE_NAMES.CREDITS })
 }
 </script>
 
@@ -112,11 +126,11 @@ async function submit() {
       <AdContentSection />
       <EvidenceDocsSection />
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
-      <ReviewFormActions :submitting="submitting || checkingBalance" :version-label="nextVersionLabel" :can-afford="canAfford" />
+      <ReviewFormActions :submitting="submitting || checkingBalance" :version-label="nextVersionLabel" />
     </form>
-    <BaseConfirmDialog v-model:open="confirmOpen" :title="$t('reviewNew.credit.confirmTitle')" :confirm-label="$t('reviewNew.credit.confirmButton', { count: reviewCost })" :busy="submitting" @confirm="submit">
-      <CreditEstimate :required="reviewCost" :label="$t('reviewNew.credit.cost')" :note="$t('reviewNew.credit.note')" show-remaining />
-    </BaseConfirmDialog>
+    <!-- 잔액이 충분할 때: 차감 확인 / 모자랄 때: 충전 안내 -->
+    <CreditDialog v-model:open="confirmOpen" mode="confirm" :cost="reviewCost ?? 0" :balance="credits.balance" :busy="submitting" @confirm="submit" />
+    <CreditDialog v-model:open="topUpOpen" mode="topup" :cost="reviewCost ?? 0" :balance="credits.balance" @confirm="goTopUp" />
   </div>
 </template>
 

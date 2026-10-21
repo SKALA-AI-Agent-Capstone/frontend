@@ -12,12 +12,6 @@
   "versions": "Review versions",
   "failedTitle": "Analysis failed",
   "resubmit": "Resubmit the original as a new version",
-  "credit": {
-    "released": "{count} credits returned after analysis failed",
-    "charged": "{count} credits used for this review",
-    "balance": "Current balance:",
-    "loading": "Checking your balance."
-  },
   "bar": {
     "progress": "{done} of {total} possible violations have a revision applied",
     "ready": "{done} of {total} possible violations have a revision applied. Ready for re-review",
@@ -196,6 +190,12 @@
     "concern": "To check: {concern}",
     "adjacent": "Context from nearby sections or the comparison image is needed.",
     "region": "Analyzed region y={from}~{to}%. This does not confirm exact wrinkle positions or actual efficacy."
+  },
+  "credit": {
+    "released": "{count} credits returned after analysis failed",
+    "charged": "{count} credits used for this review",
+    "balance": "Current balance:",
+    "loading": "Checking your balance."
   },
   "tiles": {
     "title": "Review by tile",
