@@ -15,6 +15,11 @@ export function provideReviewDetail() {
   const reviews = useReviewsStore()
 
   const review = computed(() => reviews.byId(String(route.params.id)))
+  // 목록 응답(GET /reviews)에는 hitl만 있고 violations가 없다. 상세를 열 때 단건 응답으로 채워야
+  // 새로고침이나 재진입 후에도 문구 카드와 결정 버튼이 보인다.
+  watch(() => route.params.id, (id) => {
+    if (id) reviews.refresh(String(id)).catch(() => { /* 목록 데이터로 계속 표시한다. */ })
+  }, { immediate: true })
   const latestNo = computed(() => (review.value ? reviews.latest(review.value).no : null))
   const versionNo = computed({
     get: () => Number(route.query.v) || latestNo.value,
@@ -42,12 +47,27 @@ export function provideReviewDetail() {
   // 어떤 문구(findingId)가 이미 결정됐는지 — ad-viewer/action-bar의 "반영됨" 표시가 실제 저장된
   // 결정을 반영하도록, 로컬로만 켜지는 플래그 대신 이걸 기준으로 삼는다.
   const decidedFindingIds = computed(() => new Set(violations.value.filter((v) => v.finalResolution).map((v) => v.findingId)))
+  // 카드 번호(violations 순서)를 뷰어의 박스 번호에도 같이 쓴다.
+  const violationNumbers = computed(() => new Map(violations.value.map((v, i) => [v.findingId, i + 1])))
+
+  // ── 타일 단위 검토 (backend docs/03-contracts.md의 result.tiles와 tileId) ──
+  // tiles가 없는 이전 결과와 PDF 원본은 기존 추출 문구 뷰어로 보여 준다.
+  const tiles = computed(() => result.value?.tiles ?? [])
+  function isPdfFile(fileId) {
+    const file = version.value?.input?.files?.find((f) => f.id === fileId)
+    return file?.mime === 'application/pdf' || /\.pdf$/i.test(file?.name ?? '')
+  }
+  // violations(문구 결정)는 최신 버전 기준이므로 타일 화면도 최신 버전에서만 쓴다.
+  const tileMode = computed(() =>
+    isLatest.value && tiles.value.length > 0 && tiles.value.every((tile) => !isPdfFile(tile.fileId)),
+  )
 
   // ── 위반 지점 선택 (뷰어 ↔ 카드) ──
   const activeFindingId = ref(null)
   function focusFinding(id, { scrollTo = 'card' } = {}) {
     activeFindingId.value = id
-    const target = scrollTo === 'viewer' ? 'ad-viewer' : `finding-${id}`
+    const tileId = tileMode.value ? findings.value.find((f) => f.id === id)?.tileId : null
+    const target = scrollTo === 'viewer' ? (tileId ? `tile-${tileId}` : 'ad-viewer') : `finding-${id}`
     document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: scrollTo === 'viewer' ? 'start' : 'center' })
   }
 
@@ -75,6 +95,9 @@ export function provideReviewDetail() {
     decideViolation,
     requestViolationRewrite,
     decidedFindingIds,
+    violationNumbers,
+    tiles,
+    tileMode,
     activeFindingId,
     focusFinding,
     reviseAndRecheck,
