@@ -1,28 +1,23 @@
-<!-- 하단 고정 바 (시안 krds_3) — 수정안 반영 현황 ,  리포트(FR-9) ,  수정 후 재심의(FR-13) ,  삭제(FR-12) -->
+<!-- 하단 고정 바 (시안 krds_3) — 문구 결정 진행률, 리포트(FR-9), 삭제(FR-12). 재검토는 2026-10-22에 없앴다. -->
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { PERMISSIONS } from '@/shared/constants/roles'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { t } from '@/shared/i18n'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
-import { useSessionStore } from '@/shared/stores/session'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 
-const { review, version, isLatest, findings, decidedFindingIds, reviseAndRecheck } = useReviewDetail()
+const { review, findings, decidedFindingIds } = useReviewDetail()
 const reviews = useReviewsStore()
-const session = useSessionStore()
 const router = useRouter()
 const confirmOpen = ref(false)
 const error = ref(null)
 
 const revisedCount = computed(() => findings.value.filter((f) => decidedFindingIds.value.has(f.id)).length)
 const ready = computed(() => findings.value.length > 0 && revisedCount.value === findings.value.length)
-// 한 화면 최상위 강조 버튼은 1개 — 승인 권한자는 승인 패널의 '승인'이 강조 버튼
-const recheckVariant = computed(() => (session.can(PERMISSIONS.REVIEW_APPROVE) ? 'secondary' : 'primary'))
 
 const statusText = computed(() =>
   findings.value.length
@@ -49,12 +44,9 @@ async function remove() {
       <BaseButton
         variant="outline"
         icon="download"
-        :to="{ name: ROUTE_NAMES.REVIEW_REPORT, params: { id: review.id }, query: { v: version.no } }"
+        :to="{ name: ROUTE_NAMES.REVIEW_REPORT, params: { id: review.id } }"
       >
         {{ $t('reviewDetail.bar.report') }}
-      </BaseButton>
-      <BaseButton v-if="isLatest" :variant="recheckVariant" icon="send" @click="reviseAndRecheck">
-        {{ $t(revisedCount ? 'reviewDetail.bar.recheckRevised' : 'reviewDetail.bar.recheck') }}
       </BaseButton>
     </div>
   </div>

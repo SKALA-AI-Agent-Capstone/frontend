@@ -8,7 +8,7 @@ import { useReviewDetail } from '../../composables/useReviewDetail'
 import ViolationCard from './ViolationCard.vue'
 import { t } from '@/shared/i18n'
 
-const { violations, hitl, findingFor, result } = useReviewDetail()
+const { violations, findingFor, result } = useReviewDetail()
 const undecidedCount = computed(() => violations.value.filter((v) => !v.finalResolution).length)
 const description = computed(() => t('reviewDetail.list.description', { summary: legalSearch(result.value).summary }))
 </script>
@@ -24,15 +24,12 @@ const description = computed(() => t('reviewDetail.list.description', { summary:
       {{ $t('reviewDetail.list.total', { count: violations.length }) }}
     </BaseSectionHeader>
 
-    <BaseAlert v-if="hitl?.autoApproved" variant="success" icon="check_circle" :title="$t('reviewDetail.list.autoTitle')">
-      {{ $t('reviewDetail.list.autoText') }}
-    </BaseAlert>
-    <BaseAlert v-else-if="undecidedCount > 0" variant="warning" icon="hourglass_empty">
+    <BaseAlert v-if="undecidedCount > 0" variant="warning" icon="hourglass_empty">
       {{ $t('reviewDetail.list.undecided', { count: undecidedCount }) }}
     </BaseAlert>
 
     <BaseEmptyState
-      v-if="!violations.length && !hitl?.autoApproved"
+      v-if="!violations.length"
       icon="task_alt"
       :title="$t('reviewDetail.list.emptyTitle')"
       :description="$t('reviewDetail.list.emptyText')"

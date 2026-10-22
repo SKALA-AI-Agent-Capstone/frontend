@@ -5,12 +5,6 @@
     "done": "Analyzed",
     "failed": "Analysis failed"
   },
-  "approval": {
-    "pending": "Awaiting approval",
-    "approved": "Approved",
-    "rejected": "Rejected",
-    "changesRequested": "Changes requested"
-  },
   "resolution": {
     "kept": "Original kept",
     "rewritten": "Suggestion adopted",
@@ -27,11 +21,6 @@
     "partial": "Partly related",
     "unrelated": "Not related to the ad claim",
     "unknown": "Cannot compare"
-  },
-  "action": {
-    "approve": "Approve",
-    "requestChanges": "Request changes",
-    "reject": "Reject"
   },
   "severity": {
     "high": "High risk of violation",

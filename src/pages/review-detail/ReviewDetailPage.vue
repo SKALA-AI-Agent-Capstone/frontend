@@ -4,15 +4,13 @@ import { computed, ref, watch } from 'vue'
 import { useCreditsStore } from '@/shared/stores/credits'
 import { request } from '@/shared/api/http'
 import { legalSearch } from '@/shared/constants/legal'
-import { APPROVAL_LABEL, REVIEW_STATUS } from '@/shared/constants/review'
+import { REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { t } from '@/shared/i18n'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseEmptyState from '@/shared/components/base/BaseEmptyState.vue'
-import BaseInfoChip from '@/shared/components/base/BaseInfoChip.vue'
-import BaseTabs from '@/shared/components/base/BaseTabs.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import { provideReviewDetail } from './composables/useReviewDetail'
 import ReviewActionBar from './features/action-bar/ReviewActionBar.vue'
@@ -20,7 +18,6 @@ import AdViewer from './features/ad-viewer/AdViewer.vue'
 import OriginalPreview from './features/ad-viewer/OriginalPreview.vue'
 import VisualReviewSection from './features/visual-review/VisualReviewSection.vue'
 import AnalysisDiagnosis from './features/ai-diagnosis/AnalysisDiagnosis.vue'
-import ApprovalPanel from './features/approval/ApprovalPanel.vue'
 import EvidenceCheckSection from './features/evidence-check/EvidenceCheckSection.vue'
 import PatentCheckSection from './features/patent-check/PatentCheckSection.vue'
 import StatusSummary from './features/status-summary/StatusSummary.vue'
@@ -56,13 +53,6 @@ const breadcrumbs = computed(() => [
 const stepLabel = computed(() =>
   t(isDone.value ? 'reviewDetail.stepDone' : 'reviewDetail.stepAnalyzing'),
 )
-const versionTabs = computed(() =>
-  review.value.versions.map((v) => ({
-    value: v.no,
-    label: `v${v.no}`,
-    badge: v.status === REVIEW_STATUS.DONE ? APPROVAL_LABEL[v.approval.state].label : t('reviewDetail.diagnosing'),
-  })),
-)
 </script>
 
 <template>
@@ -84,12 +74,6 @@ const versionTabs = computed(() =>
       <template #top-aside>
         <BaseBadge variant="secondary">{{ stepLabel }}</BaseBadge>
       </template>
-      <template #aside>
-        <BaseInfoChip v-if="isDone" variant="info" icon="approval">
-          {{ $t('reviewDetail.approvalState') }} <strong>{{ APPROVAL_LABEL[version.approval.state].label }}</strong>
-        </BaseInfoChip>
-      </template>
-      <BaseTabs v-if="review.versions.length > 1" v-model="versionNo" :tabs="versionTabs" :label="$t('reviewDetail.versions')" />
     </PageHeading>
 
     <BaseAlert v-if="charge" variant="info" :title="$t(`reviewDetail.credit.${charge.status}`, { count: charge.credits })">
@@ -101,6 +85,7 @@ const versionTabs = computed(() =>
 
     <BaseAlert v-if="version.status === REVIEW_STATUS.FAILED" variant="danger" :title="$t('reviewDetail.failedTitle')">
       {{ version.error }}
+      <!-- 같은 검토에 다시 올리지 않고, 제품 정보를 불러온 새 검토로 신청한다 -->
       <BaseButton :to="{name: ROUTE_NAMES.REVIEW_NEW, query:{from:review.id}}">{{ $t('reviewDetail.resubmit') }}</BaseButton>
     </BaseAlert>
 
@@ -117,7 +102,6 @@ const versionTabs = computed(() =>
         <div class="supplement-page__extras">
           <EvidenceCheckSection />
           <PatentCheckSection />
-          <ApprovalPanel />
         </div>
       </template>
       <div v-else class="supplement-page__body">
@@ -127,7 +111,6 @@ const versionTabs = computed(() =>
           <VisualReviewSection />
           <EvidenceCheckSection />
           <PatentCheckSection />
-          <ApprovalPanel />
         </div>
       </div>
 

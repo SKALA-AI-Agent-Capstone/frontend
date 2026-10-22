@@ -15,7 +15,8 @@ const reviews = useReviewsStore()
 const review = computed(() => reviews.byId(String(route.params.id)))
 const version = computed(() => {
   if (!review.value) return null
-  const no = Number(route.query.v) || reviews.latest(review.value).no
+  // 재검토(새 버전)를 없앤 뒤로는 최신 버전 리포트만 만든다
+  const no = reviews.latest(review.value).no
   return review.value.versions.find((v) => v.no === no && v.status === REVIEW_STATUS.DONE) ?? null
 })
 const docRef = ref(null)

@@ -3,13 +3,11 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
-import { APPROVAL_LABEL, APPROVAL_STATE } from '@/shared/constants/review'
 import { FOOTER } from '@/shared/constants/site'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
 import BaseInput from '@/shared/components/base/BaseInput.vue'
-import BaseSelect from '@/shared/components/base/BaseSelect.vue'
 import ScreenTitle from '@/shared/components/layout/ScreenTitle.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
@@ -21,14 +19,12 @@ const session = useSessionStore()
 
 const route = useRoute()
 const keyword = ref(typeof route.query.q === 'string' ? route.query.q : '')
-const approval = ref('')
-const approvalOptions = computed(() => Object.values(APPROVAL_STATE).map((s) => ({ value: s, label: APPROVAL_LABEL[s].label })))
 
 const rows = computed(() =>
   reviews.list
     .map((review) => ({ review, version: reviews.latest(review) }))
     .filter(({ review }) => !keyword.value.trim() || `${review.productName} ${review.id} ${review.campaign?.name ?? ''} ${reviews.latest(review).input.copy}`.includes(keyword.value.trim()))
-    .filter(({ version }) => !approval.value || version.approval.state === approval.value),
+
 )
 
 const confirmAll = ref(false)
@@ -61,8 +57,6 @@ async function deleteAll() {
       <div class="list__toolbar" role="search">
         <label class="sr-only" for="history-keyword">{{ $t('history.searchLabel') }}</label>
         <BaseInput id="history-keyword" v-model="keyword" type="search" leading-icon="search" :placeholder="$t('history.searchPlaceholder')" />
-        <label class="sr-only" for="history-approval">{{ $t('history.approvalLabel') }}</label>
-        <BaseSelect id="history-approval" v-model="approval" :options="approvalOptions" :placeholder="$t('history.approvalAll')" />
       </div>
 
       <HistoryTable v-if="rows.length" :rows="rows" />

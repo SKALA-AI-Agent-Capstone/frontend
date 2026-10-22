@@ -58,7 +58,7 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
   }
 
   async function connect() {
-    let phase: 'analysis' | 'resume' | null = null
+    let running = false
     let versionNo: number | null = null
     let progressed = false
     const startedAt = Date.now()
@@ -83,16 +83,14 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
             const versions = event.data.versions ?? []
             const latest = versions[versions.length - 1]
             versionNo = latest?.no ?? null
-            phase = ['queued', 'analyzing'].includes(latest?.status) ? 'analysis'
-              : latest?.approval?.agentResume === 'pending' ? 'resume' : null
+            // 분석 중일 때만 따라간다. 승인 뒤 Agent 재개 대기는 2026-10-22에 없앴다.
+            running = ['queued', 'analyzing'].includes(latest?.status)
             handlers.onEvent(event)
-            if (!phase) return close('finished')
+            if (!running) return close('finished')
             continue
           }
-          // Replay can contain events from an older version or the completed analysis phase.
+          // Replay can contain events from an older version.
           if (event.data.versionNo !== versionNo) continue
-          const resumeEvent = event.type === 'resume_completed' || event.type === 'resume_failed'
-          if (phase === 'resume' ? !resumeEvent : resumeEvent) continue
           progressed = true; failures = 0
           handlers.onEvent(event)
           if (TERMINAL.has(event.type)) return close('finished')
@@ -113,4 +111,4 @@ export function openReviewStream(reviewId: string, handlers: StreamHandlers): ()
   return () => close('cancelled')
 }
 
-const TERMINAL = new Set(['completed', 'failed', 'resume_completed', 'resume_failed'])
+const TERMINAL = new Set(['completed', 'failed'])

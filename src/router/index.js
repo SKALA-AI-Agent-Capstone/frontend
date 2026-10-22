@@ -63,12 +63,6 @@ const routes = [
     meta: { title: 'ui.titles.history', navKey: NAV_KEYS.HISTORY },
   },
   {
-    path: '/approvals',
-    name: ROUTE_NAMES.APPROVALS,
-    component: () => import('@/pages/approvals/ApprovalsPage.vue'),
-    meta: { title: 'ui.titles.approvals', navKey: NAV_KEYS.APPROVALS, permission: PERMISSIONS.REVIEW_APPROVE },
-  },
-  {
     path: '/credits',
     name: ROUTE_NAMES.CREDITS,
     component: () => import('@/pages/credits/CreditsPage.vue'),

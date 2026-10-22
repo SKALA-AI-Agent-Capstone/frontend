@@ -10,7 +10,6 @@
   "nav": {
     "reviewNew": "Submit an ad review",
     "history": "Review history",
-    "approvals": "Awaiting approval",
     "standards": "Laws and notices",
     "dashboard": "Dashboard"
   },
@@ -21,9 +20,9 @@
   "footer": {
     "contactTerm": "Operated by",
     "contactDesc": "Capstone internal pre-review development environment",
-    "retentionNotice": "Review results, approval history and uploaded originals are kept on the server. Photo analysis is not a real efficacy ruling.",
+    "retentionNotice": "Review results, phrase decisions and uploaded originals are kept on the server. Photo analysis is not a real efficacy ruling.",
     "identifier": "This is not an official service run by the government or an industry association.",
-    "storageNotice": "Review results, approval history and uploaded originals are kept on the server.",
+    "storageNotice": "Review results, phrase decisions and uploaded originals are kept on the server.",
     "photoNotice": "Photo analysis is not a real efficacy ruling."
   },
   "roles": {
@@ -35,7 +34,7 @@
     "write": "Fill in review details",
     "diagnose": "AI pre-review",
     "fix": "Check and fix findings",
-    "approved": "Approved"
+    "report": "Check the report"
   },
   "ledger": {
     "charge": "Top-up",
@@ -69,7 +68,7 @@
     },
     "approval": {
       "title": "Save results",
-      "description": "Saves the results and waits for reviewer approval."
+      "description": "Saves the results and prepares the report."
     }
   },
   "product": {

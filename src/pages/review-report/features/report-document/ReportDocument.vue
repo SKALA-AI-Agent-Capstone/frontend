@@ -1,8 +1,7 @@
-<!-- 검토 결과 리포트 본문 (FR-9) — 위반 문구,근거,리라이트,증빙 대조,특허,승인 이력 -->
+<!-- 검토 결과 리포트 본문 (FR-9) — 위반 문구,근거,리라이트,증빙 대조,특허,사진 검토 -->
 <script setup>
 import { computed } from 'vue'
 import {
-  APPROVAL_LABEL,
   CLAIM_LABEL,
   DOC_TYPE_LABEL,
   PATENT_MATCH_LABEL,
@@ -40,7 +39,6 @@ function locationLabel(finding) {
         <div><dt>{{ $t('report.reviewNo') }}</dt><dd>{{ review.id }}, v{{ version.no }}</dd></div>
         <div><dt>{{ $t('report.author') }}</dt><dd>{{ version.authorName }}</dd></div>
         <div><dt>{{ $t('report.analyzedAt') }}</dt><dd>{{ formatDateTime(version.result.analyzedAt) }}</dd></div>
-        <div><dt>{{ $t('report.approval') }}</dt><dd>{{ APPROVAL_LABEL[version.approval.state].label }}</dd></div>
       </dl>
       <p class="report__notice">
         {{ legalSearch(version.result).reportNotice }} {{ $t('report.responsibility') }}
@@ -119,15 +117,6 @@ function locationLabel(finding) {
       <p>{{ $t('reviewDetail.visual.status', { status: version.result.pipelineStatus?.visual }) }}</p>
       <p v-for="item in version.result.visualFindings" :key="item.id">{{ $t('reviewDetail.visual.location', { name: item.location.fileName, page: item.location.page }) }}: {{item.observation}} / {{item.concern}}</p>
       <p v-for="warning in version.result.warnings" :key="warning">{{warning}}</p>
-    </section>
-    <section>
-      <h2>{{ $t('report.s4', { version: version.no }) }}</h2>
-      <ul>
-        <li v-for="(h, i) in version.approval.history" :key="i">
-          {{ formatDateTime(h.at) }} {{ h.by }} — {{ APPROVAL_LABEL[h.action].label }}{{ h.comment ? `: ${h.comment}` : '' }}
-        </li>
-        <li v-if="!version.approval.history.length">{{ $t('report.noHistory') }}</li>
-      </ul>
     </section>
 
     <footer class="report__footer">

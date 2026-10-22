@@ -9,7 +9,6 @@ export const ROUTE_NAMES = Object.freeze({
   REVIEW_REPORT: 'review-report',
   BATCH: 'batch',
   HISTORY: 'history',
-  APPROVALS: 'approvals',
   CREDITS: 'credits',
   STANDARDS: 'standards',
   PRIVACY_POLICY: 'privacy-policy',
@@ -22,6 +21,5 @@ export const NAV_KEYS = Object.freeze({
   REVIEW_NEW: 'review-new',
   BATCH: 'batch',
   HISTORY: 'history',
-  APPROVALS: 'approvals',
   STANDARDS: 'standards',
 })

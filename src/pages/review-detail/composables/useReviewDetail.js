@@ -2,25 +2,21 @@
  * 심의 결과 화면 상태 — 선택 버전(FR-13), 활성 위반 지점, 수정안 반영(FR-5), 연동 재시도를 하위 feature 에 공유한다.
  */
 import { computed, inject, provide, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { REVIEW_STATUS, VIOLATION_RESOLUTION } from '@/shared/constants/review'
 import { ACTION, actionFor } from '@/shared/constants/reviewActions'
-import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { useReviewsStore } from '@/shared/stores/reviews'
 
 const DETAIL_KEY = Symbol('review-detail')
 
 export function provideReviewDetail() {
   const route = useRoute()
-  const router = useRouter()
   const reviews = useReviewsStore()
 
   const review = computed(() => reviews.byId(String(route.params.id)))
   const latestNo = computed(() => (review.value ? reviews.latest(review.value).no : null))
-  const versionNo = computed({
-    get: () => Number(route.query.v) || latestNo.value,
-    set: (no) => router.replace({ query: { ...route.query, v: no === latestNo.value ? undefined : no } }),
-  })
+  // 재검토(새 버전)는 2026-10-22에 없앴다. 그 전에 만든 v2 이상 검토도 최신 버전 리포트만 보여 준다.
+  const versionNo = computed(() => latestNo.value)
   const version = computed(() => review.value?.versions.find((v) => v.no === versionNo.value) ?? null)
   const isLatest = computed(() => versionNo.value === latestNo.value)
   const isDone = computed(() => version.value?.status === REVIEW_STATUS.DONE)
@@ -99,11 +95,6 @@ export function provideReviewDetail() {
     activeFindingId.value = findings.value[0]?.id ?? null
   }, { immediate: true })
 
-  // PDF와 이미지는 사용자가 편집한 새 원본으로 재검토한다.
-  function reviseAndRecheck() {
-    router.push({ name: ROUTE_NAMES.REVIEW_NEW, query: { from: review.value.id } })
-  }
-
   const context = {
     review,
     version,
@@ -130,7 +121,6 @@ export function provideReviewDetail() {
     tileMode,
     activeFindingId,
     focusFinding,
-    reviseAndRecheck,
     retryPatent: (patentId) => reviews.retryPatent(review.value.id, version.value.no, patentId),
     confirmPatent: (patentId, number) => reviews.confirmPatent(review.value.id, version.value.no, patentId, number),
   }

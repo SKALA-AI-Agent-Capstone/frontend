@@ -1,6 +1,7 @@
 <!--
   작업공간 홈 — 광고 검토 목록이 중심이다.
-  상태 탭으로 거르고, 줄마다 광고 썸네일, 접수 > 분석 > 검토자 결정 단계, 지금 할 수 있는 행동을 보여 준다.
+  상태 탭으로 거르고, 줄마다 광고 썸네일, 접수 > 분석 > 리포트 단계, 지금 할 수 있는 행동을 보여 준다.
+  검토 전체 승인과 완료 상태, 재검토는 2026-10-22에 없앴다. 분석이 끝나면 결과가 곧 리포트다.
   모든 숫자와 상태는 reviews 스토어의 최신 버전에서 계산한다.
 -->
 <script setup>
@@ -10,7 +11,7 @@ import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
-import { APPROVAL_STATE, REVIEW_STATUS, SEVERITY } from '@/shared/constants/review'
+import { REVIEW_STATUS, SEVERITY } from '@/shared/constants/review'
 import { formatDateTime } from '@/shared/utils/format'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
@@ -26,7 +27,6 @@ const reviews = useReviewsStore()
 const session = useSessionStore()
 const route = useRoute()
 const router = useRouter()
-const canApprove = computed(() => session.can(PERMISSIONS.REVIEW_APPROVE))
 const canCreate = computed(() => session.can(PERMISSIONS.REVIEW_CREATE))
 
 const rows = computed(() =>
@@ -41,25 +41,17 @@ const stepsDone = (version) => (version.steps ?? []).filter((v) => v >= 100).len
 // 대시보드에 들어오면 분석 중인 건의 상태를 주기적으로 다시 받아 온다
 onMounted(() => reviews.poll())
 
-const decided = (version, state) => version.status === REVIEW_STATUS.DONE && version.approval.state === state
 const isRunning = (version) => version.status === REVIEW_STATUS.QUEUED || version.status === REVIEW_STATUS.ANALYZING
-
-// 이 계정이 지금 손댈 수 있는 건: 승인 권한이면 승인 대기, 신청 권한이면 수정 요청과 분석 실패
-function isTodo(version) {
-  if (canApprove.value && decided(version, APPROVAL_STATE.PENDING)) return true
-  if (canCreate.value && decided(version, APPROVAL_STATE.CHANGES_REQUESTED)) return true
-  return canCreate.value && version.status === REVIEW_STATUS.FAILED
-}
+// 리포트에서 아직 결정하지 않은 문구가 남은 건. 다 결정해도 따로 완료 처리는 없다.
+const hasUndecided = (review, version) => version.status === REVIEW_STATUS.DONE && (review.hitl?.undecidedCount ?? 0) > 0
 
 const TABS = [
-  { key: 'todo', label: 'dashboard.tabs.todo', match: isTodo },
-  { key: 'analyzing', label: 'dashboard.tabs.analyzing', match: isRunning },
-  { key: 'pending', label: 'dashboard.tabs.pending', match: (v) => decided(v, APPROVAL_STATE.PENDING) },
-  { key: 'changes', label: 'dashboard.tabs.changes', match: (v) => decided(v, APPROVAL_STATE.CHANGES_REQUESTED) },
-  { key: 'closed', label: 'dashboard.tabs.closed', match: (v) => decided(v, APPROVAL_STATE.APPROVED) || decided(v, APPROVAL_STATE.REJECTED) },
+  { key: 'todo', label: 'dashboard.tabs.todo', match: hasUndecided },
+  { key: 'analyzing', label: 'dashboard.tabs.analyzing', match: (_review, v) => isRunning(v) },
+  { key: 'failed', label: 'dashboard.tabs.failed', match: (_review, v) => v.status === REVIEW_STATUS.FAILED },
   { key: 'all', label: 'dashboard.tabs.all', match: () => true },
 ]
-const tabs = computed(() => TABS.map((tab) => ({ ...tab, count: rows.value.filter((row) => tab.match(row.version)).length })))
+const tabs = computed(() => TABS.map((tab) => ({ ...tab, count: rows.value.filter((row) => tab.match(row.review, row.version)).length })))
 const countOf = (key) => tabs.value.find((tab) => tab.key === key).count
 
 // 탭은 주소에 남겨 새로고침과 뒤로 가기에도 유지한다. 처음에는 할 일이 있으면 할 일, 없으면 전체를 연다.
@@ -81,19 +73,19 @@ function onTabKey(event, index) {
 
 const filtered = computed(() => {
   const tab = TABS.find((t) => t.key === activeTab.value)
-  return rows.value.filter((row) => tab.match(row.version))
+  return rows.value.filter((row) => tab.match(row.review, row.version))
 })
 const visible = computed(() => filtered.value.slice(0, LIST_LIMIT))
 
 const activeLabel = computed(() => TABS.find((tab) => tab.key === activeTab.value).label)
 
 const detailRoute = (review) => ({ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id } })
-const newVersionRoute = (review) => ({ name: ROUTE_NAMES.REVIEW_NEW, query: { from: review.id } })
+// 실패한 건은 제품 정보를 불러온 새 검토로 다시 신청한다
+const retryRoute = (review) => ({ name: ROUTE_NAMES.REVIEW_NEW, query: { from: review.id } })
 // 줄마다 지금 할 수 있는 행동 하나. 권한이 없는 행동은 보여 주지 않는다.
 function actionOf({ review, version }) {
-  if (canApprove.value && decided(version, APPROVAL_STATE.PENDING)) return { text: 'dashboard.actions.decide', to: detailRoute(review), strong: true }
-  if (canCreate.value && decided(version, APPROVAL_STATE.CHANGES_REQUESTED)) return { text: 'dashboard.actions.newVersion', to: newVersionRoute(review), strong: true }
-  if (canCreate.value && version.status === REVIEW_STATUS.FAILED) return { text: 'dashboard.actions.retry', to: newVersionRoute(review), strong: true }
+  if (hasUndecided(review, version)) return { text: 'dashboard.actions.decide', to: detailRoute(review), strong: true }
+  if (canCreate.value && version.status === REVIEW_STATUS.FAILED) return { text: 'dashboard.actions.retry', to: retryRoute(review), strong: true }
   if (isRunning(version)) return { text: 'dashboard.actions.progress', to: detailRoute(review) }
   return { text: 'dashboard.actions.result', to: detailRoute(review) }
 }
@@ -104,9 +96,7 @@ const highCount = (version) =>
 const EMPTY = {
   todo: 'dashboard.empty.todo',
   analyzing: 'dashboard.empty.analyzing',
-  pending: 'dashboard.empty.pending',
-  changes: 'dashboard.empty.changes',
-  closed: 'dashboard.empty.closed',
+  failed: 'dashboard.empty.failed',
   all: 'dashboard.empty.all',
 }
 </script>
@@ -116,7 +106,7 @@ const EMPTY = {
 
     <BaseAlert v-if="reviews.error" variant="danger">{{ $t('dashboard.loadError') }} {{ reviews.error }}</BaseAlert>
 
-    <StartCards :can-create="canCreate" :can-approve="canApprove" />
+    <StartCards :can-create="canCreate" />
 
     <section v-if="runningRows.length" class="running" aria-labelledby="running-title" aria-live="polite">
       <h2 id="running-title" class="running__title">

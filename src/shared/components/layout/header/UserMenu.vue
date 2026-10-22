@@ -56,12 +56,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
             <BaseIcon name="menu_book" size="sm" /> {{ $t('common.nav.standards') }}
           </RouterLink>
         </li>
-        <li v-if="session.can(PERMISSIONS.REVIEW_APPROVE)">
-          <RouterLink :to="{ name: ROUTE_NAMES.APPROVALS }" class="user-menu__link" @click="open = false">
-            <BaseIcon name="fact_check" size="sm" /> {{ $t('common.nav.approvals') }}
-            <span v-if="reviews.pendingApprovals.length" class="user-menu__count">{{ reviews.pendingApprovals.length }}</span>
-          </RouterLink>
-        </li>
         <li>
           <RouterLink :to="{ name: ROUTE_NAMES.HISTORY }" class="user-menu__link" @click="open = false">
             <BaseIcon name="history" size="sm" /> {{ $t('common.nav.history') }}

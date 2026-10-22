@@ -50,14 +50,10 @@
     "analyzing": "분석 중",
     "analyzed": "분석 완료",
     "failed": "분석 실패",
-    "pending": "결정 대기",
-    "approved": "승인",
-    "changes": "수정 요청",
-    "rejected": "반려",
-    "decision": "검토자 결정",
     "analysis": "분석",
     "submitted": "접수",
-    "label": "진행 단계: {steps}"
+    "label": "진행 단계: {steps}",
+    "report": "리포트"
   },
   "basis": {
     "standard": "기준",
@@ -83,7 +79,7 @@
   "errors": {
     "reselectAd": "광고 원본 파일을 다시 선택해 주세요.",
     "reselectEvidence": "증빙 원본 파일을 다시 선택해 주세요.",
-    "retryUnavailable": "이 재시도 기능은 후속 구현 대상입니다. 원본 파일로 새 버전을 신청해 주세요.",
+    "retryUnavailable": "이 재시도 기능은 후속 구현 대상입니다. 원본 파일로 새 검토를 신청해 주세요.",
     "batchMock": "파일 변환 중 오류 (목업)",
     "billingNotConnected": "검토 사용량 과금은 아직 연결되지 않았습니다."
   },
@@ -95,7 +91,6 @@
     "report": "심의 리포트",
     "batch": "캠페인 일괄 심의",
     "history": "심의 이력",
-    "approvals": "승인 대기",
     "credits": "크레딧",
     "standards": "법령, 고시 자료실",
     "privacyPolicy": "개인정보 처리방침",
@@ -120,7 +115,7 @@
     "ambiguousText": "번호 형식이나 제품명 대응이 명확하지 않거나 전체 페이지를 확인하지 못했습니다. 제품이 없다는 뜻은 아닙니다.",
     "meta": "보조 교차검증, {source}",
     "checkedAt": "{at} 조회",
-    "errorHint": "설정 확인 후 원본 파일로 새 버전을 신청해 주세요. 결과 항목만 재조회하는 기능은 아직 연결하지 않았습니다."
+    "errorHint": "설정 확인 후 원본 파일로 새 검토를 신청해 주세요. 결과 항목만 재조회하는 기능은 아직 연결하지 않았습니다."
   },
   "progress": "진행률"
 }

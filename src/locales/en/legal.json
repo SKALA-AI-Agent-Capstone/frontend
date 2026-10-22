@@ -2,35 +2,30 @@
   "connected": {
     "alertTitle": "Statute candidates found, preliminary result",
     "summary": "Related statute candidates were attached to each phrase. No legality ruling or compliance score was produced.",
-    "approvalHint": "Statute candidates are search results. Record what you verified in the original articles in your comment.",
     "reportNotice": "Legal grounds are statute candidates found by search. This preliminary report does not rule on legality.",
     "emptyBasis": "No matching candidate was found among the searched statutes for this phrase. This is not a compliance ruling."
   },
   "notIndexed": {
     "alertTitle": "Legal sources not loaded, preliminary result",
     "summary": "Legal sources are not loaded, so no grounds could be searched. Legality was not assessed.",
-    "approvalHint": "This result has no legal grounds. Be sure to record the articles and content you checked yourself.",
     "reportNotice": "Preliminary report without grounds, because legal sources are not loaded.",
     "emptyBasis": "Legal sources are not loaded, so no grounds could be searched."
   },
   "error": {
     "alertTitle": "Legal search failed, preliminary result",
     "summary": "Could not reach the legal search service, so grounds were not checked. Legality was not assessed.",
-    "approvalHint": "Legal search failed for this result. Be sure to record the articles and content you checked yourself.",
     "reportNotice": "Preliminary report without verified grounds, because legal search failed.",
     "emptyBasis": "Legal search failed, so grounds were not checked."
   },
   "skipped": {
     "alertTitle": "No phrases to check, preliminary result",
     "summary": "There were no phrases to check, so no legal search was run. This does not mean the ad complies.",
-    "approvalHint": "No phrases were extracted. Record what you verified in the original yourself.",
     "reportNotice": "Preliminary report without legal search, because there were no phrases to check.",
     "emptyBasis": "No legal search was run."
   },
   "notConnected": {
     "alertTitle": "Legal search not run, preliminary result",
     "summary": "This version was analyzed without legal search. No legality ruling or compliance score was produced.",
-    "approvalHint": "This result was produced without legal search. Be sure to record the articles and content you checked yourself.",
     "reportNotice": "Preliminary report analyzed without legal search. Legality was not assessed.",
     "emptyBasis": "Analyzed without legal search."
   },

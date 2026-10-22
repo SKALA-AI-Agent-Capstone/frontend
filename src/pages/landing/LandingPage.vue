@@ -8,9 +8,6 @@ import { RouterLink, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { FOOTER, SITE, brandAsset } from '@/shared/constants/site'
 import {
-  APPROVAL_ACTIONS,
-  APPROVAL_LABEL,
-  APPROVAL_STATE,
   REVIEW_STATUS,
   REVIEW_STATUS_LABEL,
   VIOLATION_RESOLUTION_LABEL,
@@ -27,7 +24,7 @@ const anatomy = ['lesquendieu', 'elida', 'lundborg', 'klarybella']
   .map((id) => ({ id, note: `landing.anatomy.notes.${id}` })).map((item) => ({ ...item, ad: ARCHIVE_ADS.find((ad) => ad.id === item.id)! }))
 const year = new Date().getFullYear()
 
-// 단계 배지는 앱의 실제 상태 표기(REVIEW_STATUS_LABEL, APPROVAL_LABEL)를 그대로 쓴다.
+// 단계 배지는 앱의 실제 상태 표기(REVIEW_STATUS_LABEL)를 그대로 쓴다.
 // 표의 값은 번역 키(문자열)이거나, 이미 번역된 label을 가진 상태 상수다
 const cell = (value: string | { label: string }) => (typeof value === 'string' ? t(value) : value.label)
 
@@ -49,9 +46,9 @@ const flow: { key: string; status: { label: string; variant: string }; rows: Flo
     rows: Object.values(VIOLATION_RESOLUTION_LABEL).map((item, i) => [i === 0 ? 'landing.flow.resolve.rows.choose' : '', item]),
   },
   {
-    key: 'approve',
-    status: APPROVAL_LABEL[APPROVAL_STATE.PENDING],
-    rows: APPROVAL_ACTIONS.map((action, i) => [i === 0 ? 'landing.flow.approve.rows.decide' : '', action]),
+    key: 'report',
+    status: REVIEW_STATUS_LABEL[REVIEW_STATUS.DONE],
+    rows: [['landing.flow.report.rows.print', 'landing.flow.report.rows.printValue'], ['landing.flow.report.rows.update', 'landing.flow.report.rows.updateValue']],
   },
 ]
 
@@ -192,7 +189,7 @@ function start() {
               <tbody>
                 <tr><th scope="row">{{ $t('landing.features.originals.rows.ad') }}</th><td>{{ $t('landing.features.originals.rows.kept') }}</td></tr>
                 <tr><th scope="row">{{ $t('landing.features.originals.rows.result') }}</th><td>{{ $t('landing.features.originals.rows.kept') }}</td></tr>
-                <tr><th scope="row">{{ $t('landing.features.originals.rows.approvals') }}</th><td>{{ $t('landing.features.originals.rows.kept') }}</td></tr>
+                <tr><th scope="row">{{ $t('landing.features.originals.rows.decisions') }}</th><td>{{ $t('landing.features.originals.rows.kept') }}</td></tr>
                 <tr><th scope="row">{{ $t('landing.features.originals.rows.view') }}</th><td>{{ $t('landing.features.originals.rows.viewValue') }}</td></tr>
               </tbody>
             </table>
@@ -203,8 +200,8 @@ function start() {
           <div data-ui class="frag frag--versions frag--dock-top">
             <p class="frag__label">{{ $t('landing.features.versions.label') }}</p>
             <ol>
-              <li class="is-current"><span>v2</span><span>{{ $t('landing.features.versions.v2') }}</span><span class="chip chip--amber">{{ APPROVAL_LABEL[APPROVAL_STATE.PENDING].label }}</span></li>
-              <li><span>v1</span><span>{{ $t('landing.features.versions.v1') }}</span><span class="chip chip--blue">{{ APPROVAL_LABEL[APPROVAL_STATE.CHANGES_REQUESTED].label }}</span></li>
+              <li class="is-current"><span>1</span><span>{{ $t('landing.features.versions.v2') }}</span><span class="chip chip--blue">{{ VIOLATION_RESOLUTION_LABEL.rewritten.label }}</span></li>
+              <li><span>2</span><span>{{ $t('landing.features.versions.v1') }}</span><span class="chip chip--amber">{{ VIOLATION_RESOLUTION_LABEL.kept.label }}</span></li>
             </ol>
           </div>
           <div class="cell__text">
