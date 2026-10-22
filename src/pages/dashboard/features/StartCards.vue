@@ -41,11 +41,12 @@ const cards = computed(() => [
   <section class="start" aria-labelledby="start-title">
     <h2 id="start-title" class="start__title">{{ $t('dashboard.start.title') }}</h2>
     <ul class="start__grid">
-      <li v-for="card in cards" :key="card.key">
+      <li v-for="(card, index) in cards" :key="card.key">
         <RouterLink :to="card.to" class="card">
           <span class="card__title">{{ $t(card.title) }}</span>
           <span class="card__action"><span aria-hidden="true">+</span> {{ $t(card.action) }}</span>
-          <img :src="card.art" alt="" class="card__art" width="1024" height="768" loading="lazy" />
+          <!-- 첫 화면에서 가장 큰 그림이라 늦추지 않고, 첫 그림은 먼저 받는다 -->
+          <img :src="card.art" alt="" class="card__art" width="1024" height="768" :fetchpriority="index === 0 ? 'high' : 'auto'" />
         </RouterLink>
       </li>
     </ul>
