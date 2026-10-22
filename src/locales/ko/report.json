@@ -30,5 +30,6 @@
   "patentSource": "출처 {source}, {at}",
   "noPatents": "추출된 특허번호 없음",
   "standards": "적용 기준:",
-  "noStandards": "조문 후보가 없어 적용 법령 버전을 기록하지 않았습니다."
+  "noStandards": "조문 후보가 없어 적용 법령 버전을 기록하지 않았습니다.",
+  "loading": "검토 결과를 불러오는 중입니다."
 }

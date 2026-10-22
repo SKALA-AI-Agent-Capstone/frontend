@@ -276,5 +276,6 @@
     "PATENT_TOOL_UNAVAILABLE": "특허 조회 도구에 연결하지 못했습니다.",
     "CROSS_CHECK_UNAVAILABLE": "공식 기록 대조 도구에 연결하지 못했습니다.",
     "other": "기타 처리 알림 {code} {count}건"
-  }
+  },
+  "loading": "검토 결과를 불러오는 중입니다."
 }

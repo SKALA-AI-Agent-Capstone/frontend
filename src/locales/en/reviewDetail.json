@@ -276,5 +276,6 @@
     "PATENT_TOOL_UNAVAILABLE": "Could not reach the patent lookup.",
     "CROSS_CHECK_UNAVAILABLE": "Could not reach the official record checks.",
     "other": "Other processing notice {code}: {count}"
-  }
+  },
+  "loading": "Loading the review."
 }

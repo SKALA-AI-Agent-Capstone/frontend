@@ -23,6 +23,8 @@ export const useReviewsStore = defineStore('reviews', () => {
   const list = computed(() => items.value.filter(r => r.tenantId === session.tenant?.id))
   const latest = review => review.versions[review.versions.length - 1]
   const byId = id => list.value.find(r => r.id === id) ?? null
+  // 요약(목록) 항목이 아니라 상세 응답으로 받은 항목인지. 상세 화면과 리포트는 이것만 그린다.
+  const isDetailed = review => Boolean(review) && !review.summary
   function upsert(review) {
     const index = items.value.findIndex(r => r.id === review.id)
     if (index < 0) items.value.unshift(review)
@@ -33,19 +35,20 @@ export const useReviewsStore = defineStore('reviews', () => {
   function load() {
     if (!session.isAuthenticated) { items.value = []; return Promise.resolve() }
     loading ??= (async () => {
-      try { items.value = (await request('/reviews')).map(keepDetail); error.value = null } catch (e) { error.value = e.message }
+      // 목록 화면은 요약(view=summary)만 받는다. 결과 전체는 상세(/reviews/{id})에서 받는다.
+      try { items.value = (await request('/reviews?view=summary')).map(keepDetail); error.value = null } catch (e) { error.value = e.message }
       loaded.value = true
     })().finally(() => { loading = null })
     return loading
   }
-  // 목록 API는 violations를 싣지 않는다. 상세로 먼저 받아 둔 건을 목록이 늦게 덮으면
-  // 수정안 카드가 통째로 사라지므로, 최신 버전이 그대로일 때만 상세 값을 이어 붙인다.
+  // 목록 요약은 결과 전체와 violations를 싣지 않는다. 상세로 먼저 받아 둔 건을 요약이 늦게 덮으면
+  // 상세 화면이 비므로, 최신 버전과 상태가 그대로일 때는 상세를 유지하고 진행률만 목록 값으로 맞춘다.
   function keepDetail(review) {
     const known = items.value.find(r => r.id === review.id)
-    if (!known?.violations || !review.versions?.length) return review
+    if (!known || !isDetailed(known) || !review.versions?.length) return review
     const [before, after] = [latest(known), latest(review)]
     if (before.no !== after.no || before.status !== after.status) return review
-    return { ...review, violations: known.violations, hitl: { ...known.hitl, ...review.hitl } }
+    return { ...known, updatedAt: review.updatedAt, hitl: { ...known.hitl, ...review.hitl } }
   }
   async function refresh(id) { return upsert(await request(`/reviews/${id}`)) }
   const isRunning = review => ['queued', 'analyzing'].includes(latest(review).status)
@@ -151,7 +154,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     closeStreams(); activity.value = {}
     items.value = []; loaded.value = false; await load(); poll()
   })
-  return { list, error, loaded, byId, latest, poll, activity, createReview,
+  return { list, error, loaded, byId, isDetailed, latest, poll, activity, createReview,
     decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })
