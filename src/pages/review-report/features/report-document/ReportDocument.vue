@@ -8,11 +8,18 @@ import {
   PATENT_STATUS_LABEL,
   SEVERITY_LABEL,
 } from '@/shared/constants/review'
-import { rewriteLabel } from '@/shared/api/engine/detect'
 import { emptyBasisText, legalSearch } from '@/shared/constants/legal'
 import { SITE } from '@/shared/constants/site'
 import { formatDate, formatDateTime } from '@/shared/utils/format'
+import { visibleVisualFindings } from '@/shared/utils/visualFindings'
 import { t } from '@/shared/i18n'
+
+function rewriteLabel(rewrite) {
+  if (typeof rewrite === 'string') return rewrite
+  if (rewrite.keep) return t('common.rewrite.keep')
+  if (!rewrite.text) return t('common.rewrite.remove')
+  return `"${rewrite.text}"`
+}
 
 const props = defineProps({
   review: { type: Object, required: true },
@@ -104,8 +111,9 @@ function locationLabel(finding) {
       <h2>{{ $t('report.s3') }}</h2>
       <ul>
         <li v-for="p in version.result.patents" :key="p.id">
-          {{ p.confirmedNumber ?? p.number }} — {{ PATENT_STATUS_LABEL[p.status].label }}
-          <template v-if="p.match">, {{ PATENT_MATCH_LABEL[p.match.verdict || 'unknown'].label }}: {{ p.match.summary }}</template>
+          {{ p.confirmedNumber ?? p.number }} — {{ PATENT_STATUS_LABEL[p.data?.registerStatus === '소멸' ? 'expired' : p.status]?.label ?? p.status }}
+          <template v-if="p.data?.title">, {{ p.data.title }}</template>
+          <template v-if="p.match">, {{ PATENT_MATCH_LABEL[p.match.verdict || 'unknown'].label }}: {{ p.match.reason === '청구항 원문 미확보' ? $t('reviewDetail.patent.claimsUnavailable') : p.match.summary }}</template>
           <template v-if="p.checkedAt"> ({{ $t('report.patentSource', { source: p.source ?? '-', at: formatDateTime(p.checkedAt) }) }})</template>
         </li>
         <li v-if="!version.result.patents.length">{{ $t('report.noPatents') }}</li>
@@ -115,7 +123,7 @@ function locationLabel(finding) {
     <section>
       <h2>{{ $t('reviewDetail.visual.title') }}</h2>
       <p>{{ $t('reviewDetail.visual.status', { status: version.result.pipelineStatus?.visual }) }}</p>
-      <p v-for="item in version.result.visualFindings" :key="item.id">{{ $t('reviewDetail.visual.location', { name: item.location.fileName, page: item.location.page }) }}: {{item.observation}} / {{item.concern}}</p>
+      <p v-for="item in visibleVisualFindings(version.result.visualFindings)" :key="item.id">{{ $t('reviewDetail.visual.location', { name: item.location.fileName, page: item.location.page }) }}: {{item.observation}} / {{item.concern}}</p>
       <p v-for="warning in version.result.warnings" :key="warning">{{warning}}</p>
     </section>
 

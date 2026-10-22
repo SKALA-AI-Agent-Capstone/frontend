@@ -13,6 +13,7 @@
   "patentStatus": {
     "needsConfirm": "Number needs confirmation",
     "registered": "Registered patent confirmed",
+    "expired": "Patent found · rights extinguished",
     "unavailable": "Cannot verify",
     "error": "Lookup failed"
   },

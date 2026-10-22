@@ -13,6 +13,7 @@
   "patentStatus": {
     "needsConfirm": "번호 확인 필요",
     "registered": "등록 특허 확인",
+    "expired": "특허 확인 · 권리 소멸",
     "unavailable": "확인 불가",
     "error": "조회 실패"
   },
