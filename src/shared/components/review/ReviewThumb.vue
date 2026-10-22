@@ -1,12 +1,11 @@
 <!--
-  검토 목록의 광고 썸네일: 최신 버전의 첫 광고 원본.
-  이미지는 서버에 보존된 원본을, PDF는 원본의 첫 쪽을 그려 보여 준다. 원본을 받을 수 없으면 형식 아이콘으로 대신한다.
+  검토 목록의 광고 썸네일: 최신 버전의 첫 광고.
+  서버가 만든 썸네일(너비 160px JPEG, PDF는 첫 쪽)만 받는다. 만들 수 없는 파일(WebP 등)이거나 받지 못하면 형식 아이콘으로 대신한다.
 -->
 <script setup>
 import { t } from '@/shared/i18n'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useAssetImage } from '@/shared/composables/useAssetImage'
-import { pdfThumbnail } from '@/shared/utils/pdfThumbnail'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 
 const props = defineProps({
@@ -18,7 +17,7 @@ const props = defineProps({
 const file = computed(() => props.version.input?.files?.[0] ?? null)
 const isPdf = computed(() => file.value?.mime === 'application/pdf' || /\.pdf$/i.test(file.value?.name ?? ''))
 const reviewId = computed(() => props.review.id)
-// 원본은 크기가 커서 썸네일이 화면 가까이 왔을 때만 받는다
+// 썸네일이 화면 가까이 왔을 때만 받는다
 const root = ref(null)
 const inView = ref(typeof IntersectionObserver === 'undefined')
 let observer = null
@@ -34,20 +33,7 @@ onMounted(() => {
 onBeforeUnmount(() => observer?.disconnect())
 
 const assetId = computed(() => (inView.value ? file.value?.id ?? null : null))
-const { url: assetUrl } = useAssetImage(reviewId, assetId)
-
-// PDF는 받은 원본의 첫 쪽을 그려 이미지로 쓴다. 그리기에 실패하면 PDF 아이콘으로 남는다.
-const pdfUrl = ref(null)
-watch([assetUrl, isPdf], async ([source, pdf]) => {
-  pdfUrl.value = null
-  if (!source || !pdf) return
-  try {
-    pdfUrl.value = await pdfThumbnail(`${reviewId.value}:${assetId.value}`, source)
-  } catch {
-    pdfUrl.value = null
-  }
-}, { immediate: true })
-const url = computed(() => (isPdf.value ? pdfUrl.value : assetUrl.value))
+const { url } = useAssetImage(reviewId, assetId, { thumbnail: true })
 
 const fallback = computed(() => {
   if (isPdf.value) return { icon: 'picture_as_pdf', label: 'PDF', tone: 'pdf' }
