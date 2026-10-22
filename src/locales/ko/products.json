@@ -2,9 +2,16 @@
   "title": "제품",
   "description": "제품을 등록하고, 제품마다 광고 검토 내역을 확인합니다.",
   "create": "제품 등록",
+  "filter": {
+    "all": "전체",
+    "label": "제품 유형 필터",
+    "empty": "이 유형으로 등록된 제품이 없습니다."
+  },
   "type": {
     "general": "일반화장품",
-    "functional": "기능성화장품"
+    "functional": "기능성화장품",
+    "children": "영유아, 어린이용 화장품",
+    "customized": "맞춤형화장품"
   },
   "reviewCount": "검토 {count}건",
   "latest": "최근 검토 {date}",

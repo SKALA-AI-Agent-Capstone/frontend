@@ -6,7 +6,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useProductsStore } from '@/shared/stores/products'
+import { PRODUCT_TYPES, useProductsStore } from '@/shared/stores/products'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
 import { PERMISSIONS } from '@/shared/constants/roles'
@@ -15,6 +15,8 @@ import { REVIEW_STATUS } from '@/shared/constants/review'
 import { formatDate } from '@/shared/utils/format'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
+import BaseTabs from '@/shared/components/base/BaseTabs.vue'
+import { t } from '@/shared/i18n'
 import ProductThumb from '@/shared/components/product/ProductThumb.vue'
 import ProductFormModal from '@/shared/components/product/ProductFormModal.vue'
 import ReviewThumb from '@/shared/components/review/ReviewThumb.vue'
@@ -28,6 +30,18 @@ const session = useSessionStore()
 const router = useRouter()
 const canCreate = computed(() => session.can(PERMISSIONS.REVIEW_CREATE))
 const formOpen = ref(false)
+const selectedType = ref('all')
+const typeTabs = computed(() => [
+  { value: 'all', label: t('products.filter.all'), badge: String(products.list.length) },
+  ...PRODUCT_TYPES.map(type => ({
+    value: type,
+    label: t(`products.type.${type}`),
+    badge: String(products.list.filter(product => product.type === type).length),
+  })),
+])
+const filteredProducts = computed(() => selectedType.value === 'all'
+  ? products.list
+  : products.list.filter(product => product.type === selectedType.value))
 
 // 검토 수가 바뀌었을 수 있으므로 들어올 때마다 제품을 다시 받는다
 onMounted(() => {
@@ -104,8 +118,10 @@ function onSaved(product) {
       </RouterLink>
     </section>
 
-    <ul v-if="products.list.length" class="grid">
-      <li v-for="product in products.list" :key="product.id">
+    <BaseTabs v-model="selectedType" :tabs="typeTabs" :label="$t('products.filter.label')" />
+
+    <ul v-if="filteredProducts.length" class="grid">
+      <li v-for="product in filteredProducts" :key="product.id">
         <RouterLink :to="productRoute(product)" class="card">
           <ProductThumb :product="product" size="md" />
           <span class="card__body">
@@ -125,6 +141,7 @@ function onSaved(product) {
       </li>
     </ul>
     <p v-else-if="!products.loaded" class="empty" role="status">{{ $t('common.listLoading') }}</p>
+    <p v-else-if="products.list.length" class="empty" role="status">{{ $t('products.filter.empty') }}</p>
     <div v-else class="empty">
       <img src="/doodles/unboxing.svg" alt="" class="empty__art" width="1024" height="768" />
       <p class="empty__title">{{ $t('products.empty.title') }}</p>

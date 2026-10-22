@@ -2,9 +2,16 @@
   "title": "Products",
   "description": "Register products and see each product's ad reviews.",
   "create": "Add product",
+  "filter": {
+    "all": "All",
+    "label": "Filter by product type",
+    "empty": "No products of this type have been registered."
+  },
   "type": {
     "general": "General cosmetic",
-    "functional": "Functional cosmetic"
+    "functional": "Functional cosmetic",
+    "children": "Cosmetic for infants and children",
+    "customized": "Customized cosmetic"
   },
   "reviewCount": "{count} reviews",
   "latest": "Last review {date}",

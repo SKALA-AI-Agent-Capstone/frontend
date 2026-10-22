@@ -11,7 +11,7 @@
     "text": "Loaded the product details and channels of '{name}'. Upload the revised ad to submit it as a new review."
   },
   "ad": {
-    "title": "3. Ad channels and creatives",
+    "title": "3. Ad creatives",
     "aside": "Select all planned channels",
     "channels": "Ad channels (select all that apply)",
     "fileLabel": "Ad PDF or image files",
@@ -59,6 +59,8 @@
     "aside": "Choose the product this ad is for",
     "select": "Product",
     "selectPlaceholder": "Choose a product",
+    "searchPlaceholder": "Search by product name or choose from the list",
+    "noResults": "No matching products. Try another name or add a product.",
     "selectHint": "Change the product name and type on the product page.",
     "none": "No products yet. Add a product first.",
     "register": "Add product"

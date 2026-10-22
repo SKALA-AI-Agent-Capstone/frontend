@@ -1,5 +1,5 @@
 <!--
-  제품 대표 이미지. 썸네일(너비 160px JPEG)을 받아 보여 주고, 이미지가 없거나 썸네일을 만들 수 없던 형식이면 제품 아이콘으로 대신한다.
+  제품 대표 이미지. 썸네일(너비 160px JPEG)을 우선 쓰고, 썸네일이 없는 형식은 저장된 원본을 보여 준다.
   이미지를 바꾸면 image.version이 달라져 새 주소(?v=)로 받으므로 예전 브라우저 캐시를 쓰지 않는다.
 -->
 <script setup>
@@ -14,7 +14,9 @@ const props = defineProps({
 
 const path = computed(() => {
   const image = props.product.image
-  return image?.thumbnail ? `/products/${props.product.id}/image/thumbnail?v=${image.version}` : null
+  if (!image) return null
+  const suffix = image.thumbnail ? '/thumbnail' : ''
+  return `/products/${props.product.id}/image${suffix}?v=${image.version}`
 })
 const { url } = useBlobImage(path)
 </script>

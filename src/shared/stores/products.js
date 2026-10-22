@@ -7,7 +7,7 @@ import { computed, ref, watch } from 'vue'
 import { request } from '@/shared/api/http'
 import { useSessionStore } from './session'
 
-export const PRODUCT_TYPES = ['general', 'functional']
+export const PRODUCT_TYPES = ['general', 'functional', 'children', 'customized']
 export const PRODUCT_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 export const PRODUCT_IMAGE_MAX_BYTES = 10 * 1024 * 1024
 
