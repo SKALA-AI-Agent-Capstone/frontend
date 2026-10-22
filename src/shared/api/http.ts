@@ -58,7 +58,8 @@ function send(path: string, init: RequestInit, token: string | null) {
   const headers = new Headers(init.headers)
   if (token) headers.set('Authorization', `Bearer ${token}`)
   if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json')
-  return fetch(`/api/v1${path}`, { ...init, headers, cache: 'no-store' })
+  // JSON API는 항상 새로 받는다. 원본과 썸네일처럼 서버가 캐시를 허용한 응답만 호출하는 쪽에서 cache를 바꾼다.
+  return fetch(`/api/v1${path}`, { ...init, headers, cache: init.cache ?? 'no-store' })
 }
 
 /** 인증과 401 재발급을 거친 원본 응답. 스트림(SSE)처럼 본문을 직접 읽을 때 쓴다. */
@@ -88,7 +89,8 @@ export async function request<T = unknown>(path: string, init: RequestInit = {})
 }
 
 /** 원본 이미지/PDF처럼 JSON이 아닌 응답을 받는다. img src는 Authorization 헤더를 못 보내므로
- * fetch로 받아 blob URL을 만들어 쓴다 — 쓰고 나면 반드시 URL.revokeObjectURL로 해제해야 한다. */
+ * fetch로 받아 blob URL을 만들어 쓴다 — 쓰고 나면 반드시 URL.revokeObjectURL로 해제해야 한다.
+ * 원본과 썸네일은 asset id마다 내용이 바뀌지 않아 서버가 private 캐시를 허용하므로 브라우저 캐시를 쓴다. */
 export async function requestBlob(path: string): Promise<Blob> {
-  return (await requestRaw(path)).blob()
+  return (await requestRaw(path, { cache: 'default' })).blob()
 }

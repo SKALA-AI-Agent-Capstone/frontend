@@ -30,5 +30,6 @@
   "patentSource": "source {source}, {at}",
   "noPatents": "No patent numbers extracted",
   "standards": "Standards applied:",
-  "noStandards": "No legal article candidates, so no law version was recorded."
+  "noStandards": "No legal article candidates, so no law version was recorded.",
+  "loading": "Loading the review."
 }

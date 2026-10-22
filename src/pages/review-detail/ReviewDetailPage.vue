@@ -25,7 +25,7 @@ import { warningLines } from '@/shared/utils/warnings'
 import ViolationReviewList from './features/violation-review/ViolationReviewList.vue'
 import TileReview from './features/tile-review/TileReview.vue'
 
-const { review, version, versionNo, isDone, tileMode } = provideReviewDetail()
+const { review, loading, version, versionNo, isDone, tileMode } = provideReviewDetail()
 const credits = useCreditsStore()
 const charge = ref(null)
 const balanceLoaded = ref(false)
@@ -56,8 +56,9 @@ const stepLabel = computed(() =>
 </script>
 
 <template>
+  <p v-if="!review && loading" class="supplement-page__loading" role="status">{{ $t('reviewDetail.loading') }}</p>
   <BaseEmptyState
-    v-if="!review"
+    v-else-if="!review"
     icon="search_off"
     :title="$t('reviewDetail.notFoundTitle')"
     :description="$t('reviewDetail.notFoundText')"

@@ -11,8 +11,9 @@ import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
-import { REVIEW_STATUS, SEVERITY } from '@/shared/constants/review'
+import { REVIEW_STATUS } from '@/shared/constants/review'
 import { formatDateTime } from '@/shared/utils/format'
+import { highCount } from '@/shared/utils/findings'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import ReviewThumb from '@/shared/components/review/ReviewThumb.vue'
@@ -90,8 +91,6 @@ function actionOf({ review, version }) {
   return { text: 'dashboard.actions.result', to: detailRoute(review) }
 }
 
-const highCount = (version) =>
-  version.status === REVIEW_STATUS.DONE ? version.result.findings.filter((f) => f.severity === SEVERITY.HIGH).length : null
 
 const EMPTY = {
   todo: 'dashboard.empty.todo',
