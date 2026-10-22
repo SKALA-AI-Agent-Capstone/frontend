@@ -47,6 +47,7 @@ const severityCounts = (version) =>
         </BaseButton>
       </li>
     </ul>
+    <p v-else-if="!reviews.loaded" class="list__empty" role="status">{{ $t('common.listLoading') }}</p>
     <div v-else class="list__empty">
       <p class="list__empty-title">{{ $t('approvals.empty') }}</p>
       <p class="list__empty-text">{{ $t('approvals.emptyText') }}</p>

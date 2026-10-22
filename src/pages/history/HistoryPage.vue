@@ -66,6 +66,7 @@ async function deleteAll() {
       </div>
 
       <HistoryTable v-if="rows.length" :rows="rows" />
+      <p v-else-if="!reviews.loaded" class="list__empty" role="status">{{ $t('common.listLoading') }}</p>
       <div v-else class="list__empty">
         <p class="list__empty-title">{{ reviews.list.length ? $t('history.emptyFiltered') : $t('history.empty') }}</p>
         <p class="list__empty-text">{{ reviews.list.length ? $t('history.emptyFilteredText') : $t('history.emptyText') }}</p>

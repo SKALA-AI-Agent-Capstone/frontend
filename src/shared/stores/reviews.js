@@ -10,6 +10,9 @@ export const useReviewsStore = defineStore('reviews', () => {
   const session = useSessionStore()
   const items = ref([])
   const error = ref(null)
+  // 목록을 한 번이라도 받았는지. 받기 전에는 빈 목록 대신 불러오는 중으로 보여 준다.
+  const loaded = ref(false)
+  let loading = null
   let pollTimer = null
   // 실행 중인 건마다 SSE 구독 하나. 구독이 실패한 건만 폴링한다.
   const streams = new Map()
@@ -27,9 +30,14 @@ export const useReviewsStore = defineStore('reviews', () => {
     else items.value[index] = review
     return review
   }
-  async function load() {
-    if (!session.isAuthenticated) { items.value = []; return }
-    try { items.value = (await request('/reviews')).map(keepDetail); error.value = null } catch (e) { error.value = e.message }
+  // 화면 이동마다 불러도 되도록, 받는 중인 요청이 있으면 그 요청을 같이 기다린다
+  function load() {
+    if (!session.isAuthenticated) { items.value = []; return Promise.resolve() }
+    loading ??= (async () => {
+      try { items.value = (await request('/reviews')).map(keepDetail); error.value = null } catch (e) { error.value = e.message }
+      loaded.value = true
+    })().finally(() => { loading = null })
+    return loading
   }
   // 목록 API는 violations와 canApprove를 싣지 않는다. 상세로 먼저 받아 둔 건을 목록이 늦게 덮으면
   // 수정안 카드가 통째로 사라지므로, 최신 버전이 그대로일 때만 상세 값을 이어 붙인다.
@@ -147,9 +155,9 @@ export const useReviewsStore = defineStore('reviews', () => {
   watch(() => session.user?.id, async () => {
     clearTimeout(pollTimer)
     closeStreams(); activity.value = {}
-    items.value = []; await load(); poll()
+    items.value = []; loaded.value = false; await load(); poll()
   })
-  return { list, error, byId, latest, pendingApprovals, poll, activity, createReview, createVersion, decide,
+  return { list, error, loaded, byId, latest, pendingApprovals, poll, activity, createReview, createVersion, decide,
     decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })

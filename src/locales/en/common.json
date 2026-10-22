@@ -109,5 +109,6 @@
   "rewrite": {
     "keep": "Keep current wording (submit evidence)",
     "remove": "Remove the wording"
-  }
+  },
+  "listLoading": "Loading reviews."
 }

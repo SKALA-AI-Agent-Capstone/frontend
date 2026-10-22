@@ -36,19 +36,19 @@ const routes = [
     path: '/reviews/new',
     name: ROUTE_NAMES.REVIEW_NEW,
     component: () => import('@/pages/review-new/ReviewNewPage.vue'),
-    meta: { title: 'ui.titles.reviewNew', navKey: NAV_KEYS.REVIEW_NEW, permission: PERMISSIONS.REVIEW_CREATE },
+    meta: { title: 'ui.titles.reviewNew', navKey: NAV_KEYS.REVIEW_NEW, permission: PERMISSIONS.REVIEW_CREATE, needsReviews: true },
   },
   {
     path: '/reviews/:id',
     name: ROUTE_NAMES.REVIEW_DETAIL,
     component: () => import('@/pages/review-detail/ReviewDetailPage.vue'),
-    meta: { title: 'ui.titles.reviewDetail', navKey: NAV_KEYS.HISTORY },
+    meta: { title: 'ui.titles.reviewDetail', navKey: NAV_KEYS.HISTORY, needsReviews: true },
   },
   {
     path: '/reviews/:id/report',
     name: ROUTE_NAMES.REVIEW_REPORT,
     component: () => import('@/pages/review-report/ReviewReportPage.vue'),
-    meta: { title: 'ui.titles.report', layout: 'blank' },
+    meta: { title: 'ui.titles.report', layout: 'blank', needsReviews: true },
   },
   {
     path: '/batch',
@@ -105,7 +105,13 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const session = useSessionStore()
   await session.restore()
-  if (session.isAuthenticated) await useReviewsStore().load()
+  // 목록은 화면을 먼저 보여 주고 뒤에서 받는다. 처음 여는 화면이 목록 속 검토를 바로 써야 할 때만
+  // (새 버전 신청, 상세, 리포트) 첫 목록을 기다린다.
+  if (session.isAuthenticated) {
+    const reviews = useReviewsStore()
+    const loading = reviews.load()
+    if (to.meta.needsReviews && !reviews.loaded) await loading
+  }
   if (!to.meta.public && !session.isAuthenticated) {
     // 첫 화면으로 들어온 비로그인 방문자에게는 서비스 소개를 먼저 보여 준다.
     if (to.name === ROUTE_NAMES.DASHBOARD) return { name: ROUTE_NAMES.LANDING }

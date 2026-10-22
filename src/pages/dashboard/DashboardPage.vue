@@ -197,6 +197,7 @@ const EMPTY = {
           </BaseButton>
         </li>
       </ul>
+      <p v-else-if="!reviews.loaded" class="list__empty" role="status">{{ $t('common.listLoading') }}</p>
       <div v-else class="list__empty">
         <p class="list__empty-title">{{ $t(EMPTY[activeTab]) }}</p>
         <p v-if="!rows.length" class="list__empty-text">{{ $t('dashboard.emptyText') }}</p>
