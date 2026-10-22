@@ -116,7 +116,8 @@ export const useReviewsStore = defineStore('reviews', () => {
   }
   function form(input) {
     const data = new FormData()
-    data.append('metadata', JSON.stringify({ product: input.product, media: input.media, evidence: input.evidence.map(e => ({ docType: e.docType })) }))
+    // productId가 있으면 서버가 그 제품의 현재 이름으로 접수한다(2026-10-22 제품 단위 검토)
+    data.append('metadata', JSON.stringify({ productId: input.productId ?? undefined, product: input.product, media: input.media, evidence: input.evidence.map(e => ({ docType: e.docType })) }))
     for (const file of input.files) {
       if (!(file.file instanceof File)) throw new Error(t('ui.errors.reselectAd'))
       data.append('files', file.file)

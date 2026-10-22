@@ -55,14 +55,13 @@
     "start": "Start review"
   },
   "product": {
-    "title": "2. Product basics",
-    "aside": "Used to identify the product and for official lookups",
-    "name": "Product name",
-    "namePlaceholder": "Product name as printed on the package",
-    "category": "Product type",
-    "reportNo": "Functional cosmetic review or report number",
-    "reportNoHint": "The number and product name are checked on the server during review. Without an official API key and route, it shows as unverified and is never treated as a compliance ruling.",
-    "reportNoPlaceholder": "Review or report number from your documents"
+    "title": "2. Product",
+    "aside": "Choose the product this ad is for",
+    "select": "Product",
+    "selectPlaceholder": "Choose a product",
+    "selectHint": "Change the product name and type on the product page.",
+    "none": "No products yet. Add a product first.",
+    "register": "Add product"
   },
   "credit": {
     "topUpTitle": "Not enough credits",

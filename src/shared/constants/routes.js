@@ -4,6 +4,7 @@ export const ROUTE_NAMES = Object.freeze({
   LOGIN: 'login',
   SIGNUP: 'signup',
   DASHBOARD: 'dashboard',
+  PRODUCT_DETAIL: 'product-detail',
   REVIEW_NEW: 'review-new',
   REVIEW_DETAIL: 'review-detail',
   REVIEW_REPORT: 'review-report',

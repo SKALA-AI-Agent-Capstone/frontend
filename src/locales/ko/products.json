@@ -1,0 +1,66 @@
+{
+  "title": "제품",
+  "description": "제품을 등록하고, 제품마다 광고 검토 내역을 확인합니다.",
+  "create": "제품 등록",
+  "type": {
+    "general": "일반화장품",
+    "functional": "기능성화장품"
+  },
+  "reviewCount": "검토 {count}건",
+  "latest": "최근 검토 {date}",
+  "status": {
+    "todo": "확인할 문구 {count}건",
+    "analyzing": "분석 중 {count}건",
+    "failed": "분석 실패 {count}건"
+  },
+  "empty": {
+    "title": "아직 등록한 제품이 없습니다.",
+    "text": "제품을 먼저 등록하면 그 제품의 광고를 여러 번 검토하고, 검토 내역을 한곳에서 볼 수 있습니다."
+  },
+  "loadError": "제품 목록을 불러오지 못했습니다.",
+  "historyAll": "전체 검토 이력 보기",
+  "form": {
+    "createTitle": "제품 등록",
+    "editTitle": "제품 정보 수정",
+    "name": "제품 이름",
+    "namePlaceholder": "용기와 포장에 기재된 제품명",
+    "type": "제품 유형",
+    "image": "대표 이미지",
+    "imageHint": "PNG, JPEG, WebP 이미지를 10MB까지 올릴 수 있습니다. 목록에서 제품을 알아보는 데 씁니다.",
+    "imagePick": "이미지 선택",
+    "imageChange": "다른 이미지 선택",
+    "imageClear": "선택 취소",
+    "submitCreate": "등록",
+    "submitEdit": "저장"
+  },
+  "detail": {
+    "back": "제품 목록",
+    "newReview": "새 광고 검토",
+    "edit": "수정",
+    "delete": "삭제",
+    "registered": "{date} 등록",
+    "reviews": "광고 검토 내역",
+    "loading": "제품을 불러오는 중입니다.",
+    "notFound": "제품을 찾을 수 없습니다.",
+    "notFoundText": "삭제되었거나 다른 기업의 제품입니다."
+  },
+  "delete": {
+    "confirmTitle": "제품을 삭제할까요?",
+    "confirmText": "{name} 제품을 삭제합니다. 삭제한 제품은 되돌릴 수 없습니다.",
+    "confirm": "삭제",
+    "blockedTitle": "제품을 삭제할 수 없습니다",
+    "blockedText": "제품 안의 검토 내용을 모두 삭제해야 제품을 삭제할 수 있습니다.",
+    "blockedCount": "남은 검토 {count}건을 먼저 삭제해 주세요.",
+    "blockedOk": "확인"
+  },
+  "errors": {
+    "PRODUCT_NAME_TAKEN": "같은 이름의 제품이 이미 있습니다.",
+    "PRODUCT_NAME_REQUIRED": "제품 이름을 입력해 주세요.",
+    "PRODUCT_NAME_TOO_LONG": "제품 이름은 200자까지 입력할 수 있습니다.",
+    "INVALID_PRODUCT_TYPE": "제품 유형을 선택해 주세요.",
+    "IMAGE_TYPE_UNSUPPORTED": "PNG, JPEG, WebP 이미지만 올릴 수 있습니다.",
+    "IMAGE_LIMIT_10_MIB": "이미지는 10MB까지 올릴 수 있습니다.",
+    "PRODUCT_NOT_FOUND": "제품을 찾을 수 없습니다.",
+    "PRODUCT_HAS_REVIEWS": "제품 안의 검토 내용을 모두 삭제해야 제품을 삭제할 수 있습니다."
+  }
+}

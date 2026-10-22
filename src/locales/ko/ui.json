@@ -86,6 +86,7 @@
   "titles": {
     "login": "로그인",
     "signup": "회원가입",
+    "product": "제품 상세",
     "reviewNew": "자율심의 신청",
     "reviewDetail": "위반사항 분석 및 보완",
     "report": "심의 리포트",

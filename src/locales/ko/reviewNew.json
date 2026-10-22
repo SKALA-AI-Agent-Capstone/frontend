@@ -55,14 +55,13 @@
     "start": "검토 시작"
   },
   "product": {
-    "title": "2. 제품 기본정보",
-    "aside": "광고 대상 제품과 공식 조회에 사용할 정보",
-    "name": "제품명",
-    "namePlaceholder": "용기와 포장에 기재된 제품명",
-    "category": "품목 유형",
-    "reportNo": "기능성화장품 심사 또는 보고번호",
-    "reportNoHint": "입력한 번호와 제품명은 검토 실행 시 서버에서 대조합니다. 공식 API 키와 조회 경로가 없으면 미확인으로 표시하며, 적합 판정으로 처리하지 않습니다.",
-    "reportNoPlaceholder": "보유 자료의 심사 또는 보고번호"
+    "title": "2. 검토할 제품",
+    "aside": "광고를 검토할 제품을 고릅니다",
+    "select": "제품",
+    "selectPlaceholder": "제품을 선택해 주세요",
+    "selectHint": "제품 이름과 유형은 제품 화면에서 바꿀 수 있습니다.",
+    "none": "등록한 제품이 없습니다. 새 제품을 먼저 등록해 주세요.",
+    "register": "새 제품 등록"
   },
   "credit": {
     "topUpTitle": "크레딧이 부족합니다",

@@ -31,20 +31,5 @@
     "recent": "Showing the latest {count}.",
     "link": "See all {count} in review history"
   },
-  "scope": "Legal grounds come from loaded Cosmetics Act articles, and no legality ruling or score is produced. Legal search, OpenAI and public API status is shown on each result.",
-  "start": {
-    "title": "Get started",
-    "new": {
-      "title": "Submit an ad review",
-      "action": "New review"
-    },
-    "todo": {
-      "title": "Phrases to decide",
-      "action": "View remaining"
-    },
-    "history": {
-      "title": "Past results",
-      "action": "Review history"
-    }
-  }
+  "scope": "Legal grounds come from loaded Cosmetics Act articles, and no legality ruling or score is produced. Legal search, OpenAI and public API status is shown on each result."
 }

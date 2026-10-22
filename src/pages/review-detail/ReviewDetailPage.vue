@@ -46,9 +46,12 @@ watch([() => review.value?.id, versionNo, () => version.value?.status], async ([
 }, { immediate: true })
 const legal = computed(() => legalSearch(version.value?.result))
 
+// 검토는 제품에 속한다(2026-10-22). 제품 화면으로 돌아갈 수 있게 제품을 가운데 둔다.
 const breadcrumbs = computed(() => [
-  { label: t('reviewDetail.crumbHistory'), to: { name: ROUTE_NAMES.HISTORY } },
-  { label: review.value?.productName ?? '' },
+  review.value?.productId
+    ? { label: review.value.productName ?? '', to: { name: ROUTE_NAMES.PRODUCT_DETAIL, params: { id: review.value.productId } } }
+    : { label: t('reviewDetail.crumbHistory'), to: { name: ROUTE_NAMES.HISTORY } },
+  { label: t('ui.titles.reviewDetail') },
 ])
 const stepLabel = computed(() =>
   t(isDone.value ? 'reviewDetail.stepDone' : 'reviewDetail.stepAnalyzing'),

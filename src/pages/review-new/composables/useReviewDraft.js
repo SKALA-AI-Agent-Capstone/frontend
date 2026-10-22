@@ -2,6 +2,7 @@
  * 새 검토 입력 상태 (FR-8 단일 입력 흐름)
  *   - ?from=<reviewId> 이면 해당 건의 최신 버전을 불러와 새 버전으로 재검토 (FR-13)
  *   - ?copy=<문구> 이면 대시보드 간이진단 문구를 이어받는다
+ *   - 검토는 제품에 속한다(2026-10-22). productId를 고르면 제품 이름과 유형을 product에 채운다.
  */
 import { computed, inject, provide, reactive, ref, markRaw } from 'vue'
 import { calcUsage } from '@/shared/constants/pricing'
@@ -13,7 +14,9 @@ const SESSION_KEY = 'cosmetic-ad-review:draft'
 
 function emptyDraft() {
   return {
-    product: { name: '', category: 'functional', functionalReportNo: '' },
+    productId: '',
+    // 서버가 productId로 제품의 현재 이름을 다시 채운다. category는 제품 유형(general, functional)이다.
+    product: { name: '', category: 'general' },
     copy: '',
     media: [],
     files: [],
@@ -36,10 +39,10 @@ function guessDocType(name) {
   return rules.find(([re]) => re.test(name))?.[1] ?? DOC_TYPES.OTHER
 }
 
-export function provideReviewDraft({ baseVersion = null, initialCopy = '' } = {}) {
+export function provideReviewDraft({ baseVersion = null, initialCopy = '', productId = '' } = {}) {
   const draft = reactive(emptyDraft())
   if (baseVersion) {
-    draft.product = { ...baseVersion.input.product }
+    draft.product = { name: baseVersion.input.product?.name ?? '', category: baseVersion.input.product?.category ?? 'general' }
     draft.copy = ''
     draft.media = [...baseVersion.input.media]
     // 이전 버전 원본은 서버에 보존되지만, 재검토 업로드가 이전 asset을 참조해 재사용하는
@@ -56,6 +59,8 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '' } = {}
       /* 저장소 사용 불가 시 무시 */
     }
   }
+  // 제품 화면에서 시작했거나 이전 검토를 불러왔으면 그 제품을 고른다
+  if (productId) draft.productId = productId
 
   const lastSavedAt = ref(null)
   function saveDraft() {
@@ -81,7 +86,12 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '' } = {}
   const requirements = computed(() => [])
   // FR-11: 요청 전 예상 사용량
   const estimate = computed(() => calcUsage({ textChars: draft.copy.length, images: draft.files.length }))
-  const canSubmit = computed(() => draft.product.name.trim() && draft.files.length > 0 && draft.files.every(f => f.file instanceof File))
+  const canSubmit = computed(() => Boolean(draft.productId) && draft.files.length > 0 && draft.files.every(f => f.file instanceof File))
+
+  function selectProduct(product) {
+    draft.productId = product?.id ?? ''
+    draft.product = { name: product?.name ?? '', category: product?.type ?? 'general' }
+  }
 
   function addFiles(files) {
     for (const file of files) {
@@ -110,6 +120,7 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '' } = {}
     canSubmit,
     addFiles,
     addEvidence,
+    selectProduct,
     lastSavedAt,
     saveDraft,
     clearSaved,

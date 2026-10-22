@@ -71,12 +71,6 @@
       "description": "결과를 저장하고 리포트를 준비합니다."
     }
   },
-  "product": {
-    "functional": "기능성화장품",
-    "general": "일반화장품 (기초, 색조 등)",
-    "baby": "영유아, 어린이용 화장품",
-    "custom": "맞춤형화장품"
-  },
   "media": {
     "live": {
       "label": "라이브 커머스",
