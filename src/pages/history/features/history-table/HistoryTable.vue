@@ -1,7 +1,7 @@
 <!-- 검토 이력 목록 (FR-9 재조회, 재다운로드, FR-12 개별 삭제) — 줄마다 썸네일, 진행 단계, 리포트와 삭제 -->
 <script setup>
 import { ref } from 'vue'
-import { REVIEW_STATUS, SEVERITY } from '@/shared/constants/review'
+import { REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
@@ -10,6 +10,7 @@ import ReviewStage from '@/shared/components/review/ReviewStage.vue'
 import ReviewThumb from '@/shared/components/review/ReviewThumb.vue'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { formatDateTime } from '@/shared/utils/format'
+import { highCount } from '@/shared/utils/findings'
 
 defineProps({
   rows: { type: Array, required: true },
@@ -19,8 +20,6 @@ const reviews = useReviewsStore()
 const target = ref(null)
 const error = ref(null)
 
-const highCount = (version) =>
-  version.status === REVIEW_STATUS.DONE ? version.result.findings.filter((f) => f.severity === SEVERITY.HIGH).length : null
 
 async function remove() {
   error.value = null

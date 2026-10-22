@@ -1,6 +1,6 @@
 <!-- 리포트 다운로드 (FR-9) — 인쇄(PDF 저장) 또는 문서(HTML) 파일 저장 -->
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
@@ -12,7 +12,17 @@ import ReportDocument from './features/report-document/ReportDocument.vue'
 
 const route = useRoute()
 const reviews = useReviewsStore()
-const review = computed(() => reviews.byId(String(route.params.id)))
+// 리포트는 결과 전체가 필요하다. 목록 요약 항목이면 상세를 받을 때까지 기다린다.
+const review = computed(() => {
+  const item = reviews.byId(String(route.params.id))
+  return reviews.isDetailed(item) ? item : null
+})
+const loading = ref(true)
+watch(() => route.params.id, (id) => {
+  if (!id) return
+  loading.value = true
+  reviews.refresh(String(id)).catch(() => {}).finally(() => { loading.value = false })
+}, { immediate: true })
 const version = computed(() => {
   if (!review.value) return null
   // 재검토(새 버전)를 없앤 뒤로는 최신 버전 리포트만 만든다
@@ -38,7 +48,8 @@ function downloadHtml() {
 
 <template>
   <div class="report-page">
-    <BaseEmptyState v-if="!version" icon="search_off" :title="$t('report.emptyTitle')" :description="$t('report.emptyText')" />
+    <p v-if="!version && loading" class="report-page__loading" role="status">{{ $t('report.loading') }}</p>
+    <BaseEmptyState v-else-if="!version" icon="search_off" :title="$t('report.emptyTitle')" :description="$t('report.emptyText')" />
     <template v-else>
       <div class="report-page__toolbar">
         <BaseButton variant="ghost" icon="arrow_back" :to="{ name: ROUTE_NAMES.REVIEW_DETAIL, params: { id: review.id }, query: { v: version.no } }">

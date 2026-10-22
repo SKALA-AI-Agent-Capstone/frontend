@@ -13,7 +13,12 @@ export function provideReviewDetail() {
   const route = useRoute()
   const reviews = useReviewsStore()
 
-  const review = computed(() => reviews.byId(String(route.params.id)))
+  // 목록 요약 항목은 결과 전체가 없으므로 상세 응답을 받을 때까지 그리지 않는다
+  const review = computed(() => {
+    const item = reviews.byId(String(route.params.id))
+    return reviews.isDetailed(item) ? item : null
+  })
+  const loading = ref(true)
   const latestNo = computed(() => (review.value ? reviews.latest(review.value).no : null))
   // 재검토(새 버전)는 2026-10-22에 없앴다. 그 전에 만든 v2 이상 검토도 최신 버전 리포트만 보여 준다.
   const versionNo = computed(() => latestNo.value)
@@ -24,7 +29,15 @@ export function provideReviewDetail() {
   const findings = computed(() => result.value?.findings ?? [])
 
   // 목록 API(/reviews)는 violations를 싣지 않는다. 이미 끝난 검토를 열 때도 상세를 한 번 받아 위반 행을 채운다.
-  watch(() => route.params.id, (id) => { if (id) reviews.refresh(String(id)).catch(() => {}) }, { immediate: true })
+  function loadDetail(id) {
+    loading.value = true
+    reviews.refresh(String(id)).catch(() => {}).finally(() => { loading.value = false })
+  }
+  watch(() => route.params.id, (id) => { if (id) loadDetail(id) }, { immediate: true })
+  // 상태가 바뀐 뒤 목록 요약이 상세를 덮어쓰면 상세를 다시 받는다.
+  watch(() => reviews.byId(String(route.params.id))?.summary, (summary) => {
+    if (summary && route.params.id && !loading.value) loadDetail(route.params.id)
+  })
 
   // ── 문구별 위반과 HITL 결정 (violations는 항상 "최신 버전" 기준, 재검토 버전 구조 없음) ──
   const violations = computed(() => review.value?.violations ?? [])
@@ -97,6 +110,7 @@ export function provideReviewDetail() {
 
   const context = {
     review,
+    loading,
     version,
     versionNo,
     latestNo,

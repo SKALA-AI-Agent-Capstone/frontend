@@ -101,18 +101,18 @@ test('explicit cancellation never requests reconnection', async () => {
 
 function storeHarness() {
   const session = { isAuthenticated: true, tenant: { id: 't' }, user: { id: 'u' } }
-  const subscriptions = [], timers = []
+  const subscriptions = [], timers = [], paths = []
   let response = review('analysis'), fail = false
   const storeModule = load('src/shared/stores/reviews.js', {
     pinia: { defineStore: (_name, setup) => setup },
     vue: { ref: value => ({ value }), computed: fn => ({ get value() { return fn() } }), watch: () => {} },
-    '@/shared/api/http': { request: async () => { if (fail) throw Error('offline'); return response } },
+    '@/shared/api/http': { request: async (path) => { paths.push(path); if (fail) throw Error('offline'); return typeof response === 'function' ? response(path) : response } },
     '@/shared/api/reviewEvents': { openReviewStream: (_id, handlers) => { subscriptions.push(handlers); return () => handlers.onClose('cancelled') } },
     './session': { useSessionStore: () => session },
     './credits': { useCreditsStore: () => ({ loadBalance: async () => {} }) },
     '@/shared/i18n': { t: key => key },
   }, { setTimeout: fn => { timers.push(fn); return timers.length }, clearTimeout: () => {} })
-  return { store: storeModule.useReviewsStore(), subscriptions, timers, session,
+  return { store: storeModule.useReviewsStore(), subscriptions, timers, session, paths,
     respond: value => { response = value }, fail: value => { fail = value } }
 }
 
@@ -155,3 +155,38 @@ test('a cancelled subscription stays closed', async () => {
   assert.equal(h.subscriptions.length, 1)
   assert.equal(h.timers.length, 0)
 })
+
+// ── 목록 요약(view=summary)과 상세 ──
+const detailed = (status = 'done') => ({ id: 'r', tenantId: 't', versions: [{ no: 1, status, result: { findings: [{ id: 'f', severity: 'high' }] } }], violations: [{ id: 'v' }], hitl: { violationCount: 1, undecidedCount: 1 } })
+const summary = (status = 'done', undecided = 0) => ({ id: 'r', tenantId: 't', summary: true, versions: [{ no: 1, status, result: { findingCount: 1, severityCounts: { high: 1, medium: 0, low: 0 } } }], hitl: { violationCount: 1, undecidedCount: undecided } })
+
+test('the list asks for the summary view', async () => {
+  const h = storeHarness()
+  h.respond([])
+  await h.store.load()
+  assert.deepEqual(h.paths, ['/reviews?view=summary'])
+})
+
+test('a summary does not overwrite a detailed review of the same state', async () => {
+  const h = storeHarness()
+  h.respond(detailed('done'))
+  await h.store.refresh('r')
+  h.respond([summary('done', 0)])
+  await h.store.load()
+  const kept = h.store.byId('r')
+  assert.equal(h.store.isDetailed(kept), true)
+  assert.equal(kept.versions[0].result.findings.length, 1)
+  assert.equal(kept.violations.length, 1)
+  assert.equal(kept.hitl.undecidedCount, 0)
+})
+
+test('a summary with a newer state replaces a stale detail', async () => {
+  const h = storeHarness()
+  h.respond(detailed('analyzing'))
+  await h.store.refresh('r')
+  h.respond([summary('done')])
+  await h.store.load()
+  assert.equal(h.store.isDetailed(h.store.byId('r')), false)
+  assert.equal(h.store.byId('r').versions[0].status, 'done')
+})
+
