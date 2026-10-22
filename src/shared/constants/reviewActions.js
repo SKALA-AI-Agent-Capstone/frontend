@@ -5,7 +5,7 @@
  *   revise    표현 자체에서 구체적인 위험을 찾았다 (의약품 오인, 절대 표현, 노화를 되돌린다는 식의 효능,
  *             보고 기능과 다름, 금지 원료, 높은 우선순위)
  *   evidence  표현을 뒷받침하는 자료를 확인해야 한다 (시험자료, 기능성 보고번호, 인증 근거, 함량, GMP)
- *   hold      조회가 실패해 판단하지 못했다. 광고의 문제가 아니라 다시 조회하거나 직접 확인할 일이다
+ *   hold      조회나 증빙 판독이 실패해 판단하지 못했다. 광고의 문제가 아니라 다시 조회하거나 직접 확인할 일이다
  *   note      일반적인 효능, 감성 표현이다. 표현 수위만 보고 원문을 유지할 수 있다
  *
  * Agent 결과(rules, checks, severity)만으로 계산하므로 이전에 저장된 결과에도 같은 분류가 적용된다.
@@ -37,11 +37,14 @@ const MATERIAL_BY_STATUS = {
 /** 이 문구에 필요한 자료 키 목록(중복 없음). */
 // 기능성 보고 조회는 문구가 주름, 미백 같은 기능을 실제로 말할 때만 자료 요청이 된다.
 // 성분 대조의 needs_input은 문구에 성분 이름이 없다는 뜻이라 요청할 자료가 아니다.
+// 특허 대조의 needs_input은 광고에 특허번호가 없다는 뜻이라 번호와 등록 자료를 요청한다.
+const NEEDS_INPUT_MATERIAL = { functional_report: 'report', patent: 'patent' }
 const relevant = (check) => check.type !== 'functional_report' || check.status === 'needs_input' || (check.detail?.claimedFunctions ?? []).length > 0
-const material = (check) => (check.status === 'needs_input' ? (check.type === 'functional_report' ? 'report' : null) : MATERIAL_BY_STATUS[check.status])
+const material = (check) => (check.status === 'needs_input' ? (NEEDS_INPUT_MATERIAL[check.type] ?? null) : MATERIAL_BY_STATUS[check.status])
 
 export function materialsFor(finding) {
   const keys = (finding?.checks ?? []).filter(relevant).map(material).filter(Boolean)
+  if ((finding?.rules ?? []).some((r) => r.id === 'unverifiable_effect')) keys.push('test')
   if ((finding?.rules ?? []).some((r) => r.id === 'official_endorsement')) keys.push('endorsement')
   return [...new Set(keys)]
 }
@@ -62,6 +65,14 @@ export function actionFor(finding) {
 /** 카드에 쓰는 "다음 행동" 한 줄. */
 export function nextStepFor(finding) {
   const action = actionFor(finding)
+  if (action === ACTION.REVISE) {
+    const rules = (finding?.rules ?? []).map((r) => r.id)
+    const checks = finding?.checks ?? []
+    const canVerify = !rules.includes('drug') && !rules.includes('absolute_comparison')
+      && !checks.some((check) => check.status === 'prohibited' || check.status === 'mismatch')
+    const names = materialsFor(finding).map((key) => t(`reviewActions.material.${key}`))
+    if (canVerify && names.length) return t('reviewActions.next.reviseWithEvidence', { materials: names.join(', ') })
+  }
   if (action === ACTION.EVIDENCE) {
     const names = materialsFor(finding).map((key) => t(`reviewActions.material.${key}`))
     return t('reviewActions.next.evidence', { materials: names.join(', ') })
