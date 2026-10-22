@@ -17,7 +17,7 @@
 ## 현재 단건 MVP
 
 - 제공된 JavaScript Vue UI를 유지하고 공통 HTTP에는 TypeScript를 사용한다. 기존 시안을 전면 TypeScript로 바꾸는 작업은 이번 범위가 아니다.
-- 실제 진입은 main.ts와 router/index.js, 화면은 pages와 shared다. 초기 views와 api 경로를 현재 업무 화면으로 오해하지 않는다.
+- 실제 진입은 main.ts와 router/index.js, 화면은 pages와 shared다.
 - 통합 기준은 main이고 후속 기능은 feat 브랜치와 PR로 개발한다. 법령 검색 결과 표시와 크레딧/Toss 결제는 실제 API에 연결돼 있다. SSE와 다건(배치) 화면은 아직 자리만 있고 미연결 상태를 정확히 표시한다.
 - 로컬 개발 전용이 아니다. vercel.json으로 Vercel에 배포되고 /api는 Render의 Spring Boot 백엔드(backend-6pdq.onrender.com)로 고정 프록시된다.
 
