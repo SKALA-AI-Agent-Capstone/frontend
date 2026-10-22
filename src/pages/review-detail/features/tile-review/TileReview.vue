@@ -14,7 +14,7 @@ import ViolationCard from '../violation-review/ViolationCard.vue'
 import TileFileGroup from './TileFileGroup.vue'
 import VisualItem from './VisualItem.vue'
 
-const { review, tiles, violations, findingFor, hitl, result, actionFilter, actionCounts, actionOf, tileOf } = useReviewDetail()
+const { review, tiles, violations, findingFor, result, actionFilter, actionCounts, actionOf, tileOf } = useReviewDetail()
 
 const groups = computed(() => {
   const byFile = new Map()
@@ -54,10 +54,7 @@ const unassignedVisual = computed(() => (actionFilter.value === 'all' ? visualFi
       {{ $t('reviewDetail.tiles.total', { text: violations.length, visual: visualFindings.length }) }}
     </BaseSectionHeader>
 
-    <BaseAlert v-if="hitl?.autoApproved" variant="success" icon="check_circle" :title="$t('reviewDetail.list.autoTitle')">
-      {{ $t('reviewDetail.list.autoText') }}
-    </BaseAlert>
-    <BaseAlert v-else-if="undecidedCount > 0" variant="warning" icon="hourglass_empty">
+    <BaseAlert v-if="undecidedCount > 0" variant="warning" icon="hourglass_empty">
       {{ $t('reviewDetail.list.undecided', { count: undecidedCount }) }}
     </BaseAlert>
     <div v-if="violations.length" class="tile-review__filters" role="group" :aria-label="$t('reviewActions.filter.label')">

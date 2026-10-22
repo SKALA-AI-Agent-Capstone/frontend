@@ -1,10 +1,10 @@
 <!--
-  검토 진행 단계: 접수 > 분석 > 검토자 결정을 점 세 개로 보이고, 지금 단계를 글자로 적는다.
-  상태 문구는 review.js의 처리, 승인 상태와 같은 뜻으로 쓴다.
+  검토 진행 단계: 접수 > 분석 > 리포트를 점 세 개로 보이고, 지금 단계를 글자로 적는다.
+  분석이 끝나면 결과가 곧 리포트다. 검토 전체 승인과 완료 상태는 2026-10-22에 없앴다.
 -->
 <script setup>
 import { computed } from 'vue'
-import { APPROVAL_STATE, REVIEW_STATUS } from '@/shared/constants/review'
+import { REVIEW_STATUS } from '@/shared/constants/review'
 
 const props = defineProps({
   version: { type: Object, required: true },
@@ -16,21 +16,16 @@ const ANALYSIS = {
   [REVIEW_STATUS.DONE]: { text: 'ui.stage.analyzed', state: 'done' },
   [REVIEW_STATUS.FAILED]: { text: 'ui.stage.failed', state: 'failed' },
 }
-const DECISION = {
-  [APPROVAL_STATE.PENDING]: { text: 'ui.stage.pending', state: 'current' },
-  [APPROVAL_STATE.APPROVED]: { text: 'ui.stage.approved', state: 'done' },
-  [APPROVAL_STATE.CHANGES_REQUESTED]: { text: 'ui.stage.changes', state: 'failed' },
-  [APPROVAL_STATE.REJECTED]: { text: 'ui.stage.rejected', state: 'failed' },
-}
-const WAITING = { text: 'ui.stage.decision', state: 'waiting' }
+const REPORT_READY = { text: 'ui.stage.report', state: 'done' }
+const REPORT_WAITING = { text: 'ui.stage.report', state: 'waiting' }
 
 const stages = computed(() => {
   const v = props.version
   const analysis = ANALYSIS[v.status] ?? { text: 'ui.stage.analysis', state: 'waiting' }
-  const decision = v.status === REVIEW_STATUS.DONE ? DECISION[v.approval?.state] ?? WAITING : WAITING
-  return [{ key: 'submit', text: 'ui.stage.submitted', state: 'done' }, { key: 'analysis', ...analysis }, { key: 'decision', ...decision }]
+  const report = v.status === REVIEW_STATUS.DONE ? REPORT_READY : REPORT_WAITING
+  return [{ key: 'submit', text: 'ui.stage.submitted', state: 'done' }, { key: 'analysis', ...analysis }, { key: 'report', ...report }]
 })
-// 글자로 보여 줄 대표 단계: 분석이 끝났으면 검토자 결정, 아니면 분석 단계
+// 글자로 보여 줄 대표 단계: 분석이 끝났으면 리포트, 아니면 분석 단계
 const current = computed(() => (props.version.status === REVIEW_STATUS.DONE ? stages.value[2] : stages.value[1]))
 </script>
 

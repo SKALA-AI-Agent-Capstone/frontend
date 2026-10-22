@@ -23,7 +23,6 @@ export const useReviewsStore = defineStore('reviews', () => {
   const list = computed(() => items.value.filter(r => r.tenantId === session.tenant?.id))
   const latest = review => review.versions[review.versions.length - 1]
   const byId = id => list.value.find(r => r.id === id) ?? null
-  const pendingApprovals = computed(() => list.value.map(review => ({ review, version: latest(review) })).filter(x => x.version.status === 'done' && x.version.approval.state === 'pending'))
   function upsert(review) {
     const index = items.value.findIndex(r => r.id === review.id)
     if (index < 0) items.value.unshift(review)
@@ -39,7 +38,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     })().finally(() => { loading = null })
     return loading
   }
-  // 목록 API는 violations와 canApprove를 싣지 않는다. 상세로 먼저 받아 둔 건을 목록이 늦게 덮으면
+  // 목록 API는 violations를 싣지 않는다. 상세로 먼저 받아 둔 건을 목록이 늦게 덮으면
   // 수정안 카드가 통째로 사라지므로, 최신 버전이 그대로일 때만 상세 값을 이어 붙인다.
   function keepDetail(review) {
     const known = items.value.find(r => r.id === review.id)
@@ -50,8 +49,8 @@ export const useReviewsStore = defineStore('reviews', () => {
   }
   async function refresh(id) { return upsert(await request(`/reviews/${id}`)) }
   const isRunning = review => ['queued', 'analyzing'].includes(latest(review).status)
-  // 결정 뒤 Agent 재개를 기다리는 건도 resume_completed 또는 resume_failed를 받을 때까지 따라간다.
-  const needsStream = review => isRunning(review) || latest(review).approval?.agentResume === 'pending'
+  // 분석 중인 건만 따라간다. 결과가 저장되면 그대로 리포트다.
+  const needsStream = isRunning
   function setActivity(id, patch) {
     activity.value = { ...activity.value, [id]: { ...activity.value[id], ...patch } }
   }
@@ -131,13 +130,8 @@ export const useReviewsStore = defineStore('reviews', () => {
     poll()
     return { reviewId: review.id, versionNo: version.no }
   }
+  // 재검토(같은 검토에 새 버전)와 검토 전체 승인은 2026-10-22에 없앴다. 수정한 광고는 새 검토로 올린다.
   const createReview = input => submit('/reviews', input)
-  const createVersion = (id, input) => submit(`/reviews/${id}/re-review`, input)
-  async function decide(id, versionNo, state, comment) {
-    const review = upsert(await request(`/reviews/${id}/decision`, { method: 'POST', body: JSON.stringify({ versionNo, state, comment }) }))
-    poll() // 결정은 저장됐고 Agent 재개는 서버 큐가 처리한다. 결과를 SSE로 받는다.
-    return review
-  }
   async function decideViolation(id, violationId, body) {
     return upsert(await request(`/reviews/${id}/violations/${violationId}/decision`, { method: 'POST', body: JSON.stringify(body) }))
   }
@@ -157,7 +151,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     closeStreams(); activity.value = {}
     items.value = []; loaded.value = false; await load(); poll()
   })
-  return { list, error, loaded, byId, latest, pendingApprovals, poll, activity, createReview, createVersion, decide,
+  return { list, error, loaded, byId, latest, poll, activity, createReview,
     decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })

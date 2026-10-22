@@ -44,11 +44,14 @@
         "choose": "Options"
       }
     },
-    "approve": {
-      "title": "Reviewer approval",
-      "text": "A reviewer approves, requests changes or rejects.",
+    "report": {
+      "title": "Report",
+      "text": "When analysis ends, the result is the report. Each phrase decision updates it.",
       "rows": {
-        "decide": "Decision"
+        "print": "Export",
+        "printValue": "Print or save PDF",
+        "update": "Updates",
+        "updateValue": "As you decide"
       }
     }
   },
@@ -56,7 +59,7 @@
     "title": "Workspace",
     "roles": {
       "title": "Split roles in-house",
-      "text": "Marketing submits as a writer, and legal or regulatory staff approve as reviewers. The account that creates the workspace becomes the admin.",
+      "text": "Marketing submits as a writer, and legal or regulatory staff decide phrases as reviewers. The account that creates the workspace becomes the admin.",
       "members": "Members"
     },
     "basis": {
@@ -69,28 +72,28 @@
     },
     "originals": {
       "title": "Keep the originals",
-      "text": "Uploaded originals are kept on the server with the results and approval history, so you can view them again in review and reports.",
+      "text": "Uploaded originals are kept on the server with the results and phrase decisions, so you can view them again in review and reports.",
       "rows": {
         "ad": "Ad original",
         "result": "Review result",
-        "approvals": "Approval history",
+        "decisions": "Phrase decisions",
         "kept": "Kept on server",
         "view": "View again",
         "viewValue": "Review and report screens"
       }
     },
     "versions": {
-      "label": "Versions",
-      "v2": "Revised copy",
-      "v1": "First submission",
-      "title": "Edits become new versions",
-      "text": "Resubmitting the original creates a new version instead of overwriting earlier results."
+      "label": "Phrase decisions",
+      "v2": "Wrinkles improved in 7 days",
+      "v1": "Clinically proven",
+      "title": "Fix each phrase in place",
+      "text": "For every flagged phrase, keep it, adopt the rewrite, edit it yourself or ask for another rewrite, and change it any time."
     },
     "report": {
       "title": "Keep a report",
-      "text": "Phrases to check, evidence, patents, photo review and approvals in a single report.",
+      "text": "Phrases to check, evidence, patents, photo review and phrase decisions in a single report.",
       "name": "Review report",
-      "note": "Phrases to check, evidence, patents, photo review, approvals",
+      "note": "Phrases to check, evidence, patents, photo review, phrase decisions",
       "button": "Print or save PDF"
     },
     "tenant": {
@@ -113,7 +116,7 @@
     "items": {
       "publish": {
         "q": "Can I publish based on the AI result alone?",
-        "a": "AI flags possible violations with grounds and alternative wording.\nYour in-house reviewer gives final approval before publishing.\nIt does not replace association advice or government certification."
+        "a": "AI flags possible violations with grounds and alternative wording.\nYour company makes the final call on publishing.\nIt does not replace association advice or government certification."
       },
       "files": {
         "q": "Which files can I upload?",
@@ -121,7 +124,7 @@
       },
       "originals": {
         "q": "What happens to the files I upload?",
-        "a": "They are kept on the server with the review results and approval history. You can view them again in review and report screens, and resubmit the original to review a new version."
+        "a": "They are kept on the server with the review results and phrase decisions. You can view them again in review and report screens; submit a revised ad as a new review."
       },
       "legal": {
         "q": "Where do the legal grounds come from?",

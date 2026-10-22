@@ -1,25 +1,20 @@
 {
   "tabs": {
-    "todo": "To do",
+    "todo": "Phrases to decide",
     "analyzing": "Analyzing",
-    "pending": "Awaiting approval",
-    "changes": "Changes requested",
-    "closed": "Decided",
+    "failed": "Analysis failed",
     "all": "All"
   },
   "actions": {
-    "decide": "Decide",
-    "newVersion": "Submit new version",
+    "decide": "Review phrases",
     "retry": "Submit again",
     "progress": "View progress",
     "result": "View result"
   },
   "empty": {
-    "todo": "Nothing to handle right now.",
+    "todo": "No reviews have phrases left to decide.",
     "analyzing": "No reviews are being analyzed.",
-    "pending": "No reviews are awaiting approval.",
-    "changes": "No reviews have change requests.",
-    "closed": "No reviews have been approved or rejected.",
+    "failed": "No reviews failed analysis.",
     "all": "You have not submitted any reviews yet."
   },
   "loadError": "Could not load the review list.",
@@ -43,9 +38,9 @@
       "title": "Submit an ad review",
       "action": "New review"
     },
-    "pending": {
-      "title": "Awaiting approval",
-      "action": "View pending"
+    "todo": {
+      "title": "Phrases to decide",
+      "action": "View remaining"
     },
     "history": {
       "title": "Past results",

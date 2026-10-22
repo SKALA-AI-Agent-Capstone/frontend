@@ -5,11 +5,11 @@
 import { textMap, translated } from '@/shared/i18n'
 
 export const LEGAL_SEARCH = Object.freeze({
-  connected: translated({ variant: 'info' }, { alertTitle: 'legal.connected.alertTitle', summary: 'legal.connected.summary', approvalHint: 'legal.connected.approvalHint', reportNotice: 'legal.connected.reportNotice', emptyBasis: 'legal.connected.emptyBasis' }),
-  not_indexed: translated({ variant: 'warning' }, { alertTitle: 'legal.notIndexed.alertTitle', summary: 'legal.notIndexed.summary', approvalHint: 'legal.notIndexed.approvalHint', reportNotice: 'legal.notIndexed.reportNotice', emptyBasis: 'legal.notIndexed.emptyBasis' }),
-  error: translated({ variant: 'warning' }, { alertTitle: 'legal.error.alertTitle', summary: 'legal.error.summary', approvalHint: 'legal.error.approvalHint', reportNotice: 'legal.error.reportNotice', emptyBasis: 'legal.error.emptyBasis' }),
-  skipped: translated({ variant: 'info' }, { alertTitle: 'legal.skipped.alertTitle', summary: 'legal.skipped.summary', approvalHint: 'legal.skipped.approvalHint', reportNotice: 'legal.skipped.reportNotice', emptyBasis: 'legal.skipped.emptyBasis' }),
-  not_connected: translated({ variant: 'warning' }, { alertTitle: 'legal.notConnected.alertTitle', summary: 'legal.notConnected.summary', approvalHint: 'legal.notConnected.approvalHint', reportNotice: 'legal.notConnected.reportNotice', emptyBasis: 'legal.notConnected.emptyBasis' }),
+  connected: translated({ variant: 'info' }, { alertTitle: 'legal.connected.alertTitle', summary: 'legal.connected.summary', reportNotice: 'legal.connected.reportNotice', emptyBasis: 'legal.connected.emptyBasis' }),
+  not_indexed: translated({ variant: 'warning' }, { alertTitle: 'legal.notIndexed.alertTitle', summary: 'legal.notIndexed.summary', reportNotice: 'legal.notIndexed.reportNotice', emptyBasis: 'legal.notIndexed.emptyBasis' }),
+  error: translated({ variant: 'warning' }, { alertTitle: 'legal.error.alertTitle', summary: 'legal.error.summary', reportNotice: 'legal.error.reportNotice', emptyBasis: 'legal.error.emptyBasis' }),
+  skipped: translated({ variant: 'info' }, { alertTitle: 'legal.skipped.alertTitle', summary: 'legal.skipped.summary', reportNotice: 'legal.skipped.reportNotice', emptyBasis: 'legal.skipped.emptyBasis' }),
+  not_connected: translated({ variant: 'warning' }, { alertTitle: 'legal.notConnected.alertTitle', summary: 'legal.notConnected.summary', reportNotice: 'legal.notConnected.reportNotice', emptyBasis: 'legal.notConnected.emptyBasis' }),
 })
 
 // 문구 하나의 검색 결과. 예전 결과에는 legalSearch 가 없으므로 전체 상태 문구로 대신한다.

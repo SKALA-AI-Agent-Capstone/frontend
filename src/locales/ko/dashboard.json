@@ -1,25 +1,20 @@
 {
   "tabs": {
-    "todo": "처리할 일",
+    "todo": "확인할 문구 남음",
     "analyzing": "분석 중",
-    "pending": "승인 대기",
-    "changes": "수정 요청",
-    "closed": "결정 완료",
+    "failed": "분석 실패",
     "all": "전체"
   },
   "actions": {
-    "decide": "결정하기",
-    "newVersion": "새 버전 신청",
+    "decide": "문구 확인하기",
     "retry": "다시 신청",
     "progress": "진행 보기",
     "result": "결과 보기"
   },
   "empty": {
-    "todo": "지금 처리할 검토가 없습니다.",
+    "todo": "결정할 문구가 남은 검토가 없습니다.",
     "analyzing": "분석 중인 검토가 없습니다.",
-    "pending": "승인을 기다리는 검토가 없습니다.",
-    "changes": "수정 요청을 받은 검토가 없습니다.",
-    "closed": "승인되거나 반려된 검토가 없습니다.",
+    "failed": "분석에 실패한 검토가 없습니다.",
     "all": "아직 신청한 검토가 없습니다."
   },
   "loadError": "검토 목록을 불러오지 못했습니다.",
@@ -43,9 +38,9 @@
       "title": "광고 검토 신청",
       "action": "새 검토"
     },
-    "pending": {
-      "title": "승인 대기",
-      "action": "승인 대기 보기"
+    "todo": {
+      "title": "확인할 문구",
+      "action": "남은 문구 보기"
     },
     "history": {
       "title": "지난 결과 보기",

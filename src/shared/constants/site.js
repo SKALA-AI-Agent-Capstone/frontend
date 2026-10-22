@@ -32,7 +32,6 @@ export const SITE = translated({
 export const GNB_MENUS = Object.freeze([
   translated({ key: NAV_KEYS.REVIEW_NEW, to: { name: ROUTE_NAMES.REVIEW_NEW } }, { label: 'common.nav.reviewNew' }),
   translated({ key: NAV_KEYS.HISTORY, to: { name: ROUTE_NAMES.HISTORY } }, { label: 'common.nav.history' }),
-  translated({ key: NAV_KEYS.APPROVALS, to: { name: ROUTE_NAMES.APPROVALS }, permission: PERMISSIONS.REVIEW_APPROVE }, { label: 'common.nav.approvals' }),
   translated({ key: NAV_KEYS.STANDARDS, to: { name: ROUTE_NAMES.STANDARDS } }, { label: 'common.nav.standards' }),
 ])
 

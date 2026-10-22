@@ -10,7 +10,6 @@
   "nav": {
     "reviewNew": "광고 자율심의 신청",
     "history": "심의 이력",
-    "approvals": "승인 대기",
     "standards": "법령, 고시 자료실",
     "dashboard": "대시보드"
   },
@@ -21,9 +20,9 @@
   "footer": {
     "contactTerm": "운영",
     "contactDesc": "캡스톤 기업 내부 사전검토 개발환경",
-    "retentionNotice": "검토 결과와 승인 이력, 업로드 원본은 서버에 보존됩니다. 사진 분석 결과는 실제 효능 판정이 아닙니다.",
+    "retentionNotice": "검토 결과와 문구 결정, 업로드 원본은 서버에 보존됩니다. 사진 분석 결과는 실제 효능 판정이 아닙니다.",
     "identifier": "정부 또는 협회가 운영하는 공식 서비스가 아닙니다.",
-    "storageNotice": "검토 결과와 승인 이력, 업로드 원본은 서버에 보존됩니다.",
+    "storageNotice": "검토 결과와 문구 결정, 업로드 원본은 서버에 보존됩니다.",
     "photoNotice": "사진 분석 결과는 실제 효능 판정이 아닙니다."
   },
   "roles": {
@@ -35,7 +34,7 @@
     "write": "심의정보 작성",
     "diagnose": "AI 사전 진단",
     "fix": "위반사항 확인, 보완",
-    "approved": "승인 완료"
+    "report": "리포트 확인"
   },
   "ledger": {
     "charge": "충전",
@@ -69,7 +68,7 @@
     },
     "approval": {
       "title": "결과 저장",
-      "description": "결과를 저장하고 검토자 승인을 기다립니다."
+      "description": "결과를 저장하고 리포트를 준비합니다."
     }
   },
   "product": {

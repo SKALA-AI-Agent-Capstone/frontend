@@ -5,12 +5,6 @@
     "done": "분석 완료",
     "failed": "분석 실패"
   },
-  "approval": {
-    "pending": "승인 대기",
-    "approved": "승인",
-    "rejected": "반려",
-    "changesRequested": "수정 요청"
-  },
   "resolution": {
     "kept": "원문 유지",
     "rewritten": "수정안 채택",
@@ -27,11 +21,6 @@
     "partial": "일부만 관련",
     "unrelated": "광고 주장과 관련 없음",
     "unknown": "대조 불가"
-  },
-  "action": {
-    "approve": "승인",
-    "requestChanges": "수정 요청",
-    "reject": "반려"
   },
   "severity": {
     "high": "위반 소지 높음",

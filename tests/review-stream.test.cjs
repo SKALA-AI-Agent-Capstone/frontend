@@ -18,8 +18,10 @@ function load(file, imports, globals = {}) {
 const tick = () => new Promise(resolve => setImmediate(resolve))
 const review = (phase, no = 1) => ({ id: 'r', tenantId: 't', versions: [{ no,
   status: phase === 'analysis' ? 'analyzing' : 'done',
-  approval: { state: 'approved', agentResume: phase === 'resume' ? 'pending' : 'completed' },
 }] })
+// 승인을 없애기 전(2026-10-22)에 저장된 문서. 결정 뒤 Agent 재개를 기다리던 상태가 남아 있을 수 있다.
+const legacyPendingResume = () => ({ id: 'r', tenantId: 't', versions: [{ no: 1, status: 'done',
+  approval: { state: 'approved', agentResume: 'pending' } }] })
 function streamHarness() {
   const connections = [], timers = [], events = [], closes = []
   const api = load('src/shared/api/reviewEvents.ts', {
@@ -37,13 +39,13 @@ function streamHarness() {
   return { connections, timers, events, closes, stop, send }
 }
 
-test('resume ignores replayed analysis completion and reconnects after EOF', async () => {
+test('an analysis stream reconnects after EOF from the last event id', async () => {
   const h = streamHarness()
-  h.send('snapshot', review('resume'))
-  h.send('completed', { versionNo: 1 }, 8)
+  h.send('snapshot', review('analysis'))
+  h.send('step_done', { versionNo: 1, step: 0 }, 8)
   h.connections[0].controller.close()
   await tick(); await tick()
-  assert.deepEqual(h.events, ['snapshot'])
+  assert.deepEqual(h.events, ['snapshot', 'step_done'])
   assert.deepEqual(h.closes, [])
   assert.equal(h.timers.length, 1)
   h.timers.shift()()
@@ -53,10 +55,10 @@ test('resume ignores replayed analysis completion and reconnects after EOF', asy
   h.stop()
 })
 
-test('resume completion and failure each close the stream immediately', async () => {
-  for (const type of ['resume_completed', 'resume_failed']) {
+test('analysis completion and failure each close the stream immediately', async () => {
+  for (const type of ['completed', 'failed']) {
     const h = streamHarness()
-    h.send('snapshot', review('resume'))
+    h.send('snapshot', review('analysis'))
     h.send(type, { versionNo: 1 })
     await tick(); await tick()
     assert.deepEqual(h.events, ['snapshot', type])
@@ -65,11 +67,18 @@ test('resume completion and failure each close the stream immediately', async ()
   }
 })
 
+test('a legacy pending resume no longer keeps a finished review open', async () => {
+  const h = streamHarness()
+  h.send('snapshot', legacyPendingResume())
+  await tick(); await tick()
+  assert.deepEqual(h.closes, ['finished'])
+})
+
 test('an older version cannot terminate a current analysis', async () => {
   const h = streamHarness()
   h.send('snapshot', review('analysis', 2))
   h.send('completed', { versionNo: 1 })
-  h.send('resume_failed', { versionNo: 1 })
+  h.send('failed', { versionNo: 1 })
   h.send('completed', { versionNo: 2 })
   await tick(); await tick()
   assert.deepEqual(h.events, ['snapshot', 'completed'])
@@ -107,37 +116,40 @@ function storeHarness() {
     respond: value => { response = value }, fail: value => { fail = value } }
 }
 
-test('automatic approval opens resume subscription after analysis subscription cleanup', async () => {
+test('a finished analysis refreshes once and opens no further subscription', async () => {
   const h = storeHarness()
   await h.store.refresh('r'); await h.store.poll()
   assert.equal(h.subscriptions.length, 1)
-  h.respond(review('resume'))
+  h.respond(review('done'))
   h.subscriptions[0].onEvent({ type: 'completed', data: { versionNo: 1 } })
   await h.subscriptions[0].onClose('finished')
   await tick()
-  assert.equal(h.subscriptions.length, 2)
-  h.respond(review('done'))
-  await h.subscriptions[1].onClose('finished')
-  assert.equal(h.subscriptions.length, 2)
-  assert.equal(h.store.byId('r').versions[0].approval.agentResume, 'completed')
+  assert.equal(h.subscriptions.length, 1)
+  assert.equal(h.store.byId('r').versions[0].status, 'done')
 })
 
 test('failed final state fetch falls back to polling and recovers', async () => {
   const h = storeHarness()
-  h.respond(review('resume'))
   await h.store.refresh('r'); await h.store.poll()
   h.fail(true)
   await h.subscriptions[0].onClose('finished'); await tick()
   assert.ok(h.timers.length > 0)
   h.fail(false); h.respond(review('done'))
   await h.timers.shift()()
-  assert.equal(h.store.byId('r').versions[0].approval.agentResume, 'completed')
+  assert.equal(h.store.byId('r').versions[0].status, 'done')
 })
 
-test('manual approval subscribes to resume; cancelled subscription stays closed', async () => {
+test('a legacy pending resume is not followed or polled', async () => {
   const h = storeHarness()
-  h.respond(review('resume'))
-  await h.store.decide('r', 1, 'approved', '')
+  h.respond(legacyPendingResume())
+  await h.store.refresh('r'); await h.store.poll()
+  assert.equal(h.subscriptions.length, 0)
+  assert.equal(h.timers.length, 0)
+})
+
+test('a cancelled subscription stays closed', async () => {
+  const h = storeHarness()
+  await h.store.refresh('r'); await h.store.poll()
   assert.equal(h.subscriptions.length, 1)
   await h.subscriptions[0].onClose('cancelled')
   assert.equal(h.subscriptions.length, 1)

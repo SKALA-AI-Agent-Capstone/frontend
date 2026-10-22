@@ -28,10 +28,9 @@ const router = useRouter()
 const reviews = useReviewsStore()
 const credits = useCreditsStore()
 
-// FR-13: 기존 심의 건을 수정해 새 버전으로 재심의
+// 이전 검토의 제품 정보와 매체를 불러와 새 검토로 신청한다. 같은 검토에 새 버전을 올리는 재검토는 2026-10-22에 없앴다.
 const baseReview = computed(() => (route.query.from ? reviews.byId(String(route.query.from)) : null))
 const baseVersion = baseReview.value ? reviews.latest(baseReview.value) : null
-const nextVersionLabel = baseReview.value ? `v${baseVersion.no + 1}` : null
 
 const { draft, canSubmit, clearSaved, saveDraft } = provideReviewDraft({
   baseVersion,
@@ -56,7 +55,7 @@ const progressReview = computed(() => (acceptedId.value && reviews.byId(accepted
 })
 const progressVersion = computed(() => acceptedId.value && progressReview.value.versions
   ? reviews.latest(progressReview.value)
-  : { no: (baseVersion?.no ?? 0) + 1, input: submissionInput.value ?? {}, error: submissionError.value })
+  : { no: 1, input: submissionInput.value ?? {}, error: submissionError.value })
 const progressPhase = computed(() => {
   if (submissionError.value) return 'submission_failed'
   if (!acceptedId.value) return 'preparing'
@@ -131,9 +130,7 @@ async function submit() {
       return
     }
     preparingMessage.value = t('reviewDetail.modal.uploading')
-    const { reviewId } = baseReview.value
-      ? await reviews.createVersion(baseReview.value.id, submissionInput.value)
-      : await reviews.createReview(submissionInput.value)
+    const { reviewId } = await reviews.createReview(submissionInput.value)
     acceptedId.value = reviewId
     clearSaved()
     credits.loadBalance().catch(() => {})
@@ -159,7 +156,7 @@ function goTopUp() {
   <div class="apply-page">
     <BaseCard padding="xl">
       <PageHeading
-        :title="baseReview ? $t('reviewNew.titleVersion') : $t('reviewNew.title')"
+        :title="$t('reviewNew.title')"
         :description="$t('reviewNew.description')"
         :badge="$t('reviewNew.badge')"
         :breadcrumbs="breadcrumbs"
@@ -168,8 +165,8 @@ function goTopUp() {
       </PageHeading>
     </BaseCard>
 
-    <BaseAlert v-if="baseReview" variant="info" :title="$t('reviewNew.versionAlert.title')">
-      {{ $t('reviewNew.versionAlert.text', { name: baseReview.productName, from: baseVersion.no, to: nextVersionLabel }) }}
+    <BaseAlert v-if="baseReview" variant="info" :title="$t('reviewNew.fromAlert.title')">
+      {{ $t('reviewNew.fromAlert.text', { name: baseReview.productName }) }}
     </BaseAlert>
 
     <DiagnosisBackgroundStatus v-if="submitting && !progressOpen"
@@ -182,7 +179,7 @@ function goTopUp() {
       <AdContentSection />
       <EvidenceDocsSection />
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
-      <ReviewFormActions :submitting="submitting || checkingBalance" :version-label="nextVersionLabel" />
+      <ReviewFormActions :submitting="submitting || checkingBalance" />
     </form>
     <!-- 잔액이 충분할 때: 차감 확인 / 모자랄 때: 충전 안내 -->
     <CreditDialog v-model:open="confirmOpen" mode="confirm" :cost="reviewCost ?? 0" :balance="credits.balance" :busy="submitting" @confirm="submit" />

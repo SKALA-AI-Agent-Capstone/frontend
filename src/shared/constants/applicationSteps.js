@@ -4,5 +4,5 @@ export const APPLICATION_STEPS = Object.freeze([
   translated({ no: 1, icon: 'edit_document' }, { title: 'common.steps.write' }),
   translated({ no: 2, icon: 'cloud_upload' }, { title: 'common.steps.diagnose' }),
   translated({ no: 3, icon: 'fact_check' }, { title: 'common.steps.fix' }),
-  translated({ no: 4, icon: 'check_circle' }, { title: 'common.steps.approved' }),
+  translated({ no: 4, icon: 'check_circle' }, { title: 'common.steps.report' }),
 ])

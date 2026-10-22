@@ -8,7 +8,6 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 
 const props = defineProps({
   canCreate: { type: Boolean, default: false },
-  canApprove: { type: Boolean, default: false },
 })
 
 const cards = computed(() => [
@@ -20,12 +19,12 @@ const cards = computed(() => [
     to: { name: ROUTE_NAMES.REVIEW_NEW },
   },
   {
-    key: 'pending',
-    title: 'dashboard.start.pending.title',
-    action: 'dashboard.start.pending.action',
+    key: 'todo',
+    title: 'dashboard.start.todo.title',
+    action: 'dashboard.start.todo.action',
     art: '/doodles/sitting-reading.svg',
-    // 승인 권한이 있으면 승인 대기 화면, 없으면 대시보드의 승인 대기 목록으로 간다
-    to: props.canApprove ? { name: ROUTE_NAMES.APPROVALS } : { name: ROUTE_NAMES.DASHBOARD, query: { tab: 'pending' } },
+    // 결정할 문구가 남은 검토 목록(대시보드 탭)으로 간다
+    to: { name: ROUTE_NAMES.DASHBOARD, query: { tab: 'todo' } },
   },
   {
     key: 'history',

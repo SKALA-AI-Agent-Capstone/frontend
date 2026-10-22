@@ -4,12 +4,11 @@
     "page": "Submit a PDF or image review"
   },
   "title": "Submit a cosmetic ad pre-review",
-  "titleVersion": "Review a new ad version",
   "description": "Upload a PDF or image, and AI analyzes the copy and photos separately.\nEach phrase gets candidate legal articles. Your reviewer decides legality.",
   "badge": "Internal pre-review",
-  "versionAlert": {
-    "title": "This revision will be reviewed as a new version",
-    "text": "Loaded '{name}' v{from}. Submitting saves it as {to}, and earlier approval history is kept."
+  "fromAlert": {
+    "title": "Product details loaded from an earlier review",
+    "text": "Loaded the product details and channels of '{name}'. Upload the revised ad to submit it as a new review."
   },
   "ad": {
     "title": "3. Ad channels and creatives",
@@ -53,7 +52,6 @@
   },
   "actions": {
     "saveDraft": "Save product info",
-    "startVersion": "Start {version} review",
     "start": "Start review"
   },
   "product": {

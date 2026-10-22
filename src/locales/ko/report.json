@@ -11,8 +11,7 @@
   "reviewNo": "검토 번호",
   "author": "작성자",
   "analyzedAt": "분석 완료",
-  "approval": "승인 상태",
-  "responsibility": "게재 여부의 최종 판단과 책임은 승인 담당자에게 있습니다.",
+  "responsibility": "게재 여부의 최종 판단과 책임은 사내 담당자에게 있습니다.",
   "s1": "1. 확인할 문구 ({count}건)",
   "colPhrase": "문구",
   "colLocation": "위치",
@@ -30,8 +29,6 @@
   "s3": "3. 특허 확인",
   "patentSource": "출처 {source}, {at}",
   "noPatents": "추출된 특허번호 없음",
-  "s4": "4. 승인 이력 (v{version})",
-  "noHistory": "처리 이력 없음",
   "standards": "적용 기준:",
   "noStandards": "조문 후보가 없어 적용 법령 버전을 기록하지 않았습니다."
 }

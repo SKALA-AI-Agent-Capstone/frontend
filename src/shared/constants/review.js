@@ -17,27 +17,6 @@ export const REVIEW_STATUS_LABEL = Object.freeze({
   [REVIEW_STATUS.FAILED]: translated({ variant: STATUS.DANGER }, { label: 'review.status.failed' }),
 })
 
-// HITL 승인 상태 (FR-6)
-export const APPROVAL_STATE = Object.freeze({
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  CHANGES_REQUESTED: 'changes_requested',
-})
-
-export const APPROVAL_LABEL = Object.freeze({
-  [APPROVAL_STATE.PENDING]: translated({ variant: STATUS.WARNING }, { label: 'review.approval.pending' }),
-  [APPROVAL_STATE.APPROVED]: translated({ variant: STATUS.SUCCESS }, { label: 'review.approval.approved' }),
-  [APPROVAL_STATE.REJECTED]: translated({ variant: STATUS.DANGER }, { label: 'review.approval.rejected' }),
-  [APPROVAL_STATE.CHANGES_REQUESTED]: translated({ variant: STATUS.INFO }, { label: 'review.approval.changesRequested' }),
-})
-
-export const APPROVAL_ACTIONS = Object.freeze([
-  translated({ state: APPROVAL_STATE.APPROVED, variant: 'primary', commentRequired: false }, { label: 'review.action.approve' }),
-  translated({ state: APPROVAL_STATE.CHANGES_REQUESTED, variant: 'secondary', commentRequired: true }, { label: 'review.action.requestChanges' }),
-  translated({ state: APPROVAL_STATE.REJECTED, variant: 'outline', commentRequired: true }, { label: 'review.action.reject' }),
-])
-
 // 위반 소지 심각도 — NFR-2: 누락보다 과탐지가 안전하므로 '검토 권고' 단계까지 표시
 export const SEVERITY = Object.freeze({
   HIGH: 'high',

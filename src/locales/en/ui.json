@@ -50,14 +50,10 @@
     "analyzing": "Analyzing",
     "analyzed": "Analyzed",
     "failed": "Analysis failed",
-    "pending": "Awaiting decision",
-    "approved": "Approved",
-    "changes": "Changes requested",
-    "rejected": "Rejected",
-    "decision": "Reviewer decision",
     "analysis": "Analysis",
     "submitted": "Submitted",
-    "label": "Progress: {steps}"
+    "label": "Progress: {steps}",
+    "report": "Report"
   },
   "basis": {
     "standard": "Standard",
@@ -83,7 +79,7 @@
   "errors": {
     "reselectAd": "Please choose the ad file again.",
     "reselectEvidence": "Please choose the evidence file again.",
-    "retryUnavailable": "Retrying this step is not available yet. Submit a new version with the original file.",
+    "retryUnavailable": "Retrying this step is not available yet. Submit a new review with the original file.",
     "batchMock": "Error while converting the file (mock)",
     "billingNotConnected": "Usage billing for reviews is not connected yet."
   },
@@ -95,7 +91,6 @@
     "report": "Review report",
     "batch": "Campaign batch review",
     "history": "Review history",
-    "approvals": "Awaiting approval",
     "credits": "Credits",
     "standards": "Laws and notices",
     "privacyPolicy": "Privacy Policy",
@@ -120,7 +115,7 @@
     "ambiguousText": "The number format or product name match is unclear, or not all pages could be checked. This does not mean the product does not exist.",
     "meta": "Supporting cross-check, {source}",
     "checkedAt": "checked {at}",
-    "errorHint": "Check the settings, then submit the original as a new version. Re-checking only this item is not connected yet."
+    "errorHint": "Check the settings, then submit the original as a new review. Re-checking only this item is not connected yet."
   },
   "progress": "Progress"
 }

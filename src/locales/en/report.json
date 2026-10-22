@@ -11,8 +11,7 @@
   "reviewNo": "Review ID",
   "author": "Submitted by",
   "analyzedAt": "Analyzed",
-  "approval": "Approval",
-  "responsibility": "The final decision on publishing, and responsibility for it, rests with the approver.",
+  "responsibility": "The final decision on publishing, and responsibility for it, rests with your company.",
   "s1": "1. Copy to check ({count})",
   "colPhrase": "Copy",
   "colLocation": "Location",
@@ -30,8 +29,6 @@
   "s3": "3. Patent check",
   "patentSource": "source {source}, {at}",
   "noPatents": "No patent numbers extracted",
-  "s4": "4. Approval history (v{version})",
-  "noHistory": "No actions yet",
   "standards": "Standards applied:",
   "noStandards": "No legal article candidates, so no law version was recorded."
 }
