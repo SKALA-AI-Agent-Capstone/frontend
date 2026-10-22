@@ -47,6 +47,22 @@ const locationLabel = computed(() => {
 
 // 카드 본문에는 판단 이유, 확인이 필요한 대조 결과, 수정안만 둔다. 조항과 나머지 대조 결과는 펼쳐서 본다.
 const basis = computed(() => props.finding?.basis ?? [])
+// 같은 위반에 대한 상위 법률과 시행규칙을 한 묶음으로 표시한다.
+const basisGroups = computed(() => {
+  const groups = []
+  for (const item of basis.value) {
+    const name = item.sourceName ?? ''
+    if (name.endsWith(' 시행규칙')) {
+      const parent = groups.find((group) => group[0]?.sourceName === name.slice(0, -' 시행규칙'.length))
+      if (parent) {
+        parent.push(item)
+        continue
+      }
+    }
+    groups.push([item])
+  }
+  return groups
+})
 const action = computed(() => actionFor(props.finding))
 const nextStep = computed(() => nextStepFor(props.finding))
 const checks = computed(() => props.finding?.checks ?? [])
@@ -134,7 +150,13 @@ function retry(note) {
           <BaseIcon name="trending_up" size="sm" />
           {{ $t('reviewDetail.card.escalated') }}: {{ SEVERITY_LABEL[finding.escalation.from].label }} → {{ severity.label }}. {{ finding.escalation.reason }}
         </p>
-        <BasisItem v-for="(item, i) in basis" :key="`${item.sourceId}-${i}`" :basis="item" />
+        <div v-for="(group, groupIndex) in basisGroups" :key="groupIndex" class="violation__basis-group">
+          <p v-if="group.length > 1" class="violation__basis-group-title">법률의 금지 원칙 → 시행규칙의 세부 기준</p>
+          <div v-for="(item, i) in group" :key="`${item.sourceId}-${i}`" :class="{ 'violation__basis-child': i > 0 }">
+            <p v-if="group.length > 1" class="violation__basis-role">{{ i === 0 ? '상위 법률' : '세부 시행규칙' }}</p>
+            <BasisItem :basis="item" />
+          </div>
+        </div>
         <CheckList v-if="checks.length" :checks="checks" />
         <section v-if="finding.references?.length" class="violation__refs" :aria-label="$t('reviewDetail.card.refsLabel')">
           <p class="violation__refs-title">{{ $t('reviewDetail.card.refsTitle') }}</p>
@@ -224,6 +246,22 @@ function retry(note) {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+}
+.violation__basis-group {
+  padding: var(--space-xs) var(--space-sm);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.violation__basis-group-title,
+.violation__basis-role {
+  font-size: var(--font-size-detail-s);
+  color: var(--color-text-secondary);
+}
+.violation__basis-group-title { font-weight: var(--font-weight-bold); }
+.violation__basis-child {
+  margin-left: var(--space-md);
+  padding-left: var(--space-sm);
+  border-left: var(--border-width) solid var(--color-border);
 }
 .violation__why {
   display: flex;

@@ -8,11 +8,12 @@
   "hint": {
     "revise": "The wording itself is risky and should change",
     "evidence": "Usable if supporting material exists",
-    "hold": "A lookup failed, so no judgment was made",
+    "hold": "A lookup or evidence read failed, so no judgment was made",
     "note": "General wording that can usually stay"
   },
   "next": {
     "revise": "Next: use the suggestion below or rewrite it yourself.",
+    "reviseWithEvidence": "Do you have {materials} to support this claim? Check that the tested product, conditions and results match the ad. If the evidence is missing or does not match, use the suggested revision below.",
     "evidence": "Next: check {materials}. Without it, change the wording.",
     "hold": "Next: retry the lookup or check the source material yourself.",
     "note": "Next: check the tone only; keeping the original is fine."
@@ -23,6 +24,7 @@
     "report": "the functional report number or review notice",
     "amount": "ingredient amount data",
     "gmp": "the manufacturer's GMP record",
+    "patent": "the patent number and registration record",
     "endorsement": "proof of the certification, review or endorsement",
     "rightTest": "a test report measuring the advertised effect"
   },

@@ -59,6 +59,7 @@
     "standard": "Standard",
     "showOriginal": "Show original article",
     "showDocument": "Show full document",
+    "exceptionDetail": "Relevant annex expression and supporting evidence",
     "noOriginal": "Original text not registered. Register it in reference management.",
     "meta": "Standard version {version}, revised {date}"
   },

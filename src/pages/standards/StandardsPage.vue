@@ -42,7 +42,10 @@ function sourceStatus(source) {
     parts.push(legalizeDocs.value.length ? t('standards.status.articles', { versions: legalizeDocs.value.length, articles: articleCount.value }) : t('standards.status.articlesMissing'))
   }
   if (method.split('+').includes('lawapi')) {
-    const api = corpus.value.filter((d) => d.document_key === `lawapi:${source.id}`)
+    // S05 loads 화장품법, 시행령, 시행규칙 as separate documents; rows loaded before 2026-10-22 kept their legalize-kr keys.
+    const statutes = (source.acquisition?.lawapi?.statutes ?? []).flatMap((s) => [s.document_key, s.document_key.replace('lawapi:', 'legalize-kr:')])
+    const keys = statutes.length ? statutes : [`lawapi:${source.id}`]
+    const api = corpus.value.filter((d) => keys.includes(d.document_key))
     if (api.length) loaded = true
     parts.push(api.length ? t('standards.status.lawapi', { version: api[api.length - 1].version_label, chunks: api.reduce((sum, d) => sum + d.chunks, 0) }) : t('standards.status.lawapiMissing'))
   }

@@ -5,14 +5,12 @@ import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { PERMISSIONS } from '@/shared/constants/roles'
 import { useSessionStore } from '@/shared/stores/session'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
-import { useBatchStore } from '@/shared/stores/batch'
 import { useCreditsStore } from '@/shared/stores/credits'
 import { formatNumber } from '@/shared/utils/format'
 import UserMenu from './UserMenu.vue'
 
 const credits = useCreditsStore()
 const session = useSessionStore()
-const batch = useBatchStore()
 watch(() => session.user?.id, async (id) => {
   credits.resetBalance()
   if (id) {
@@ -23,15 +21,6 @@ watch(() => session.user?.id, async (id) => {
 
 <template>
   <div class="header-actions">
-    <RouterLink
-      v-if="batch.summary.active"
-      :to="{ name: ROUTE_NAMES.BATCH }"
-      class="header-action header-action--batch"
-      aria-live="polite"
-    >
-      <BaseIcon name="progress_activity" class="spin" />
-      <span class="header-action__label">{{ $t('ui.header.batch', { done: batch.summary.done, total: batch.summary.total }) }}</span>
-    </RouterLink>
     <RouterLink v-if="session.can(PERMISSIONS.CREDITS_CHARGE)" :to="{ name: ROUTE_NAMES.CREDITS }" class="header-action">
       <BaseIcon name="add_circle" />
       <span class="header-action__label">{{ $t('ui.header.charge') }}</span>

@@ -20,8 +20,11 @@ const props = defineProps({
 })
 const emit = defineEmits(['retry', 'confirm'])
 
-const status = computed(() => PATENT_STATUS_LABEL[props.patent.status] || { label: t('reviewDetail.patent.needsCheck'), variant: 'warning' })
+const effectiveStatus = computed(() => props.patent.data?.registerStatus === '소멸' ? PATENT_STATUS.EXPIRED : props.patent.status)
+const status = computed(() => PATENT_STATUS_LABEL[effectiveStatus.value] || { label: t('reviewDetail.patent.needsCheck'), variant: 'warning' })
 const match = computed(() => (props.patent.match ? PATENT_MATCH_LABEL[props.patent.match.verdict] : null))
+const matchSummary = computed(() => props.patent.match?.reason === '청구항 원문 미확보'
+  ? t('reviewDetail.patent.claimsUnavailable') : props.patent.match?.summary)
 const number = ref(props.patent.number)
 const inputId = `patent-${props.patent.id}`
 </script>
@@ -64,11 +67,14 @@ const inputId = `patent-${props.patent.id}`
     </BaseAlert>
 
     <!-- NFR-13: 결과 없음 → 단정하지 않음 -->
-    <BaseAlert v-else-if="patent.status === PATENT_STATUS.UNAVAILABLE" variant="neutral" icon="help" :title="$t('reviewDetail.patent.unavailableTitle')">
+    <BaseAlert v-else-if="effectiveStatus === PATENT_STATUS.UNAVAILABLE" variant="neutral" icon="help" :title="$t('reviewDetail.patent.unavailableTitle')">
       {{ $t('reviewDetail.patent.unavailableText') }}
     </BaseAlert>
 
-    <template v-else-if="patent.status === PATENT_STATUS.REGISTERED">
+    <template v-else-if="effectiveStatus === PATENT_STATUS.REGISTERED || effectiveStatus === PATENT_STATUS.EXPIRED">
+      <BaseAlert v-if="effectiveStatus === PATENT_STATUS.EXPIRED" variant="warning" :title="$t('reviewDetail.patent.expiredTitle')">
+        {{ $t('reviewDetail.patent.expiredText') }}
+      </BaseAlert>
       <dl class="patent__info">
         <div><dt>{{ $t('reviewDetail.patent.inventionTitle') }}</dt><dd>{{ patent.data.title }}</dd></div>
         <div><dt>{{ $t('reviewDetail.patent.holder') }}</dt><dd>{{ patent.data.applicant || $t('reviewDetail.patent.unknown') }}</dd></div>
@@ -79,7 +85,7 @@ const inputId = `patent-${props.patent.id}`
           {{ $t('reviewDetail.patent.claims') }}
           <BaseBadge :variant="match.variant">{{ match.label }}</BaseBadge>
         </p>
-        <p class="patent__summary">{{ patent.match.summary }}</p>
+        <p class="patent__summary">{{ matchSummary }}</p>
         <table v-if="patent.match.reasons?.length" class="patent__table">
           <thead>
             <tr><th scope="col">{{ $t('reviewDetail.patent.adClaim') }}</th><th scope="col">{{ $t('reviewDetail.patent.location') }}</th><th scope="col">{{ $t('reviewDetail.patent.basis') }}</th></tr>

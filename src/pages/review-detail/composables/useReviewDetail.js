@@ -6,6 +6,7 @@ import { useRoute } from 'vue-router'
 import { REVIEW_STATUS, VIOLATION_RESOLUTION } from '@/shared/constants/review'
 import { ACTION, actionFor } from '@/shared/constants/reviewActions'
 import { useReviewsStore } from '@/shared/stores/reviews'
+import { visibleVisualFindings } from '@/shared/utils/visualFindings'
 
 const DETAIL_KEY = Symbol('review-detail')
 
@@ -25,7 +26,10 @@ export function provideReviewDetail() {
   const version = computed(() => review.value?.versions.find((v) => v.no === versionNo.value) ?? null)
   const isLatest = computed(() => versionNo.value === latestNo.value)
   const isDone = computed(() => version.value?.status === REVIEW_STATUS.DONE)
-  const result = computed(() => version.value?.result ?? null)
+  const result = computed(() => {
+    const saved = version.value?.result
+    return saved ? { ...saved, visualFindings: visibleVisualFindings(saved.visualFindings ?? []) } : null
+  })
   const findings = computed(() => result.value?.findings ?? [])
 
   // 목록 API(/reviews)는 violations를 싣지 않는다. 이미 끝난 검토를 열 때도 상세를 한 번 받아 위반 행을 채운다.
