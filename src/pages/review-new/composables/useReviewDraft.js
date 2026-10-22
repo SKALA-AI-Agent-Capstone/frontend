@@ -4,7 +4,6 @@
  *   - ?copy=<문구> 이면 대시보드 간이진단 문구를 이어받는다
  */
 import { computed, inject, provide, reactive, ref, markRaw } from 'vue'
-import { calcUsage } from '@/shared/constants/pricing'
 import { DOC_TYPES, FILE_KIND } from '@/shared/constants/review'
 import { uid } from '@/shared/utils/format'
 
@@ -79,8 +78,6 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '' } = {}
   const liveFindings = computed(() => [])
   const claimTypes = computed(() => [])
   const requirements = computed(() => [])
-  // FR-11: 요청 전 예상 사용량
-  const estimate = computed(() => calcUsage({ textChars: draft.copy.length, images: draft.files.length }))
   const canSubmit = computed(() => draft.product.name.trim() && draft.files.length > 0 && draft.files.every(f => f.file instanceof File))
 
   function addFiles(files) {
@@ -106,7 +103,6 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '' } = {}
     liveFindings,
     claimTypes,
     requirements,
-    estimate,
     canSubmit,
     addFiles,
     addEvidence,
