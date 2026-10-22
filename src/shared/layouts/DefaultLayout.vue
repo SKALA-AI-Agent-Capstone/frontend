@@ -29,6 +29,8 @@ const route = useRoute()
 /* KRDS 배치: GNB - Body 간격 */
 .layout-main {
   padding-top: var(--space-title-h2);
+  /* 목록이 늦게 와도 footer가 보이는 화면 안에서 밀리지 않게 본문을 한 화면 높이 이상으로 둔다 */
+  min-height: 100vh;
 }
 .layout-main--compact {
   padding-top: var(--space-xl);
