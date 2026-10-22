@@ -10,7 +10,7 @@ import { PERMISSIONS } from './roles'
 // 마스코트(탐정 고양이) 색 버전. 'black' 또는 'navy'로 바꾸면 로고, 파비콘, 마스코트 그림이 한꺼번에 바뀐다.
 // 그림 파일은 public/brand/<버전>/ 에 같은 이름으로 들어 있다.
 export const MASCOT = 'black'
-/** 현재 마스코트 버전의 그림 주소. 예: brandAsset('vero-head.png') */
+/** 현재 마스코트 버전의 그림 주소. 예: brandAsset('vero-head.webp') */
 export const brandAsset = (file) => `/brand/${MASCOT}/${file}`
 
 export const SITE = translated({

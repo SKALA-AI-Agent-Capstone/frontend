@@ -90,7 +90,7 @@ function start() {
     <section class="hero" aria-labelledby="landing-title">
       <div class="hero__copy">
         <RouterLink :to="{ name: ROUTE_NAMES.LANDING }" class="wordmark">
-          <img :src="brandAsset('vero-head-outline.png')" alt="" width="36" height="36" class="wordmark__logo" />
+          <img :src="brandAsset('vero-head-outline.webp')" alt="" width="36" height="36" class="wordmark__logo" />
           {{ SITE.orgName }}
         </RouterLink>
         <div class="hero__text">
@@ -109,7 +109,7 @@ function start() {
       <div class="hero__stage">
         <div class="hero__top"><LanguageMenu class="hero__lang" /><RouterLink :to="{ name: ROUTE_NAMES.LOGIN }" class="hero__login">{{ $t('landing.login') }}</RouterLink></div>
         <!-- 로그인 화면 왼쪽과 같은 마스코트. 남색 위에서 묻히지 않게 흰 테두리 그림을 쓴다 -->
-        <img :src="brandAsset('vero-body-outline.png')" alt="" width="560" height="623" class="hero__mascot fade-up" />
+        <img :src="brandAsset('vero-body-outline.webp')" alt="" width="560" height="623" class="hero__mascot fade-up" />
       </div>
     </section>
 

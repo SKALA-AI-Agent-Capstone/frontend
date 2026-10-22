@@ -17,7 +17,7 @@ export interface ArchiveAd {
 const ADS = [
   {
     id: 'lesquendieu',
-    src: '/landing/reclame-parfumeur-j-lesquendieu-de-1921.jpg',
+    src: '/landing/reclame-parfumeur-j-lesquendieu-de-1921.webp',
     width: 664,
     height: 1100,
     creator: 'landing.archive.unknownCreator',
@@ -26,7 +26,7 @@ const ADS = [
   },
   {
     id: 'elida',
-    src: '/landing/julius-klinger-elida-1921.jpg',
+    src: '/landing/julius-klinger-elida-1921.webp',
     width: 902,
     height: 1100,
     creator: 'Julius Klinger',
@@ -35,7 +35,7 @@ const ADS = [
   },
   {
     id: 'lundborg',
-    src: '/landing/try-vio-violet-a-new-lundborg-perfume.jpg',
+    src: '/landing/try-vio-violet-a-new-lundborg-perfume.webp',
     width: 750,
     height: 1100,
     creator: 'Louis Rhead',
@@ -44,7 +44,7 @@ const ADS = [
   },
   {
     id: 'klarybella',
-    src: '/landing/ludwig-hohlwein-parfum-klarybella-1924.jpg',
+    src: '/landing/ludwig-hohlwein-parfum-klarybella-1924.webp',
     width: 827,
     height: 1100,
     creator: 'Ludwig Hohlwein',
@@ -53,7 +53,7 @@ const ADS = [
   },
   {
     id: 'rigaud',
-    src: '/landing/george-barbier-parfum-tendre-parfums-rigaud-1922.jpg',
+    src: '/landing/george-barbier-parfum-tendre-parfums-rigaud-1922.webp',
     width: 804,
     height: 1100,
     creator: 'George Barbier',

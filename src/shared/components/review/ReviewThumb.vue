@@ -4,7 +4,7 @@
 -->
 <script setup>
 import { t } from '@/shared/i18n'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useAssetImage } from '@/shared/composables/useAssetImage'
 import { pdfThumbnail } from '@/shared/utils/pdfThumbnail'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
@@ -18,7 +18,22 @@ const props = defineProps({
 const file = computed(() => props.version.input?.files?.[0] ?? null)
 const isPdf = computed(() => file.value?.mime === 'application/pdf' || /\.pdf$/i.test(file.value?.name ?? ''))
 const reviewId = computed(() => props.review.id)
-const assetId = computed(() => file.value?.id ?? null)
+// 원본은 크기가 커서 썸네일이 화면 가까이 왔을 때만 받는다
+const root = ref(null)
+const inView = ref(typeof IntersectionObserver === 'undefined')
+let observer = null
+onMounted(() => {
+  if (inView.value || !root.value) return
+  observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return
+    inView.value = true
+    observer.disconnect()
+  }, { rootMargin: '200px' })
+  observer.observe(root.value)
+})
+onBeforeUnmount(() => observer?.disconnect())
+
+const assetId = computed(() => (inView.value ? file.value?.id ?? null : null))
 const { url: assetUrl } = useAssetImage(reviewId, assetId)
 
 // PDF는 받은 원본의 첫 쪽을 그려 이미지로 쓴다. 그리기에 실패하면 PDF 아이콘으로 남는다.
@@ -42,8 +57,8 @@ const fallback = computed(() => {
 </script>
 
 <template>
-  <span class="thumb" :class="[`thumb--${size}`, `thumb--${fallback.tone}`, { 'has-image': url }]" aria-hidden="true">
-    <img v-if="url" :src="url" alt="" class="thumb__img" />
+  <span ref="root" class="thumb" :class="[`thumb--${size}`, `thumb--${fallback.tone}`, { 'has-image': url }]" aria-hidden="true">
+    <img v-if="url" :src="url" alt="" class="thumb__img" decoding="async" />
     <template v-else>
       <BaseIcon :name="fallback.icon" :size="size === 'sm' ? 'sm' : 'md'" class="thumb__icon" />
       <span class="thumb__label">{{ fallback.label }}</span>

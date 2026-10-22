@@ -25,7 +25,7 @@ defineProps<{
       <div class="auth__intro">
         <figure class="auth__figure">
           <!-- 남색 패널에서 묻히지 않게 흰 테두리를 두른 그림을 쓴다 -->
-          <img :src="brandAsset('vero-body-outline.png')" alt="" width="560" height="623" class="auth__img" />
+          <img :src="brandAsset('vero-body-outline.webp')" alt="" width="560" height="623" class="auth__img" />
         </figure>
         <p class="auth__statement">{{ statement }}</p>
       </div>

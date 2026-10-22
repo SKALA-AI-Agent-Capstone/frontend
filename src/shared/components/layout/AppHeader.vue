@@ -22,7 +22,7 @@ const hidden = computed(() => !isAtTop.value && !isScrollingUp.value)
   <header class="app-header" :class="{ 'app-header--hidden': hidden }">
     <PageContainer class="app-header__top">
       <RouterLink :to="{ name: ROUTE_NAMES.DASHBOARD }" class="brand">
-        <img :src="brandAsset('vero-head.png')" alt="" class="brand__logo" width="48" height="48" />
+        <img :src="brandAsset('vero-head.webp')" alt="" class="brand__logo" width="48" height="48" />
         <span class="brand__text">
           <span class="brand__gov">{{ SITE.serviceName }}</span>
           <span class="brand__name">{{ SITE.orgName }}</span>
