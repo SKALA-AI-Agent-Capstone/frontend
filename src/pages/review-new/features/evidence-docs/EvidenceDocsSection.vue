@@ -28,6 +28,7 @@ onBeforeUnmount(() => { if (draft.productId) productEvidence.clear(draft.product
 // 이전 판으로 밀려난 것은 검토에 쓰이지 않는다
 const productDocs = computed(() => (draft.productId ? productEvidence.list(draft.productId).filter(item => item.isCurrent) : []))
 const totalCount = computed(() => productDocs.value.length + draft.evidence.length)
+const unsureCount = computed(() => draft.evidence.filter(doc => doc.needsType).length)
 const docLabel = value => DOC_TYPE_OPTIONS.find(o => o.value === value)?.label ?? value
 const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'reading' }
   : item.status === 'failed' ? { variant: 'danger', key: 'failed' }
@@ -72,16 +73,19 @@ const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'r
       @select="addEvidence"
     />
 
+    <BaseAlert v-if="unsureCount" variant="warning" role="status">{{ $t('reviewNew.evidence.unsureTypes', { count: unsureCount }) }}</BaseAlert>
+
     <ul v-if="draft.evidence.length" class="evidence-list" :aria-label="$t('reviewNew.evidence.listLabel')">
-      <li v-for="(doc, index) in draft.evidence" :key="doc.id" class="evidence-item">
+      <li v-for="(doc, index) in draft.evidence" :key="doc.id" class="evidence-item" :class="{ 'evidence-item--unsure': doc.needsType }">
         <BaseIcon name="description" size="sm" class="evidence-item__icon" />
         <span class="evidence-item__name">
           {{ doc.name }}
           <span class="evidence-item__size">{{ formatFileSize(doc.size) }}</span>
           <BaseBadge v-if="doc.carried">{{ $t('reviewNew.evidence.carried') }}</BaseBadge>
+          <BaseBadge v-if="doc.needsType" variant="warning">{{ $t('reviewNew.evidence.checkType') }}</BaseBadge>
         </span>
         <label class="sr-only" :for="`doc-type-${doc.id}`">{{ $t('reviewNew.evidence.typeLabel', { name: doc.name }) }}</label>
-        <BaseSelect :id="`doc-type-${doc.id}`" v-model="doc.docType" :options="DOC_TYPE_OPTIONS" :placeholder="$t('reviewNew.evidence.typePlaceholder')" class="evidence-item__type" />
+        <BaseSelect :id="`doc-type-${doc.id}`" v-model="doc.docType" :options="DOC_TYPE_OPTIONS" @update:model-value="doc.needsType = false" :placeholder="$t('reviewNew.evidence.typePlaceholder')" class="evidence-item__type" />
         <button type="button" class="evidence-item__remove" @click="draft.evidence.splice(index, 1)">
           <BaseIcon name="close" size="sm" />
           <span class="sr-only">{{ $t('ui.attachments.remove', { name: doc.name }) }}</span>
@@ -135,6 +139,10 @@ const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'r
   padding-block: var(--space-sm);
   padding-right: var(--space-md);
   background: var(--color-bg-page);
+}
+.evidence-item--unsure {
+  border-color: var(--color-warning-border);
+  background: var(--color-warning-surface);
 }
 .evidence-item__icon {
   color: var(--color-primary);

@@ -130,9 +130,17 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '', produ
     }
   }
 
+  /**
+   * 증빙 파일을 더한다. 유형은 파일 이름으로 추측하고, 올린 뒤 파일마다 바꾼다.
+   * 이름으로 못 맞혀 '기타'가 된 파일은 needsType을 붙여 화면에서 유형을 확인하게 한다(저장하지 않는 표시).
+   */
   function addEvidence(files) {
     for (const file of files) {
-      draft.evidence.push({ id: uid('EV'), docType: guessDocType(file.name), name: file.name, size: file.size, file: markRaw(file) })
+      const guessed = guessDocType(file.name)
+      draft.evidence.push({
+        id: uid('EV'), docType: guessed, needsType: guessed === DOC_TYPES.OTHER,
+        name: file.name, size: file.size, file: markRaw(file),
+      })
     }
   }
 

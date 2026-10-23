@@ -45,7 +45,9 @@
     "productTitle": "{count} evidence file(s) registered on this product are included",
     "productHint": "Change them under \"Evidence\" on the product page. Add files used only for this ad below.",
     "productListLabel": "Evidence registered on the product",
-    "fromProduct": "Product evidence"
+    "fromProduct": "Product evidence",
+    "unsureTypes": "{count} file(s) could not be typed from the name and were set to Other evidence. Please choose the right type.",
+    "checkType": "Check type"
   },
   "requirement": {
     "prohibited": "Not allowed with evidence, change the copy",
