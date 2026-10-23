@@ -44,6 +44,15 @@ const { url } = useBlobImage(path)
 .pthumb--sm { width: 40px; height: 40px; border-radius: 8px; }
 .pthumb--md { width: 64px; height: 64px; }
 .pthumb--lg { width: 112px; height: 112px; border-radius: 16px; }
-.pthumb.has-image { background: var(--color-bg-muted); }
-.pthumb__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+/* 배경을 지운(투명한) 제품 사진이 카드 위에 그대로 놓이도록 상자 배경과 테두리를 없애고, 잘리지 않게 칸 안에 맞춘다 */
+.pthumb.has-image { background: transparent; outline: none; }
+.pthumb__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+}
 </style>
