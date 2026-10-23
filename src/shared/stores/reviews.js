@@ -14,6 +14,8 @@ export const useReviewsStore = defineStore('reviews', () => {
   const loaded = ref(false)
   let loading = null
   let pollTimer = null
+  // 제품 화면에서 제품별 API로 받은 검토 id. 전체 목록(최근 200건)에 없어도 다시 받을 때 지우지 않는다.
+  const pinned = new Set()
   // 실행 중인 건마다 SSE 구독 하나. 구독이 실패한 건만 폴링한다.
   const streams = new Map()
   const fallback = new Set()
@@ -36,7 +38,12 @@ export const useReviewsStore = defineStore('reviews', () => {
     if (!session.isAuthenticated) { items.value = []; return Promise.resolve() }
     loading ??= (async () => {
       // 목록 화면은 요약(view=summary)만 받는다. 결과 전체는 상세(/reviews/{id})에서 받는다.
-      try { items.value = (await request('/reviews?view=summary')).map(keepDetail); error.value = null } catch (e) { error.value = e.message }
+      try {
+        const fresh = (await request('/reviews?view=summary')).map(keepDetail)
+        const ids = new Set(fresh.map(r => r.id))
+        items.value = [...fresh, ...items.value.filter(r => pinned.has(r.id) && !ids.has(r.id))]
+        error.value = null
+      } catch (e) { error.value = e.message }
       loaded.value = true
     })().finally(() => { loading = null })
     return loading
@@ -51,6 +58,12 @@ export const useReviewsStore = defineStore('reviews', () => {
     return { ...known, updatedAt: review.updatedAt, hitl: { ...known.hitl, ...review.hitl } }
   }
   async function refresh(id) { return upsert(await request(`/reviews/${id}`)) }
+  // 한 제품의 검토를 모두 받는다(전체 목록은 최근 200건이라 오래된 검토가 빠질 수 있다)
+  async function loadByProduct(productId) {
+    const rows = (await request(`/products/${productId}/reviews?view=summary`)).map(keepDetail)
+    for (const review of rows) { pinned.add(review.id); upsert(review) }
+    return rows
+  }
   const isRunning = review => ['queued', 'analyzing'].includes(latest(review).status)
   // 분석 중인 건만 따라간다. 결과가 저장되면 그대로 리포트다.
   const needsStream = isRunning
@@ -145,6 +158,7 @@ export const useReviewsStore = defineStore('reviews', () => {
   const canDelete = review => review.authorId === session.user?.id || session.user?.role === 'admin'
   async function deleteReview(id) {
     await request(`/reviews/${id}`, { method: 'DELETE' })
+    pinned.delete(id)
     items.value = items.value.filter(r => r.id !== id)
     return true
   }
@@ -153,9 +167,9 @@ export const useReviewsStore = defineStore('reviews', () => {
   watch(() => session.user?.id, async () => {
     clearTimeout(pollTimer)
     closeStreams(); activity.value = {}
-    items.value = []; loaded.value = false; await load(); poll()
+    pinned.clear(); items.value = []; loaded.value = false; await load(); poll()
   })
-  return { list, error, loaded, byId, isDetailed, latest, poll, activity, createReview,
+  return { list, error, loaded, byId, isDetailed, latest, poll, activity, createReview, loadByProduct,
     decideViolation, requestRewrite, canDelete,
     deleteReview, deleteAll, ensureSeeded: load, load, refresh, retryPublicData: unavailable, retryPatent: unavailable, confirmPatent: unavailable }
 })

@@ -2,7 +2,7 @@
  * 제품 대표 이미지 손질(2026-10-23).
  * - 배경 지우기: @imgly/background-removal(AGPL-3.0)이 브라우저 안에서 처리한다. 이미지는 서버로 보내지 않고,
  *   처음 한 번 모델 파일(수십 MB)을 IMG.LY CDN에서 받는다. 등록 창에서 버튼을 눌렀을 때만 라이브러리를 불러온다.
- * - 저장 형식: 긴 변을 1200px까지 줄이고 투명도를 지키는 WebP로 바꾼다. WebP로 못 바꾸는 브라우저(Safari 일부)는 PNG로 올린다.
+ * - 저장 형식: 올리는 대표 이미지는 모두 긴 변을 1200px까지 줄이고 투명도를 지키는 WebP로 바꾼다. WebP로 못 바꾸는 브라우저(Safari 일부)는 PNG로 올린다.
  */
 const MAX_SIDE = 1200
 const WEBP_QUALITY = 0.86
@@ -30,6 +30,15 @@ function backgroundWorker() {
     worker = null
   }
   return worker
+}
+
+/** 작업 스레드를 끝낸다. 기다리는 작업은 실패로 끝난다. 다음 요청 때 새로 띄운다. */
+export function releaseBackgroundWorker() {
+  if (!worker) return
+  for (const job of jobs.values()) job.reject(new Error('CANCELLED'))
+  jobs.clear()
+  worker.terminate()
+  worker = null
 }
 
 /**

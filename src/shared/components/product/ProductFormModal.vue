@@ -2,7 +2,7 @@
   제품 등록과 수정. product가 없으면 등록, 있으면 이름과 유형을 고치고 새 이미지를 고른 경우에만 이미지를 바꾼다.
   이미지 형식과 크기는 보내기 전에 한 번 확인하고, 서버가 거절하면 오류 코드에 맞는 문구를 보여 준다.
   고른 이미지는 브라우저에서 배경을 지울 수 있다(2026-10-23). AI가 제품 일부를 지울 수 있어 원본과 나란히 보여 주고 고르게 하며,
-  배경을 지운 이미지는 투명도를 지키는 WebP(안 되면 PNG)로 줄여 올린다.
+  올리는 이미지는 원본이든 배경을 지운 것이든 긴 변 1200px의 WebP(안 되면 PNG)로 줄인다.
 -->
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
@@ -17,7 +17,7 @@ import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import BaseInput from '@/shared/components/base/BaseInput.vue'
 import BaseModal from '@/shared/components/base/BaseModal.vue'
 import ProductThumb from './ProductThumb.vue'
-import { removeImageBackground, toUploadImage } from '@/shared/utils/productImage'
+import { releaseBackgroundWorker, removeImageBackground, toUploadImage } from '@/shared/utils/productImage'
 
 const open = defineModel('open', { type: Boolean, default: false })
 const props = defineProps({
@@ -88,7 +88,8 @@ async function removeBackground() {
 
 // 열 때마다 현재 제품 값으로 채운다
 watch(open, (value) => {
-  if (!value) return
+  // 닫으면 배경 제거 작업 스레드를 끝내 AI 모델이 차지한 메모리를 돌려준다(모델 파일은 브라우저 캐시에 남는다)
+  if (!value) { releaseBackgroundWorker(); return }
   name.value = props.product?.name ?? ''
   type.value = props.product?.type ?? 'general'
   image.value = null
@@ -96,7 +97,7 @@ watch(open, (value) => {
   setCutout(null)
   error.value = ''
 }, { immediate: true })
-onBeforeUnmount(() => { setPreview(null); setCutout(null) })
+onBeforeUnmount(() => { setPreview(null); setCutout(null); releaseBackgroundWorker() })
 
 function pick(event) {
   const file = event.target.files?.[0]
@@ -116,10 +117,11 @@ function clearImage() {
   setCutout(null)
 }
 
+// 원본을 골라도 긴 변 1200px WebP로 줄여 올린다. 화면은 112px까지만 쓰고, 큰 사진이 DB를 채우지 않게 한다.
 async function uploadImage() {
   if (!image.value) return null
-  if (choice.value === 'cutout' && cutout.value) return toUploadImage(cutout.value, image.value.name)
-  return image.value
+  const source = choice.value === 'cutout' && cutout.value ? cutout.value : image.value
+  return toUploadImage(source, image.value.name)
 }
 
 async function save() {

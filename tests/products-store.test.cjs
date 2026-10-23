@@ -100,3 +100,27 @@ test('a review submission carries the chosen productId', async () => {
   assert.equal(metadata.productId, 'p1')
   assert.deepEqual(metadata.product, { name: '세럼', category: 'general' })
 })
+
+test('reviews loaded by product survive a reload of the recent list', async () => {
+  const calls = []
+  const old = { id: 'old', tenantId: 't', productId: 'p1', summary: true, updatedAt: '2026-01-01', versions: [{ no: 1, status: 'done' }] }
+  const recent = { id: 'new', tenantId: 't', productId: 'p2', summary: true, updatedAt: '2026-10-22', versions: [{ no: 1, status: 'done' }] }
+  const reviews = load('src/shared/stores/reviews.js', {
+    pinia: { defineStore: (_name, setup) => setup },
+    vue,
+    '@/shared/api/http': { request: async (path) => {
+      calls.push(path)
+      return path.startsWith('/products/') ? [old] : [recent]
+    } },
+    '@/shared/api/reviewEvents': { openReviewStream: () => () => {} },
+    './session': { useSessionStore: () => session },
+    './credits': { useCreditsStore: () => ({ loadBalance: async () => {} }) },
+    '@/shared/i18n': { t: key => key },
+  }, { setTimeout: () => 0, clearTimeout: () => {} }).useReviewsStore()
+
+  await reviews.loadByProduct('p1')
+  assert.equal(calls[0], '/products/p1/reviews?view=summary')
+  // 전체 목록(최근 200건)에는 오래된 검토가 없다. 다시 받아도 제품 화면에서 받은 검토는 남는다.
+  await reviews.load()
+  assert.deepEqual([...reviews.list.value.map(r => r.id)].sort(), ['new', 'old'])
+})

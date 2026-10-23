@@ -1,6 +1,6 @@
 <!--
   제품 상세: 제품 정보와 그 제품의 광고 검토 내역. 새 광고 검토는 여기서 시작한다.
-  검토 목록은 reviews 스토어(최근 200건)에서 이 제품의 검토만 고른다.
+  검토 목록은 제품별 API(/products/{id}/reviews)로 모두 받아 reviews 스토어에 합친다. 분석 중인 건은 스토어가 따라간다.
   제품 삭제는 검토가 0건일 때만 된다. 검토가 남아 있으면 먼저 지우라는 창을 띄운다(서버도 409 PRODUCT_HAS_REVIEWS로 막는다).
 -->
 <script setup>
@@ -47,8 +47,16 @@ async function load() {
     loading.value = false
   }
 }
+// 이 제품의 검토는 제품별 API로 모두 받는다. 받은 뒤 분석 중인 건을 따라간다.
+const reviewsLoaded = ref(false)
+async function loadReviews() {
+  reviewsLoaded.value = false
+  try { await reviews.loadByProduct(id.value) } catch { /* 제품이 없으면 위의 load가 알려 준다 */ }
+  reviewsLoaded.value = true
+  reviews.poll()
+}
 onMounted(() => reviews.poll())
-watch(id, load, { immediate: true })
+watch(id, () => { load(); loadReviews() }, { immediate: true })
 
 const rows = computed(() =>
   reviews.list
@@ -56,7 +64,7 @@ const rows = computed(() =>
     .map((review) => ({ review, version: reviews.latest(review) }))
     .sort((a, b) => new Date(b.review.updatedAt) - new Date(a.review.updatedAt)),
 )
-// 서버 검토 수와 화면에 받아 둔 수 중 큰 값. 화면 목록은 최근 200건까지라 오래된 검토가 빠질 수 있다.
+// 서버 검토 수와 화면에 받아 둔 수 중 큰 값(목록을 받기 전에도 숫자가 보이게)
 const reviewCount = computed(() => Math.max(product.value?.reviewCount ?? 0, rows.value.length))
 const newReviewRoute = computed(() => ({ name: ROUTE_NAMES.REVIEW_NEW, query: { product: id.value } }))
 
@@ -122,7 +130,7 @@ async function remove() {
 
       <ReviewBoard
         :rows="rows"
-        :loaded="reviews.loaded"
+        :loaded="reviewsLoaded"
         :can-create="canCreate"
         :title="$t('products.detail.reviews')"
         :new-review-route="newReviewRoute"
