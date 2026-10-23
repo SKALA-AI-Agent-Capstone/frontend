@@ -33,6 +33,12 @@ const routes = [
     meta: { title: null, navKey: NAV_KEYS.DASHBOARD, compactTop: true },
   },
   {
+    path: '/products/:id',
+    name: ROUTE_NAMES.PRODUCT_DETAIL,
+    component: () => import('@/pages/product-detail/ProductDetailPage.vue'),
+    meta: { title: 'ui.titles.product', navKey: NAV_KEYS.DASHBOARD },
+  },
+  {
     path: '/reviews/new',
     name: ROUTE_NAMES.REVIEW_NEW,
     component: () => import('@/pages/review-new/ReviewNewPage.vue'),

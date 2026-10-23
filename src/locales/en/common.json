@@ -71,12 +71,6 @@
       "description": "Saves the results and prepares the report."
     }
   },
-  "product": {
-    "functional": "Functional cosmetics",
-    "general": "General cosmetics (skincare, makeup)",
-    "baby": "Infant and children's cosmetics",
-    "custom": "Customized cosmetics"
-  },
   "media": {
     "live": {
       "label": "Live commerce",

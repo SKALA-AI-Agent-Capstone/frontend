@@ -1,0 +1,83 @@
+{
+  "title": "Products",
+  "description": "Register products and see each product's ad reviews.",
+  "create": "Add product",
+  "filter": {
+    "all": "All",
+    "label": "Filter by product type",
+    "empty": "No products of this type have been registered."
+  },
+  "type": {
+    "general": "General cosmetic",
+    "functional": "Functional cosmetic",
+    "children": "Cosmetic for infants and children",
+    "customized": "Customized cosmetic"
+  },
+  "reviewCount": "{count} reviews",
+  "latest": "Last review {date}",
+  "status": {
+    "todo": "{count} to decide",
+    "analyzing": "{count} analyzing",
+    "failed": "{count} failed"
+  },
+  "empty": {
+    "title": "No products yet.",
+    "text": "Add a product first. You can then review its ads as often as you need and keep every review in one place."
+  },
+  "loadError": "Could not load products.",
+  "historyAll": "All review history",
+  "form": {
+    "createTitle": "Add product",
+    "editTitle": "Edit product",
+    "name": "Product name",
+    "namePlaceholder": "Product name as printed on the package",
+    "type": "Product type",
+    "image": "Product image",
+    "imageHint": "PNG, JPEG or WebP, up to 10 MB. Used to recognize the product in lists.",
+    "imagePick": "Choose image",
+    "imageChange": "Choose another image",
+    "imageClear": "Clear",
+    "submitCreate": "Add",
+    "submitEdit": "Save",
+    "removeBg": "Remove background",
+    "removingBg": "You can keep filling in the form while the background is removed. The first run takes longer while the AI model downloads.",
+    "removeBgFailed": "Could not remove the background. Upload the original or choose another image.",
+    "chooseImage": "Image to upload",
+    "choiceOriginal": "Original",
+    "choiceCutout": "Background removed",
+    "removeBgNote": "The background is removed inside this browser and the image is not sent anywhere else. The AI may cut parts of the product, so check the result before choosing.",
+    "removingPrepare": "Preparing",
+    "removingDownload": "Downloading model {percent}%",
+    "removingProcess": "Removing background"
+  },
+  "detail": {
+    "back": "Products",
+    "newReview": "New ad review",
+    "edit": "Edit",
+    "delete": "Delete",
+    "registered": "Added {date}",
+    "reviews": "Ad reviews",
+    "loading": "Loading the product.",
+    "notFound": "Product not found.",
+    "notFoundText": "It was deleted or belongs to another company."
+  },
+  "delete": {
+    "confirmTitle": "Delete this product?",
+    "confirmText": "This deletes {name}. It cannot be undone.",
+    "confirm": "Delete",
+    "blockedTitle": "This product cannot be deleted",
+    "blockedText": "Delete every review in this product before deleting the product.",
+    "blockedCount": "Delete the remaining {count} reviews first.",
+    "blockedOk": "OK"
+  },
+  "errors": {
+    "PRODUCT_NAME_TAKEN": "A product with this name already exists.",
+    "PRODUCT_NAME_REQUIRED": "Enter a product name.",
+    "PRODUCT_NAME_TOO_LONG": "Product names can be up to 200 characters.",
+    "INVALID_PRODUCT_TYPE": "Choose a product type.",
+    "IMAGE_TYPE_UNSUPPORTED": "Only PNG, JPEG and WebP images can be uploaded.",
+    "IMAGE_LIMIT_10_MIB": "Images can be up to 10 MB.",
+    "PRODUCT_NOT_FOUND": "Product not found.",
+    "PRODUCT_HAS_REVIEWS": "Delete every review in this product before deleting the product."
+  }
+}

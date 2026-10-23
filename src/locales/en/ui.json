@@ -87,6 +87,7 @@
   "titles": {
     "login": "Log in",
     "signup": "Sign up",
+    "product": "Product",
     "reviewNew": "Submit a review",
     "reviewDetail": "Findings and fixes",
     "report": "Review report",

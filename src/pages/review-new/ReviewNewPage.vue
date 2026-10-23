@@ -32,9 +32,12 @@ const credits = useCreditsStore()
 const baseReview = computed(() => (route.query.from ? reviews.byId(String(route.query.from)) : null))
 const baseVersion = baseReview.value ? reviews.latest(baseReview.value) : null
 
+// 제품 상세에서 시작하면 ?product=, 이전 검토를 불러오면 그 검토의 제품을 고른다
+const initialProductId = typeof route.query.product === 'string' ? route.query.product : baseReview.value?.productId ?? ''
 const { draft, canSubmit, clearSaved, saveDraft } = provideReviewDraft({
   baseVersion,
   initialCopy: typeof route.query.copy === 'string' ? route.query.copy : '',
+  productId: initialProductId,
 })
 
 const breadcrumbs = computed(() => [{ label: t('reviewNew.crumbs.section') }, { label: t('reviewNew.crumbs.page') }])
@@ -113,7 +116,7 @@ async function submit() {
   submissionError.value = ''
   acceptedId.value = null
   submissionInput.value = {
-    product: { ...draft.product }, media: [...draft.media],
+    productId: draft.productId, product: { ...draft.product }, media: [...draft.media],
     files: [...draft.files], evidence: [...draft.evidence],
   }
   confirmOpen.value = false

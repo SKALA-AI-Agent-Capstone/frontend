@@ -2,64 +2,16 @@
  * 원본 이미지 보존(2026-10-20 설계 변경) — 위반 검토/리포트 화면에서 보여줄 원본을
  * /api/v1/reviews/{id}/assets/{assetId}에서 받아 blob URL로 바꾼다.
  * 목록 화면은 thumbnail 선택지로 .../thumbnail(너비 160px JPEG)만 받는다.
- * img src는 Authorization 헤더를 못 보내므로 fetch로 받는다. 같은 asset을 여러 카드가
- * 참조할 수 있어 blob URL을 캐시로 공유하고, 더 쓰는 곳이 없을 때만 해제한다.
+ * 받기와 공유 캐시는 useBlobImage가 맡는다.
  */
-import { onUnmounted, ref, watch } from 'vue'
-import { requestBlob } from '@/shared/api/http'
-
-const cache = new Map() // key → { url, refs }
-// 아직 받는 중인 요청. 같은 원본을 여러 곳이 동시에 열어도 한 번만 내려받는다.
-const pending = new Map() // key → Promise<Blob>
-
-function keyOf(reviewId, assetId, thumbnail) {
-  return `${reviewId}:${assetId}:${thumbnail ? 'thumbnail' : 'original'}`
-}
-
-function release(key) {
-  const entry = cache.get(key)
-  if (!entry) return
-  entry.refs -= 1
-  if (entry.refs <= 0) {
-    URL.revokeObjectURL(entry.url)
-    cache.delete(key)
-  }
-}
+import { computed } from 'vue'
+import { useBlobImage } from './useBlobImage'
 
 export function useAssetImage(reviewId, assetId, { thumbnail = false } = {}) {
-  const url = ref(null)
-  const error = ref(null)
-  let heldKey = null
-
-  async function load() {
-    error.value = null
-    if (heldKey) { release(heldKey); heldKey = null; url.value = null }
+  const path = computed(() => {
     const id = reviewId.value, asset = assetId.value
-    if (!id || !asset) return
-    const key = keyOf(id, asset, thumbnail)
-    const path = `/reviews/${id}/assets/${asset}${thumbnail ? '/thumbnail' : ''}`
-    const existing = cache.get(key)
-    if (existing) {
-      existing.refs += 1
-      heldKey = key
-      url.value = existing.url
-      return
-    }
-    try {
-      if (!pending.has(key)) pending.set(key, requestBlob(path).finally(() => pending.delete(key)))
-      const blob = await pending.get(key)
-      const entry = cache.get(key)
-      if (entry) entry.refs += 1
-      else cache.set(key, { url: URL.createObjectURL(blob), refs: 1 })
-      heldKey = key
-      url.value = cache.get(key).url
-    } catch (e) {
-      error.value = e.message
-    }
-  }
-
-  watch([reviewId, assetId], load, { immediate: true })
-  onUnmounted(() => { if (heldKey) release(heldKey) })
-
-  return { url, error }
+    if (!id || !asset) return null
+    return `/reviews/${id}/assets/${asset}${thumbnail ? '/thumbnail' : ''}`
+  })
+  return useBlobImage(path)
 }
