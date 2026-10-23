@@ -1,16 +1,12 @@
 <!-- 광고물 파일 입력 (FR-1) -->
 <script setup>
-import { PRICING } from '@/shared/constants/pricing'
 import BaseFileDropzone from '@/shared/components/base/BaseFileDropzone.vue'
 import BaseFormField from '@/shared/components/base/BaseFormField.vue'
-import BaseTextarea from '@/shared/components/base/BaseTextarea.vue'
 import AttachmentList from '@/shared/components/form/AttachmentList.vue'
 import FormSection from '@/shared/components/form/FormSection.vue'
-import SeveritySummary from '@/shared/components/review/SeveritySummary.vue'
-import { formatNumber } from '@/shared/utils/format'
 import { useReviewDraft } from '../../composables/useReviewDraft'
 
-const { draft, liveFindings, addFiles } = useReviewDraft()
+const { draft, addFiles } = useReviewDraft()
 </script>
 
 <template>

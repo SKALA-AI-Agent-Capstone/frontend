@@ -9,8 +9,16 @@ import { computed, ref } from 'vue'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseDisclosure from '@/shared/components/base/BaseDisclosure.vue'
-import { SOURCE_TYPE_LABEL } from '@/shared/data/standards.data'
+import { textMap } from '@/shared/i18n'
+
+const SOURCE_TYPE_LABEL = textMap({
+  law: 'common.sourceType.law',
+  association: 'common.sourceType.association',
+  guideline: 'common.sourceType.guideline',
+  internal: 'common.sourceType.internal',
+})
 import { formatDate } from '@/shared/utils/format'
+import { readableLegalText } from '@/shared/utils/legalText'
 import SourceDocumentModal from './SourceDocumentModal.vue'
 
 const props = defineProps({
@@ -18,7 +26,21 @@ const props = defineProps({
 })
 // 위임(하위 규정)과 인용만 이 조항을 읽는 데 필요하다. 이 조항을 인용하는 다른 조항은 목록만 길게 만든다.
 const DIRECT = new Set(['cites', 'implements', 'implemented_by', 'annex'])
-const related = computed(() => (props.basis.related ?? []).filter((link) => DIRECT.has(link.relation)))
+const exceptionTerms = computed(() => {
+  if (!/\[별표\s*2\]/.test(props.basis.original ?? '')) return []
+  const expression = props.basis.original.match(/금지 표현:\s*[·•]?\s*([^\n]+)/)?.[1] ?? ''
+  return expression.match(/[가-힣]{2,}/g) ?? []
+})
+const relevance = (link) => exceptionTerms.value.filter((term) => link.original?.includes(term)).length
+const related = computed(() => {
+  const selected = new Map()
+  for (const link of props.basis.related ?? []) {
+    if (!DIRECT.has(link.relation)) continue
+    const key = [link.sourceName, link.article, link.relation].join('|')
+    if (!selected.has(key) || relevance(link) > relevance(selected.get(key))) selected.set(key, link)
+  }
+  return [...selected.values()]
+})
 // 근거에 문서 키와 버전이 있어야 같은 버전의 적재 원문을 찾을 수 있다.
 const canOpenDocument = computed(() => Boolean(props.basis.sourceId && props.basis.version))
 const documentOpen = ref(false)
@@ -33,10 +55,13 @@ const documentOpen = ref(false)
     </p>
     <p v-if="!basis.ruleId && basis.plain" class="basis__plain">{{ basis.plain }}</p>
     <BaseDisclosure v-if="basis.original" :label="$t('ui.basis.showOriginal')">
-      <blockquote class="basis__original">{{ basis.original }}</blockquote>
+      <blockquote class="basis__original">{{ readableLegalText(basis.original) }}</blockquote>
       <ul v-if="related.length" class="basis__related">
         <li v-for="(link, i) in related" :key="i">
           {{ $t(`checks.relation.${link.relation}`) }}: {{ link.sourceName }} {{ link.article }}
+          <p v-if="relevance(link) > 0" class="basis__exception">
+            {{ $t('ui.basis.exceptionDetail') }}: {{ readableLegalText(link.original) }}
+          </p>
         </li>
       </ul>
       <p class="basis__meta">{{ $t('ui.basis.meta', { version: basis.version, date: formatDate(basis.revisedAt) }) }}</p>
@@ -88,6 +113,11 @@ const documentOpen = ref(false)
 .basis__document {
   align-self: flex-start;
   margin-top: var(--space-2xs);
+}
+.basis__exception {
+  margin: var(--space-2xs) 0 0;
+  white-space: pre-line;
+  color: var(--color-text);
 }
 .basis__no-original,
 .basis__meta {

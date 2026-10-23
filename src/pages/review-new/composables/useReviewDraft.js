@@ -5,7 +5,6 @@
  *   - 검토는 제품에 속한다(2026-10-22). productId를 고르면 제품 이름과 유형을 product에 채운다.
  */
 import { computed, inject, provide, reactive, ref, markRaw } from 'vue'
-import { calcUsage } from '@/shared/constants/pricing'
 import { DOC_TYPES, FILE_KIND } from '@/shared/constants/review'
 import { uid } from '@/shared/utils/format'
 
@@ -84,8 +83,6 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '', produ
   const liveFindings = computed(() => [])
   const claimTypes = computed(() => [])
   const requirements = computed(() => [])
-  // FR-11: 요청 전 예상 사용량
-  const estimate = computed(() => calcUsage({ textChars: draft.copy.length, images: draft.files.length }))
   const canSubmit = computed(() => Boolean(draft.productId) && draft.files.length > 0 && draft.files.every(f => f.file instanceof File))
 
   function selectProduct(product) {
@@ -116,7 +113,6 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '', produ
     liveFindings,
     claimTypes,
     requirements,
-    estimate,
     canSubmit,
     addFiles,
     addEvidence,

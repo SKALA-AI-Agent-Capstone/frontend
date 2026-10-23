@@ -2,11 +2,12 @@
   한 원본 이미지의 타일별 검토 줄. 왼쪽은 원본을 타일 region만큼 CSS로 자른 이미지(타일 픽셀은 저장하지 않음),
   오른쪽은 그 타일의 문구 카드와 사진 항목이다. 왼쪽은 줄 안에서 sticky라 오른쪽 항목을 넘기는 동안 고정되고
   다음 타일 줄로 넘어가면 다음 타일로 바뀐다.
-  박스는 OCR이나 PDF 문자에서 얻은 줄 좌표(bbox)가 있는 문구에만 그린다. bbox가 없는 Vision 결과는 박스 없이 센다.
+  노랑 형광펜은 읽은 광고 문구 전체(result.texts, 제품 표면 글자는 Agent가 이미 뺌)이고 누를 수 없다.
+  빨강 형광펜은 문구 카드가 가리키는 문제 글자다. 문제 글자 좌표(problemSpan.bbox)가 없으면 문구 줄 좌표를 쓴다.
+  좌표가 없는 문구는 박스 없이 센다.
 -->
 <script setup>
 import { computed, ref, toRef } from 'vue'
-import { SEVERITY } from '@/shared/constants/review'
 import { useAssetImage } from '@/shared/composables/useAssetImage'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseDisclosure from '@/shared/components/base/BaseDisclosure.vue'
@@ -49,24 +50,22 @@ const rows = computed(() =>
       const cards = all.filter((row) => row.action !== ACTION.NOTE || actionFilter.value === ACTION.NOTE)
       const notes = all.filter((row) => row.action === ACTION.NOTE && actionFilter.value !== ACTION.NOTE)
       const visual = actionFilter.value === 'all' ? (result.value?.visualFindings ?? []).filter((f) => f.tileId === tile.id) : []
+      const place = ([bx0, by0, bx1, by1]) => {
+        const top = clamp((by0 - y0) / h)
+        const left = clamp((bx0 - x0) / w)
+        return { top: pct(top), left: pct(left), height: pct(clamp((by1 - y0) / h) - top), width: pct(clamp((bx1 - x0) / w) - left) }
+      }
+      const marks = (result.value?.texts ?? [])
+        .filter((t) => t.location?.tileId === tile.id && Array.isArray(t.location?.bbox))
+        .map((t) => ({ id: t.id, style: place(t.location.bbox) }))
       const boxes = findings.value
-        .filter((f) => tileOf(f) === tile.id && Array.isArray(f.location?.bbox))
-        .map((f) => {
-          const [bx0, by0, bx1, by1] = f.location.bbox
-          const top = clamp((by0 - y0) / h)
-          const left = clamp((bx0 - x0) / w)
-          return {
-            id: f.id,
-            number: violationNumbers.value.get(f.id) ?? null,
-            tone: decidedFindingIds.value.has(f.id) ? 'success' : (f.severity ?? SEVERITY.LOW),
-            style: {
-              top: pct(top),
-              left: pct(left),
-              height: pct(clamp((by1 - y0) / h) - top),
-              width: pct(clamp((bx1 - x0) / w) - left),
-            },
-          }
-        })
+        .filter((f) => tileOf(f) === tile.id && (Array.isArray(f.problemSpan?.bbox) || Array.isArray(f.location?.bbox)))
+        .map((f) => ({
+          id: f.id,
+          number: violationNumbers.value.get(f.id) ?? null,
+          tone: decidedFindingIds.value.has(f.id) ? 'success' : 'problem',
+          style: place(f.problemSpan?.bbox ?? f.location.bbox),
+        }))
       // 화면 높이 안에 타일 전체가 들어오도록 폭을 줄인다(sticky로 고정해도 잘리지 않게).
       const ratio = natural.value ? (natural.value.width * w) / (natural.value.height * h) : 3 / 4
       return {
@@ -75,6 +74,7 @@ const rows = computed(() =>
         cards,
         notes,
         visual,
+        marks,
         boxes,
         frameStyle: { aspectRatio: String(ratio), width: `min(100%, calc((100vh - 6rem) * ${ratio}))` },
         imageStyle: { left: pct(-x0 / w), top: pct(-y0 / h), width: pct(1 / w) },
@@ -114,6 +114,7 @@ const rows = computed(() =>
             <img v-if="url" :src="url" alt="" class="tile-row__image" :style="row.imageStyle" @load="onLoad" />
             <p v-else-if="!error" class="tile-row__loading">{{ $t('reviewDetail.tiles.loading') }}</p>
           </div>
+          <span v-for="mark in row.marks" :key="mark.id" class="tile-row__mark" :style="mark.style" aria-hidden="true" />
           <button
             v-for="box in row.boxes"
             :key="box.id"
@@ -246,8 +247,14 @@ const rows = computed(() =>
   cursor: pointer;
   transition: background-color var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast);
 }
-.tile-row__box--high { --tone: var(--color-danger); }
-.tile-row__box--medium { --tone: #d98e04; }
+/* 읽은 광고 문구 전체: 노랑 형광펜. 문제 글자 박스 아래에 깔리고 누를 수 없다 */
+.tile-row__mark {
+  position: absolute;
+  border-radius: 3px;
+  background: rgba(255, 214, 0, 0.28);
+  pointer-events: none;
+}
+.tile-row__box--problem { --tone: var(--color-danger); }
 .tile-row__box--success { --tone: var(--color-success); }
 .tile-row__box:hover,
 .tile-row__box--active {
@@ -279,7 +286,6 @@ const rows = computed(() =>
   /* 문구 왼쪽 바깥에 붙여 글자를 가리지 않는다 */
   transform: translate(calc(-100% - 4px), -50%);
 }
-.tile-row__box--medium .tile-row__box-no { background: var(--color-warning-text); }
 .tile-row__box--active .tile-row__box-no { transform: translate(calc(-100% - 4px), -50%) scale(1.12); }
 .tile-row__items {
   display: flex;

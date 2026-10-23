@@ -125,6 +125,7 @@ export const PUBLIC_DATA_STATUS = Object.freeze({
 export const PATENT_STATUS = Object.freeze({
   NEEDS_CONFIRM: 'needs_confirm',
   REGISTERED: 'registered',
+  EXPIRED: 'expired',
   UNAVAILABLE: 'unavailable',
   ERROR: 'error',
 })
@@ -132,6 +133,7 @@ export const PATENT_STATUS = Object.freeze({
 export const PATENT_STATUS_LABEL = Object.freeze({
   [PATENT_STATUS.NEEDS_CONFIRM]: translated({ variant: STATUS.WARNING }, { label: 'review.patentStatus.needsConfirm' }),
   [PATENT_STATUS.REGISTERED]: translated({ variant: STATUS.SUCCESS }, { label: 'review.patentStatus.registered' }),
+  [PATENT_STATUS.EXPIRED]: translated({ variant: STATUS.WARNING }, { label: 'review.patentStatus.expired' }),
   [PATENT_STATUS.UNAVAILABLE]: translated({ variant: STATUS.NEUTRAL }, { label: 'review.patentStatus.unavailable' }),
   [PATENT_STATUS.ERROR]: translated({ variant: STATUS.DANGER }, { label: 'review.patentStatus.error' }),
 })
