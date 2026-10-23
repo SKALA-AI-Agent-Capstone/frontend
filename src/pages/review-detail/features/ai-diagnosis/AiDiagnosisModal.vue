@@ -24,10 +24,11 @@ const props = defineProps({
 const emit = defineEmits(['history', 'background', 'view-result'])
 
 const doneCount = computed(() => props.steps.filter((s) => s.state === 'done').length)
+// 분석 중에는 아래 단계 목록이 진행을 보여 주므로 머리에는 아이콘을 두지 않는다(스피너가 두 번 돌지 않게).
 const HEAD = {
-  preparing: { icon: 'progress_activity', title: 'reviewDetail.modal.preparing', tone: 'running' },
+  preparing: { icon: null, title: 'reviewDetail.modal.preparing', tone: 'running' },
   submission_failed: { icon: 'error', title: 'reviewDetail.modal.submissionFailed', tone: 'failed' },
-  running: { icon: 'progress_activity', title: 'reviewDetail.modal.running', tone: 'running' },
+  running: { icon: null, title: 'reviewDetail.modal.running', tone: 'running' },
   done: { icon: 'check_circle', title: 'reviewDetail.modal.done', tone: 'done' },
   failed: { icon: 'error', title: 'reviewDetail.modal.failed', tone: 'failed' },
 }
@@ -44,7 +45,7 @@ function background() {
   <BaseModal v-model:open="open" labelledby="ai-diagnosis-title" @close="emit('background')">
     <template #header="{ close }">
       <div class="head" :class="`head--${head.tone}`">
-        <span class="head__icon" :class="{ 'is-spinning': phase === 'running' || phase === 'preparing' }"><BaseIcon :name="head.icon" size="md" /></span>
+        <span v-if="head.icon" class="head__icon"><BaseIcon :name="head.icon" size="md" /></span>
         <div class="head__text">
           <h2 id="ai-diagnosis-title">{{ $t(head.title) }}</h2>
           <p>{{ review.productName }} v{{ version.no }}</p>
@@ -144,8 +145,6 @@ function background() {
 }
 .head--done .head__icon { background: var(--color-success-surface); color: var(--color-success-text); }
 .head--failed .head__icon { background: var(--color-danger-surface); color: var(--color-danger-text); }
-.head__icon.is-spinning :deep(.material-symbols-outlined),
-.head__icon.is-spinning > * { animation: spin 1.2s linear infinite; }
 .head__text { flex: 1; min-width: 0; }
 .head__text h2 { font-size: var(--font-size-title-m); font-weight: var(--font-weight-bold); line-height: 1.35; }
 .head__text p { font-size: var(--font-size-body-s); color: var(--color-text-secondary); overflow-wrap: anywhere; }
@@ -225,7 +224,6 @@ function background() {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .step--running .step__mark,
-  .head__icon.is-spinning > * { animation: none; }
+  .step--running .step__mark { animation: none; }
 }
 </style>

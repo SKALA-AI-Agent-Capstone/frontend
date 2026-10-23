@@ -20,7 +20,7 @@ import ProductInfoSection from './features/product-info/ProductInfoSection.vue'
 import CreditDialog from './features/credit-dialog/CreditDialog.vue'
 import AiDiagnosisModal from '@/pages/review-detail/features/ai-diagnosis/AiDiagnosisModal.vue'
 import DiagnosisBackgroundStatus from '@/pages/review-detail/features/ai-diagnosis/DiagnosisBackgroundStatus.vue'
-import { ANALYSIS_STEPS } from '@/shared/api/analysisApi'
+import { stepStates } from '@/shared/api/analysisApi'
 import { formatFileSize } from '@/shared/utils/format'
 
 const route = useRoute()
@@ -65,16 +65,7 @@ const progressPhase = computed(() => {
   const status = progressVersion.value.status
   return status === 'done' ? 'done' : status === 'failed' ? 'failed' : 'running'
 })
-const progressSteps = computed(() => {
-  const marks = progressVersion.value.steps ?? []
-  const firstOpen = ANALYSIS_STEPS.findIndex((_, i) => (marks[i] ?? 0) < 100)
-  return ANALYSIS_STEPS.map((step, i) => {
-    let state = (marks[i] ?? 0) >= 100 || progressPhase.value === 'done' ? 'done' : 'pending'
-    if (state !== 'done' && i === firstOpen && acceptedId.value)
-      state = progressPhase.value === 'failed' ? 'failed' : 'running'
-    return { ...step, state }
-  })
-})
+const progressSteps = computed(() => stepStates(progressVersion.value, progressPhase.value, { active: Boolean(acceptedId.value) }))
 const progressSubject = computed(() => {
   const { files = [], evidence = [] } = progressVersion.value.input
   const first = files[0]

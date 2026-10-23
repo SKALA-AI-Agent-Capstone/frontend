@@ -54,10 +54,6 @@
       "title": "Extract and check copy",
       "description": "Reads the copy in PDFs and images and finds wording that may violate the rules."
     },
-    "visual": {
-      "title": "Check photos",
-      "description": "Looks at comparison photos and visual claims separately from the copy."
-    },
     "business": {
       "title": "Legal grounds and official APIs",
       "description": "Finds related statutes for each phrase and checks submitted documents and official APIs."
