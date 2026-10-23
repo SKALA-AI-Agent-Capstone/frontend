@@ -93,14 +93,26 @@ const rows = computed(() =>
         const left = clamp((bx0 - x0) / w)
         return { top: pct(top), left: pct(left), height: pct(clamp((by1 - y0) / h) - top), width: pct(clamp((bx1 - x0) / w) - left) }
       }
-      // 한 덩어리가 멀리 떨어진 항목을 묶은 경우(특허증의 번호와 날짜 표)에는 덩어리 전체 사각형이 사진까지 덮는다.
-      // OCR 단어 위치가 있으면 단어마다 칠하고, 없을 때만 덩어리 사각형을 쓴다.
+      // 노랑은 줄 단위로 칠한다. 한 줄 안의 단어 박스는 하나로 이어 붙여 글자 사이가 끊기지 않게 하고,
+      // 멀리 떨어진 항목을 묶은 덩어리(특허증의 번호와 날짜 표)는 줄마다 따로 칠해 그 사이 사진을 덮지 않는다.
+      // 단어 위치가 없으면 덩어리 사각형을 쓴다.
+      const lineBoxes = (words) => {
+        const lines = []
+        for (const [x0, y0, x1, y1] of words.map((w) => w.bbox)) {
+          const line = lines.find((l) => Math.min(l[3], y1) - Math.max(l[1], y0) > 0.5 * Math.min(l[3] - l[1], y1 - y0))
+          if (line) {
+            line[0] = Math.min(line[0], x0); line[1] = Math.min(line[1], y0)
+            line[2] = Math.max(line[2], x1); line[3] = Math.max(line[3], y1)
+          } else lines.push([x0, y0, x1, y1])
+        }
+        return lines
+      }
       const marks = (result.value?.texts ?? [])
         .filter((t) => t.location?.tileId === tile.id && Array.isArray(t.location?.bbox))
         .flatMap((t) => {
           const words = (t.words ?? []).filter((w) => Array.isArray(w.bbox))
           return words.length
-            ? words.map((w, i) => ({ id: `${t.id}:${i}`, style: place(w.bbox) }))
+            ? lineBoxes(words).map((box, i) => ({ id: `${t.id}:${i}`, style: place(box) }))
             : [{ id: t.id, style: place(t.location.bbox) }]
         })
       const boxes = findings.value
