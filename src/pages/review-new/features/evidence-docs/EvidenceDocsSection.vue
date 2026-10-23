@@ -159,9 +159,14 @@ const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'r
   font-size: var(--font-size-label-m);
   font-weight: var(--font-weight-bold);
 }
+/* 한 줄 보조 설정이라 파일 목록의 유형 칸보다 작게 둔다 */
 .next-type__select {
-  width: 24rem;
+  width: 250px; /* 가장 긴 유형(기능성화장품 심사, 보고서)이 잘리지 않는 폭 */
   max-width: 100%;
+}
+.next-type__select :deep(.base-select__control) {
+  min-height: 36px;
+  font-size: var(--font-size-body-s);
 }
 .next-type__hint {
   font-size: var(--font-size-detail-s);
