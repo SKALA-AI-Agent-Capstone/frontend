@@ -90,5 +90,65 @@
     "delete": "Delete",
     "deleteTitle": "Delete this draft?",
     "deleteText": "The saved ad and evidence files are deleted too."
+  },
+  "evidence": {
+    "title": "Evidence documents",
+    "hint": "Upload test reports to a product. The server reads each once and sorts out the issuer, code, version and the pages about this product. The same file is not read twice.",
+    "docType": "Document type",
+    "pick": "Upload an evidence file",
+    "uploading": "Uploading",
+    "pickHint": "PDF, PNG, JPEG, WebP · up to 25MB",
+    "pickButton": "Choose file",
+    "empty": "No evidence uploaded yet.",
+    "reused": "{name} was already read, so it was not read again.",
+    "readingBlocked": "Evidence is being read. Ad reviews for this product cannot start until it finishes.",
+    "readingText": "Reading the file. Scanned files can take a few minutes.",
+    "status": {
+      "reading": "Reading",
+      "done": "Read",
+      "partial": "Partly unread",
+      "failed": "Failed"
+    },
+    "replaced": "Earlier version",
+    "issuer": "Issuer",
+    "issuerUnknown": "Unknown",
+    "version": "Version",
+    "pages": "Total pages",
+    "pageCount": "{count} pages",
+    "productPages": "Pages for this product",
+    "noPageFound": "No page names this product",
+    "productNotFound": "This product's name does not appear in the report",
+    "result": "{item}: {pct}% change (p.{page})",
+    "itemUnknown": "Measured item",
+    "unread": "Text on pages {pages} could not be read.",
+    "codeStatus": {
+      "single_page": "Seen on one page only",
+      "ambiguous": "Several candidates, please check",
+      "probable": "Needs a person's check",
+      "unconfirmed": "Needs a person's check"
+    },
+    "reread": "Read again",
+    "remove": "Delete",
+    "removeTitle": "Delete this evidence?",
+    "removeText": "Deletes {name} and what was read from it.",
+    "failures": {
+      "EVIDENCE_PAGE_LIMIT": "The file has no pages or more than 80.",
+      "FILE_TOO_LARGE": "The file is over 25MB.",
+      "PDF_OR_IMAGE_REQUIRED": "Not a PDF or image file.",
+      "EVIDENCE_READ_TIMEOUT": "Reading took too long and stopped. Press Read again.",
+      "EVIDENCE_READ_FAILED": "The file could not be read. Press Read again.",
+      "EVIDENCE_FILE_NOT_FOUND": "The stored file was not found.",
+      "READER_BUSY": "The reading queue is full. Press Read again in a moment.",
+      "READ_INTERRUPTED": "The server stopped while reading. Press Read again."
+    },
+    "errors": {
+      "EVIDENCE_FILE_REQUIRED": "Choose a file.",
+      "FILE_LIMIT_25_MIB": "Files can be up to 25MB.",
+      "PDF_OR_IMAGE_REQUIRED": "Only PDF, PNG, JPEG and WebP files can be uploaded.",
+      "DOC_TYPE_TOO_LONG": "The document type is too long.",
+      "EVIDENCE_NOT_FOUND": "Evidence not found.",
+      "EVIDENCE_ALREADY_READING": "Already being read.",
+      "PRODUCT_NOT_FOUND": "Product not found."
+    }
   }
 }

@@ -18,6 +18,7 @@ import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseConfirmDialog from '@/shared/components/base/BaseConfirmDialog.vue'
 import BaseModal from '@/shared/components/base/BaseModal.vue'
 import ProductFormModal from '@/shared/components/product/ProductFormModal.vue'
+import ProductEvidence from '@/shared/components/product/ProductEvidence.vue'
 import ProductThumb from '@/shared/components/product/ProductThumb.vue'
 import ReviewBoard from '@/shared/components/review/ReviewBoard.vue'
 import ProductDrafts from './features/ProductDrafts.vue'
@@ -123,11 +124,16 @@ async function remove() {
           </p>
         </div>
         <div class="head__actions">
-          <BaseButton v-if="canCreate" icon="add_circle" :to="newReviewRoute">{{ $t('products.detail.newReview') }}</BaseButton>
+          <BaseButton v-if="canCreate && product.evidenceReading" icon="hourglass_top" disabled :title="$t('products.evidence.readingBlocked')">
+            {{ $t('products.detail.newReview') }}
+          </BaseButton>
+          <BaseButton v-else-if="canCreate" icon="add_circle" :to="newReviewRoute">{{ $t('products.detail.newReview') }}</BaseButton>
           <BaseButton variant="outline" icon="edit" @click="formOpen = true">{{ $t('products.detail.edit') }}</BaseButton>
           <BaseButton variant="ghost" icon="delete" @click="askDelete">{{ $t('products.detail.delete') }}</BaseButton>
         </div>
       </header>
+
+      <ProductEvidence :product-id="id" :can-edit="canCreate" />
 
       <ProductDrafts :product-id="id" />
 

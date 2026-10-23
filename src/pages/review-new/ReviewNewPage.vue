@@ -1,7 +1,7 @@
 <!-- 광고 자율심의 신청 (시안 krds_2) — 단일 입력 흐름 (FR-8) -->
 <script setup>
 import { t } from '@/shared/i18n'
-import { computed, nextTick, onMounted, ref, shallowRef } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { request } from '@/shared/api/http'
@@ -11,6 +11,7 @@ import BaseCard from '@/shared/components/base/BaseCard.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import ApplicationStepper from '@/shared/components/navigation/ApplicationStepper.vue'
 import { useCreditsStore } from '@/shared/stores/credits'
+import { useProductsStore } from '@/shared/stores/products'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { provideReviewDraft } from './composables/useReviewDraft'
 import AdContentSection from './features/ad-content/AdContentSection.vue'
@@ -28,6 +29,7 @@ const route = useRoute()
 const router = useRouter()
 const reviews = useReviewsStore()
 const credits = useCreditsStore()
+const products = useProductsStore()
 
 // 이전 검토의 제품 정보와 매체를 불러와 새 검토로 신청한다. 같은 검토에 새 버전을 올리는 재검토는 2026-10-22에 없앴다.
 const baseReview = computed(() => (route.query.from ? reviews.byId(String(route.query.from)) : null))
@@ -40,6 +42,15 @@ const { draft, canSubmit, clearSaved, saveDraft, loadSaved, saving: savingDraft,
   initialCopy: typeof route.query.copy === 'string' ? route.query.copy : '',
   productId: initialProductId,
 })
+
+// 고른 제품의 증빙을 읽는 중이면 서버가 검토를 받지 않는다(409 PRODUCT_EVIDENCE_READING). 끝날 때까지 몇 초마다 확인한다.
+const productReading = computed(() => !!draft.productId && !!products.byId(draft.productId)?.evidenceReading)
+let readingTimer = null
+watch([productReading, () => draft.productId], ([reading, id]) => {
+  clearInterval(readingTimer)
+  if (reading && id) readingTimer = setInterval(() => products.refresh(id).catch(() => {}), 4000)
+}, { immediate: true })
+onBeforeUnmount(() => clearInterval(readingTimer))
 
 const breadcrumbs = computed(() => [{ label: t('reviewNew.crumbs.section') }, { label: t('reviewNew.crumbs.page') }])
 const submitting = ref(false)
@@ -113,8 +124,9 @@ onMounted(async () => {
 
 async function prepareSubmit() {
   if (checkingBalance.value || submitting.value || !canSubmit.value) return
-  checkingBalance.value = true
   error.value = ''
+  if (productReading.value) { error.value = t('reviewNew.evidenceReading'); return }
+  checkingBalance.value = true
   try {
     await credits.loadBalance()
     balanceLoaded.value = true
@@ -161,6 +173,12 @@ async function submit() {
     credits.loadBalance().catch(() => {})
     // 확인 창을 연 사이 잔액이 줄었으면 서버가 거절한다. 이때도 충전 안내 창으로 보낸다.
     if (/INSUFFICIENT_CREDITS/.test(e.message)) { progressOpen.value = false; topUpOpen.value = true }
+    else if (e.message === 'PRODUCT_EVIDENCE_READING') {
+      // 화면을 연 뒤에 증빙이 올라온 경우다. 접수되지 않았으니 모달을 닫고 안내한다.
+      progressOpen.value = false
+      error.value = t('reviewNew.evidenceReading')
+      products.refresh(draft.productId).catch(() => {})
+    }
     else { error.value = e.message; submissionError.value = e.message }
   } finally { submitting.value = false }
 }
@@ -203,7 +221,8 @@ async function goTopUp() {
       <ProductInfoSection />
       <AdContentSection />
       <EvidenceDocsSection />
-      <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
+      <BaseAlert v-if="productReading" variant="info" role="status">{{ $t('reviewNew.evidenceReading') }}</BaseAlert>
+      <BaseAlert v-if="error && !(productReading && error === $t('reviewNew.evidenceReading'))" variant="danger">{{ error }}</BaseAlert>
       <ReviewFormActions :submitting="submitting || checkingBalance" :saving="savingDraft" :saved-at="lastSavedAt"
         :save-error="draftError" @save="saveNow" />
     </form>
