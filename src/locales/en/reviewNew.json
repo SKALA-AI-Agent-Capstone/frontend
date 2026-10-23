@@ -90,10 +90,6 @@
     "productRequired": "Choose a product before saving a draft.",
     "saveFailed": "Could not save the draft. Check your browser storage.",
     "savedTitle": "Draft saved",
-    "savedText": "Saved in this browser. Continue any time from Drafts above the review list on the product page.",
-    "toProduct": "Go to product",
-    "keepWriting": "Keep writing",
-    "adCount": "{count} ad files",
-    "evidenceCount": "{count} evidence files"
+    "savedText": "Continue any time from the product page"
   }
 }

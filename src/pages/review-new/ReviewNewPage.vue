@@ -6,9 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { request } from '@/shared/api/http'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
-import BaseButton from '@/shared/components/base/BaseButton.vue'
-import BaseModal from '@/shared/components/base/BaseModal.vue'
-import BaseIcon from '@/shared/components/base/BaseIcon.vue'
+import MascotNotice from '@/shared/components/feedback/MascotNotice.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import ApplicationStepper from '@/shared/components/navigation/ApplicationStepper.vue'
@@ -24,7 +22,7 @@ import CreditDialog from './features/credit-dialog/CreditDialog.vue'
 import AiDiagnosisModal from '@/pages/review-detail/features/ai-diagnosis/AiDiagnosisModal.vue'
 import DiagnosisBackgroundStatus from '@/pages/review-detail/features/ai-diagnosis/DiagnosisBackgroundStatus.vue'
 import { ANALYSIS_STEPS } from '@/shared/api/analysisApi'
-import { formatDateTime, formatFileSize } from '@/shared/utils/format'
+import { formatFileSize } from '@/shared/utils/format'
 
 const route = useRoute()
 const router = useRouter()
@@ -96,7 +94,7 @@ onMounted(async () => {
   }
 })
 
-const savedOpen = ref(false) // 임시저장 버튼을 눌렀을 때 저장됐다고 알려 주는 창
+const savedOpen = ref(false) // 임시저장 버튼을 눌렀을 때 마스코트 알림
 
 /** 임시저장하고 주소에 ?draft=를 남긴다(새로고침이나 뒤로 가기에도 이어서 작성). */
 async function saveNow({ notify = true } = {}) {
@@ -220,32 +218,8 @@ async function goTopUp() {
     </form>
     <!-- 잔액이 충분할 때: 차감 확인 / 모자랄 때: 충전 안내 -->
     <CreditDialog v-model:open="confirmOpen" mode="confirm" :cost="reviewCost ?? 0" :balance="credits.balance" :busy="submitting" @confirm="submit" />
-    <BaseModal v-model:open="savedOpen" labelledby="draft-saved-title">
-      <template #header>
-        <div class="saved__head">
-          <span class="saved__icon" aria-hidden="true"><BaseIcon name="check_circle" size="md" filled /></span>
-          <div>
-            <h2 id="draft-saved-title" class="saved__title">{{ $t('reviewNew.draft.savedTitle') }}</h2>
-            <p v-if="lastSavedAt" class="saved__time">{{ $t('reviewNew.draft.saved', { time: formatDateTime(lastSavedAt) }) }}</p>
-          </div>
-        </div>
-      </template>
-      <div class="saved__card">
-        <span class="saved__card-icon" aria-hidden="true"><BaseIcon name="draft" size="md" /></span>
-        <div class="saved__card-body">
-          <strong class="saved__product">{{ draft.product.name }}</strong>
-          <span class="saved__chips">
-            <span class="saved__chip">{{ $t('reviewNew.draft.adCount', { count: draft.files.length }) }}</span>
-            <span class="saved__chip">{{ $t('reviewNew.draft.evidenceCount', { count: draft.evidence.length }) }}</span>
-          </span>
-        </div>
-      </div>
-      <p class="saved__text">{{ $t('reviewNew.draft.savedText') }}</p>
-      <template #footer>
-        <BaseButton variant="outline" :to="{ name: ROUTE_NAMES.PRODUCT_DETAIL, params: { id: draft.productId } }">{{ $t('reviewNew.draft.toProduct') }}</BaseButton>
-        <BaseButton @click="savedOpen = false">{{ $t('reviewNew.draft.keepWriting') }}</BaseButton>
-      </template>
-    </BaseModal>
+    <!-- 임시저장 완료: 마스코트가 잠깐 나타났다 사라진다 -->
+    <MascotNotice v-model:open="savedOpen" :message="$t('reviewNew.draft.savedTitle')" :detail="$t('reviewNew.draft.savedText')" />
     <CreditDialog v-model:open="topUpOpen" mode="topup" :cost="reviewCost ?? 0" :balance="credits.balance" @confirm="goTopUp" />
     <AiDiagnosisModal v-if="submissionInput" v-model:open="progressOpen"
       :review="progressReview" :version="progressVersion" :subject="progressSubject"
@@ -257,51 +231,6 @@ async function goTopUp() {
 </template>
 
 <style scoped>
-.saved__head { display: flex; align-items: center; gap: 14px; }
-.saved__icon {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--color-success-surface);
-  color: var(--color-success-text);
-}
-.saved__title { font-size: var(--font-size-title-m); font-weight: var(--font-weight-bold); line-height: 1.35; }
-.saved__time { font-size: var(--font-size-detail-s); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
-.saved__card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  border: 1.5px dashed var(--color-border-strong);
-  border-radius: 12px;
-  background: var(--color-bg-page);
-}
-.saved__card-icon {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--color-warning-surface);
-  color: #b86e00;
-}
-.saved__card-body { display: grid; gap: 6px; min-width: 0; }
-.saved__product { font-size: var(--font-size-body-m); overflow-wrap: anywhere; }
-.saved__chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.saved__chip {
-  padding: 2px 10px;
-  border-radius: var(--radius-full);
-  background: var(--color-bg-surface);
-  box-shadow: inset 0 0 0 1px var(--color-border);
-  font-size: var(--font-size-detail-s);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-secondary);
-}
-.saved__text { margin-top: var(--space-md); font-size: var(--font-size-body-s); color: var(--color-text-secondary); line-height: 1.6; }
 .apply-page,
 .apply-page__form {
   display: flex;
