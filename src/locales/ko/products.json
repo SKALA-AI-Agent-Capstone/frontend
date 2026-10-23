@@ -151,6 +151,17 @@
       "EVIDENCE_ALREADY_READING": "이미 읽는 중입니다.",
       "PRODUCT_NOT_FOUND": "제품을 찾을 수 없습니다."
     },
-    "close": "닫기"
+    "close": "닫기",
+    "justAdded": "방금 올림",
+    "mascot": {
+      "uploading": "증빙을 올리고 있어요",
+      "reading": "증빙을 읽고 있어요",
+      "readingDetail": "{name}, 다 읽으면 알려 드릴게요. 스캔본은 몇 분 걸릴 수 있어요.",
+      "done": "다 읽었어요",
+      "partial": "일부 쪽은 읽지 못했어요",
+      "failed": "읽지 못했어요",
+      "reused": "이미 읽은 파일이라 바로 넣었어요",
+      "skip": "기다리지 않고 닫기"
+    }
   }
 }

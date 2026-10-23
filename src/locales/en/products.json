@@ -151,6 +151,17 @@
       "EVIDENCE_ALREADY_READING": "Already being read.",
       "PRODUCT_NOT_FOUND": "Product not found."
     },
-    "close": "Close"
+    "close": "Close",
+    "justAdded": "Just added",
+    "mascot": {
+      "uploading": "Uploading the evidence",
+      "reading": "Reading the evidence",
+      "readingDetail": "{name}. We will let you know when it is done. Scans can take a few minutes.",
+      "done": "Finished reading",
+      "partial": "Some pages could not be read",
+      "failed": "Could not read the file",
+      "reused": "Already read, added right away",
+      "skip": "Close without waiting"
+    }
   }
 }
