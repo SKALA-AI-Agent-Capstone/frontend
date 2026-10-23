@@ -163,7 +163,7 @@
     "title": "Evidence check",
     "text": "Show extracted evidence text",
     "submitted": "Submitted documents",
-    "submittedNone": "No evidence documents were submitted.",
+    "submittedNone": "No evidence was used for this review and none is registered on the product.",
     "publicData": "Public data cross-check (supporting)",
     "matchTitle": "{count} ad claims compared with the evidence",
     "verdict": {
@@ -195,7 +195,10 @@
       "OCR_UNAVAILABLE": "Could not recognize text on scanned page {page}.",
       "PDF_PAGE_LIMIT": "Over the page limit, not read.",
       "DOCUMENT_UNREADABLE_OR_EXPIRED": "Could not read the document. This older result did not record why."
-    }
+    },
+    "fromProduct": "Product evidence",
+    "notUsed": "Not used in this analysis",
+    "productNotUsed": "{count} evidence file(s) registered on the product were not used in this analysis."
   },
   "patent": {
     "title": "Patent check",

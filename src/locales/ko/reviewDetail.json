@@ -163,7 +163,7 @@
     "title": "증빙 대조",
     "text": "추출한 증빙 본문 보기",
     "submitted": "제출 서류",
-    "submittedNone": "제출된 증빙서류가 없습니다.",
+    "submittedNone": "이 검토에 쓰인 증빙서류가 없고, 제품에 등록된 증빙도 없습니다.",
     "publicData": "공공데이터 교차검증 (보조)",
     "matchTitle": "광고 주장 {count}건을 증빙과 대조했습니다",
     "verdict": {
@@ -195,7 +195,10 @@
       "OCR_UNAVAILABLE": "스캔된 {page}쪽의 글자를 인식하지 못했습니다.",
       "PDF_PAGE_LIMIT": "페이지 수 한도를 넘어 읽지 않았습니다.",
       "DOCUMENT_UNREADABLE_OR_EXPIRED": "문서를 읽지 못했습니다. 이전 방식으로 분석된 결과라 이유가 기록되지 않았습니다."
-    }
+    },
+    "fromProduct": "제품 증빙",
+    "notUsed": "이번 분석에 쓰이지 않음",
+    "productNotUsed": "제품에 등록된 증빙 {count}개가 이번 분석에는 쓰이지 않았습니다."
   },
   "patent": {
     "title": "특허 확인",
