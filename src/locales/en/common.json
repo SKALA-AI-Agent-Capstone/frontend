@@ -13,10 +13,6 @@
     "standards": "Laws and notices",
     "dashboard": "Dashboard"
   },
-  "utility": {
-    "siteGuide": "Site guide",
-    "remoteSupport": "Remote support"
-  },
   "footer": {
     "contactTerm": "Operated by",
     "contactDesc": "Capstone internal pre-review development environment",
