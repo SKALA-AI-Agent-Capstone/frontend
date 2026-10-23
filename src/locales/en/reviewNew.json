@@ -35,13 +35,17 @@
     "intro": "Optionally submit test data or product documents you have. This version extracts the document text; matching product and test conditions and recommending documents per claim come later.",
     "dropTitle": "Drag evidence files here or choose them",
     "dropDescription": "Reviews, reports, ingredient lists, human or in-vitro test reports, certificates, patents, trademark registrations, certificates of origin (PDF, JPG, PNG)",
-    "filled": "{count} evidence file(s) uploaded",
+    "filled": "{count} evidence file(s) included",
     "listLabel": "Submitted evidence",
     "carried": "From previous version",
     "typeLabel": "Document type for {name}",
     "typePlaceholder": "Choose a document type",
     "noteLabel": "Note:",
-    "note": "Until legal search is connected, submitted documents alone do not settle whether the ad is legal or sufficiently substantiated."
+    "note": "Until legal search is connected, submitted documents alone do not settle whether the ad is legal or sufficiently substantiated.",
+    "productTitle": "{count} evidence file(s) registered on this product are included",
+    "productHint": "Change them under \"Evidence\" on the product page. Add files used only for this ad below.",
+    "productListLabel": "Evidence registered on the product",
+    "fromProduct": "Product evidence"
   },
   "requirement": {
     "prohibited": "Not allowed with evidence, change the copy",

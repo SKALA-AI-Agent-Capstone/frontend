@@ -1,13 +1,15 @@
 <!--
   제품 상세: 제품 정보와 그 제품의 광고 검토 내역. 새 광고 검토는 여기서 시작한다.
   검토 목록은 제품별 API(/products/{id}/reviews)로 모두 받아 reviews 스토어에 합친다. 분석 중인 건은 스토어가 따라간다.
+  제품 증빙은 머리 카드의 "증빙 서류" 버튼으로 모달을 열어 올리고 본다. 올린 증빙은 이 제품의 검토마다 자동으로 함께 쓰인다.
   제품 삭제는 검토가 0건일 때만 된다. 검토가 남아 있으면 먼저 지우라는 창을 띄운다(서버도 409 PRODUCT_HAS_REVIEWS로 막는다).
 -->
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { t } from '@/shared/i18n'
 import { productErrorKey, useProductsStore } from '@/shared/stores/products'
+import { useProductEvidenceStore } from '@/shared/stores/productEvidence'
 import { useReviewsStore } from '@/shared/stores/reviews'
 import { useSessionStore } from '@/shared/stores/session'
 import { PERMISSIONS } from '@/shared/constants/roles'
@@ -28,6 +30,7 @@ const router = useRouter()
 const products = useProductsStore()
 const reviews = useReviewsStore()
 const session = useSessionStore()
+const evidence = useProductEvidenceStore()
 const canCreate = computed(() => session.can(PERMISSIONS.REVIEW_CREATE))
 
 const id = computed(() => String(route.params.id))
@@ -58,7 +61,12 @@ async function loadReviews() {
   reviews.poll()
 }
 onMounted(() => reviews.poll())
-watch(id, () => { load(); loadReviews() }, { immediate: true })
+// 증빙 목록은 버튼에 개수를 보여 주려고 여기서 받는다. 읽는 중이면 스토어가 끝날 때까지 따라간다.
+function loadEvidence() { evidence.load(id.value).catch(() => { /* 모달을 열면 다시 받고 오류를 보여 준다 */ }) }
+watch(id, (now, before) => { if (before) evidence.clear(before); load(); loadReviews(); loadEvidence() }, { immediate: true })
+onBeforeUnmount(() => evidence.clear(id.value))
+const evidenceCount = computed(() => evidence.list(id.value).filter(item => item.isCurrent).length)
+const evidenceOpen = ref(false)
 
 const rows = computed(() =>
   reviews.list
@@ -128,12 +136,14 @@ async function remove() {
             {{ $t('products.detail.newReview') }}
           </BaseButton>
           <BaseButton v-else-if="canCreate" icon="add_circle" :to="newReviewRoute">{{ $t('products.detail.newReview') }}</BaseButton>
+          <BaseButton variant="outline" icon="description" @click="evidenceOpen = true">
+            {{ $t('products.detail.evidence') }}
+            <span v-if="evidenceCount" class="head__count">{{ evidenceCount }}</span>
+          </BaseButton>
           <BaseButton variant="outline" icon="edit" @click="formOpen = true">{{ $t('products.detail.edit') }}</BaseButton>
           <BaseButton variant="ghost" icon="delete" @click="askDelete">{{ $t('products.detail.delete') }}</BaseButton>
         </div>
       </header>
-
-      <ProductEvidence :product-id="id" :can-edit="canCreate" />
 
       <ProductDrafts :product-id="id" />
 
@@ -146,6 +156,17 @@ async function remove() {
       />
 
       <ProductFormModal v-model:open="formOpen" :product="product" />
+
+      <BaseModal v-model:open="evidenceOpen" labelledby="product-evidence-title" width="lg">
+        <template #header>
+          <h2 id="product-evidence-title" class="evidence-modal__title">{{ $t('products.evidence.title') }}</h2>
+          <p class="evidence-modal__sub">{{ product.name }}</p>
+        </template>
+        <ProductEvidence v-if="evidenceOpen" :product-id="id" :can-edit="canCreate" />
+        <template #footer="{ close }">
+          <BaseButton variant="outline" @click="close">{{ $t('products.evidence.close') }}</BaseButton>
+        </template>
+      </BaseModal>
 
       <BaseConfirmDialog v-model:open="confirmOpen" :title="$t('products.delete.confirmTitle')"
         :confirm-label="$t('products.delete.confirm')" danger :busy="deleting" @confirm="remove">
@@ -217,6 +238,20 @@ async function remove() {
 .head__name { font-size: var(--font-size-title-l); font-weight: var(--font-weight-bold); overflow-wrap: anywhere; }
 .head__meta { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: var(--font-size-body-s); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
 .head__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+.head__count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-detail-s);
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.evidence-modal__title { font-size: var(--font-size-title-m); font-weight: var(--font-weight-bold); }
+.evidence-modal__sub { margin-top: 2px; font-size: var(--font-size-body-s); color: var(--color-text-secondary); }
 
 .blocked__title { font-size: var(--font-size-title-m); font-weight: var(--font-weight-bold); }
 .blocked__text { color: var(--color-text-secondary); }
