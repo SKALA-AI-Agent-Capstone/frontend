@@ -3,13 +3,16 @@
  *   - ?from=<reviewId> 이면 해당 건의 최신 버전을 불러와 새 버전으로 재검토 (FR-13)
  *   - ?copy=<문구> 이면 대시보드 간이진단 문구를 이어받는다
  *   - 검토는 제품에 속한다(2026-10-22). productId를 고르면 제품 이름과 유형을 product에 채운다.
+ *   - 임시저장(2026-10-23)은 브라우저 IndexedDB에 제품, 광고 파일, 증빙 파일과 유형까지 남긴다(draftStore.js).
+ *     ?draft=<id>로 다시 열면 이어서 작성한다. 검토를 접수하면 그 임시저장은 지운다.
  */
 import { computed, inject, provide, reactive, ref, markRaw } from 'vue'
 import { DOC_TYPES, FILE_KIND } from '@/shared/constants/review'
 import { uid } from '@/shared/utils/format'
+import { deleteDraft, getDraft, putDraft } from '@/shared/utils/draftStore'
+import { useSessionStore } from '@/shared/stores/session'
 
 const DRAFT_KEY = Symbol('review-draft')
-const SESSION_KEY = 'cosmetic-ad-review:draft'
 
 function emptyDraft() {
   return {
@@ -49,34 +52,59 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '', produ
     draft.evidence = []
   } else if (initialCopy) {
     draft.copy = ''
-  } else {
-    // 임시저장본 복원 (업로드 파일은 저장하지 않음)
-    try {
-      const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? 'null')
-      if (saved) Object.assign(draft, { ...saved, files: [], evidence: [] })
-    } catch {
-      /* 저장소 사용 불가 시 무시 */
-    }
   }
   // 제품 화면에서 시작했거나 이전 검토를 불러왔으면 그 제품을 고른다
   if (productId) draft.productId = productId
 
+  const session = useSessionStore()
+  const draftId = ref(null)
   const lastSavedAt = ref(null)
-  function saveDraft() {
+  const saving = ref(false)
+
+  /** 임시저장을 불러온다. 다른 사용자 것이거나 없으면 false다. */
+  async function loadSaved(id) {
+    const saved = await getDraft(id)
+    if (!saved || saved.tenantId !== session.tenant?.id || saved.userId !== session.user?.id) return false
+    draftId.value = saved.id
+    draft.productId = saved.productId ?? ''
+    draft.product = { name: saved.productName ?? '', category: draft.product.category }
+    draft.media = [...(saved.media ?? [])]
+    draft.files = (saved.files ?? []).map((f) => ({ ...f, file: markRaw(f.file) }))
+    draft.evidence = (saved.evidence ?? []).map((e) => ({ ...e, file: markRaw(e.file) }))
+    lastSavedAt.value = saved.savedAt ? new Date(saved.savedAt) : null
+    return true
+  }
+
+  /** 지금 입력을 임시저장하고 id를 돌려준다. 제품을 고르지 않았으면 저장하지 않는다(제품 화면에 칸으로 보이므로). */
+  async function saveDraft() {
+    if (!draft.productId) throw new Error('DRAFT_PRODUCT_REQUIRED')
+    saving.value = true
     try {
-      const { files, evidence, ...rest } = draft
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(rest))
-      lastSavedAt.value = new Date()
-    } catch {
-      /* 저장소 사용 불가 시 무시 */
+      const id = draftId.value ?? uid('DR')
+      const savedAt = new Date()
+      await putDraft({
+        id,
+        tenantId: session.tenant?.id,
+        userId: session.user?.id,
+        productId: draft.productId,
+        productName: draft.product.name,
+        media: [...draft.media],
+        files: draft.files.map(({ id: fileId, name, size, kind, file }) => ({ id: fileId, name, size, kind, file })),
+        evidence: draft.evidence.map(({ id: docId, name, size, docType, file }) => ({ id: docId, name, size, docType, file })),
+        savedAt: savedAt.toISOString(),
+      })
+      draftId.value = id
+      lastSavedAt.value = savedAt
+      return id
+    } finally {
+      saving.value = false
     }
   }
-  function clearSaved() {
-    try {
-      sessionStorage.removeItem(SESSION_KEY)
-    } catch {
-      /* noop */
-    }
+
+  async function clearSaved() {
+    if (!draftId.value) return
+    try { await deleteDraft(draftId.value) } catch { /* 지우지 못해도 접수는 끝났다 */ }
+    draftId.value = null
   }
 
   // 법령 검색 연결 전에는 브라우저 규칙으로 필요 서류를 판정하지 않는다.
@@ -117,7 +145,10 @@ export function provideReviewDraft({ baseVersion = null, initialCopy = '', produ
     addFiles,
     addEvidence,
     selectProduct,
+    draftId,
     lastSavedAt,
+    saving,
+    loadSaved,
     saveDraft,
     clearSaved,
   }

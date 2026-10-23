@@ -79,5 +79,16 @@
     "IMAGE_LIMIT_10_MIB": "이미지는 10MB까지 올릴 수 있습니다.",
     "PRODUCT_NOT_FOUND": "제품을 찾을 수 없습니다.",
     "PRODUCT_HAS_REVIEWS": "제품 안의 검토 내용을 모두 삭제해야 제품을 삭제할 수 있습니다."
+  },
+  "drafts": {
+    "title": "임시저장",
+    "note": "이 브라우저에만 저장됩니다. 검토를 시작하면 목록에서 사라집니다.",
+    "untitled": "광고 파일 없음",
+    "counts": "광고 {ads}개, 증빙 {evidence}개",
+    "savedAt": "{time} 저장",
+    "resume": "이어서 작성",
+    "delete": "삭제",
+    "deleteTitle": "임시저장을 삭제할까요?",
+    "deleteText": "저장해 둔 광고 파일과 증빙 파일도 함께 지워집니다."
   }
 }
