@@ -4,10 +4,13 @@
   2) 실증이 필요한 광고 주장별로 증빙이 뒷받침하는지, 다른 시험인지, 조건이 다른지, 다루지 않는지 센다.
   3) 읽지 못한 문서는 이유(페이지 한도, 파일 형식, 원본 만료)를 문장으로 보여 준다.
   대조 결과는 어떤 서류를 더 받아야 하는지 알려 주는 것이지 위반 판정이 아니다.
+  서류 목록에는 이 검토와 함께 올린 파일과, 제품에 등록해 검토마다 함께 들어가는 제품 증빙을 모두 보여 준다.
+  분석 결과(evidence.documents)에 없는 서류는 "이번 분석에 쓰이지 않음"으로 표시한다.
 -->
 <script setup>
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { DOC_TYPE_LABEL } from '@/shared/constants/review'
+import { useProductEvidenceStore } from '@/shared/stores/productEvidence'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
 import BaseIcon from '@/shared/components/base/BaseIcon.vue'
@@ -15,10 +18,9 @@ import BaseSectionHeader from '@/shared/components/base/BaseSectionHeader.vue'
 import PublicDataResult from '@/shared/components/review/PublicDataResult.vue'
 import { useReviewDetail } from '../../composables/useReviewDetail'
 
-const { version, result, findings, focusFinding } = useReviewDetail()
+const { review, version, result, findings, focusFinding } = useReviewDetail()
 
 const evidence = computed(() => result.value?.evidence ?? {})
-const submitted = computed(() => version.value?.input?.evidence ?? [])
 const summaries = computed(() => evidence.value.summaries ?? [])
 const documents = computed(() => evidence.value.documents ?? [])
 const failures = computed(() => evidence.value.failures ?? [])
@@ -30,6 +32,30 @@ const matches = computed(() =>
 const tally = computed(() => VERDICTS.map((v) => [v, matches.value.filter((m) => m.verdict === v).length]).filter(([, n]) => n))
 const problems = computed(() => matches.value.filter((m) => m.verdict !== 'supports'))
 const readOf = (id) => documents.value.find((d) => d.id === id)
+
+// 제품에 등록된 증빙: 분석이 가져가지 않았어도 무엇이 등록되어 있는지 보여 준다
+const productEvidence = useProductEvidenceStore()
+const productId = computed(() => review.value?.productId ?? '')
+watch(productId, (id, before) => {
+  if (before) productEvidence.clear(before)
+  if (id) productEvidence.load(id).catch(() => { /* 못 받으면 분석 결과의 서류만 보여 준다 */ })
+}, { immediate: true })
+onBeforeUnmount(() => { if (productId.value) productEvidence.clear(productId.value) })
+
+// 이 검토와 함께 올린 파일, 분석이 쓴 제품 증빙, 제품에 등록되어 있지만 분석이 쓰지 않은 증빙 순서
+const submitted = computed(() => {
+  const uploaded = (version.value?.input?.evidence ?? []).map((doc) => ({ ...doc, source: 'review', used: Boolean(readOf(doc.id)) }))
+  const seen = new Set(uploaded.map((doc) => doc.id))
+  const usedProduct = documents.value.filter((doc) => !seen.has(doc.id))
+    .map((doc) => ({ id: doc.id, name: doc.name, docType: doc.docType, source: 'product', used: true }))
+  usedProduct.forEach((doc) => seen.add(doc.id))
+  const registered = (productId.value ? productEvidence.list(productId.value) : [])
+    .filter((item) => item.isCurrent && item.status !== 'failed' && !seen.has(item.id))
+    .map((item) => ({ id: item.id, name: item.fileName, docType: item.docType, source: 'product', used: false }))
+  return [...uploaded, ...usedProduct, ...registered]
+})
+const analyzed = computed(() => version.value?.status === 'done')
+const unusedProductCount = computed(() => submitted.value.filter((doc) => doc.source === 'product' && !doc.used).length)
 </script>
 
 <template>
@@ -60,11 +86,14 @@ const readOf = (id) => documents.value.find((d) => d.id === id)
       <!-- 제출 문서별 요약 -->
       <div class="evidence__block">
         <p class="evidence__label">{{ $t('reviewDetail.evidence.submitted') }}</p>
+        <p v-if="analyzed && unusedProductCount" class="evidence__muted">{{ $t('reviewDetail.evidence.productNotUsed', { count: unusedProductCount }) }}</p>
         <article v-for="doc in submitted" :key="doc.id" class="doc">
           <p class="doc__head">
-            <BaseIcon name="description" size="xs" />
+            <BaseIcon :name="doc.source === 'product' ? 'inventory_2' : 'description'" size="xs" />
             <strong>{{ doc.name }}</strong>
-            <span class="evidence__muted">{{ DOC_TYPE_LABEL[doc.docType] }}</span>
+            <span class="evidence__muted">{{ DOC_TYPE_LABEL[doc.docType] ?? doc.docType }}</span>
+            <BaseBadge v-if="doc.source === 'product'" variant="secondary">{{ $t('reviewDetail.evidence.fromProduct') }}</BaseBadge>
+            <BaseBadge v-if="analyzed && !doc.used" variant="warning">{{ $t('reviewDetail.evidence.notUsed') }}</BaseBadge>
             <span v-if="readOf(doc.id)" class="evidence__muted">{{ $t('reviewDetail.evidence.read', { pages: readOf(doc.id).pages }) }}</span>
           </p>
           <dl v-if="summaries.find((s) => s.documentId === doc.id)" class="doc__summary">
