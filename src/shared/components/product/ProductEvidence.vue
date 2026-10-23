@@ -58,6 +58,7 @@ watch(() => items.value.find(item => item.id === tracking.value), (item) => {
   if (item.status === 'reading') return
   if (item.status === 'failed') showResult('products.evidence.mascot.failed', failureText(item.failureCode))
   else if (item.unreadPages?.length) showResult('products.evidence.mascot.partial', t('products.evidence.unread', { pages: item.unreadPages.join(', ') }))
+  else if (productCheck(item).length) showResult('products.evidence.mascot.check', t('products.evidence.checkProduct', { pages: productCheck(item).join(', ') }))
   else showResult('products.evidence.mascot.done', item.fileName)
 })
 
