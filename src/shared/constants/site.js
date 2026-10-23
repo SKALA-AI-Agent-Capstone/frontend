@@ -35,11 +35,6 @@ export const GNB_MENUS = Object.freeze([
   translated({ key: NAV_KEYS.STANDARDS, to: { name: ROUTE_NAMES.STANDARDS } }, { label: 'common.nav.standards' }),
 ])
 
-export const UTILITY_LINKS = Object.freeze([
-  translated({ href: '#' }, { label: 'common.utility.siteGuide' }),
-  translated({ href: '#' }, { label: 'common.utility.remoteSupport' }),
-])
-
 // 언어 선택 — KRDS: 국기 대신 해당 언어로 언어 이름을 표기
 export const LANGUAGES = Object.freeze([
   { code: 'ko', label: '한국어' },

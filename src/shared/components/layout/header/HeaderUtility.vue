@@ -1,14 +1,10 @@
-<!-- 헤더 유틸리티 링크 그룹 (우측 상단, 디바이더로 구분) -->
+<!-- 헤더 유틸리티 (우측 상단). 연결된 곳이 없던 누리집 안내와 원격지원 링크는 2026-10-23에 뺐다. -->
 <script setup>
-import { UTILITY_LINKS } from '@/shared/constants/site'
 import LanguageMenu from './LanguageMenu.vue'
 </script>
 
 <template>
   <ul class="header-utility">
-    <li v-for="link in UTILITY_LINKS" :key="link.label" class="header-utility__item">
-      <a :href="link.href">{{ link.label }}</a>
-    </li>
     <li class="header-utility__item">
       <LanguageMenu />
     </li>
@@ -32,9 +28,5 @@ import LanguageMenu from './LanguageMenu.vue'
   height: var(--space-sm);
   margin: 0 var(--space-sm);
   background: var(--color-border-strong);
-}
-.header-utility a:hover {
-  color: var(--color-text);
-  text-decoration: underline;
 }
 </style>
