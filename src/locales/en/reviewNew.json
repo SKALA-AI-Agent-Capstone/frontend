@@ -30,7 +30,7 @@
     "emailHint": "From your account. Email sending is not implemented."
   },
   "evidence": {
-    "title": "4. Evidence checklist",
+    "title": "4. Evidence documents",
     "aside": "Optional, the extracted text is shown for checking",
     "intro": "Optionally submit test data or product documents you have. This version extracts the document text; matching product and test conditions and recommending documents per claim come later.",
     "dropTitle": "Drag evidence files here or choose them",
@@ -51,7 +51,7 @@
     "needed": "Required documents: {docs}"
   },
   "actions": {
-    "saveDraft": "Save product info",
+    "saveDraft": "Save draft",
     "start": "Start review"
   },
   "product": {
@@ -82,5 +82,16 @@
     "receiptAfter": "Balance after review",
     "topUpLead": "Each review needs {cost} credits.",
     "shortfallLabel": "Credits short"
+  },
+  "draft": {
+    "loaded": "Your draft is loaded. Continue where you left off.",
+    "missing": "This draft could not be found. Its review may have started, or it was saved in another browser.",
+    "saved": "Draft saved at {time}",
+    "productRequired": "Choose a product before saving a draft.",
+    "saveFailed": "Could not save the draft. Check your browser storage.",
+    "savedTitle": "Draft saved",
+    "savedText": "Your ad and evidence files are saved in this browser. Continue any time from Drafts above the review list on the product page.",
+    "toProduct": "Go to product",
+    "keepWriting": "Keep writing"
   }
 }

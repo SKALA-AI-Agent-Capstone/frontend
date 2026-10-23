@@ -6,6 +6,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { request } from '@/shared/api/http'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
+import BaseButton from '@/shared/components/base/BaseButton.vue'
+import BaseModal from '@/shared/components/base/BaseModal.vue'
 import BaseCard from '@/shared/components/base/BaseCard.vue'
 import PageHeading from '@/shared/components/layout/PageHeading.vue'
 import ApplicationStepper from '@/shared/components/navigation/ApplicationStepper.vue'
@@ -34,7 +36,7 @@ const baseVersion = baseReview.value ? reviews.latest(baseReview.value) : null
 
 // 제품 상세에서 시작하면 ?product=, 이전 검토를 불러오면 그 검토의 제품을 고른다
 const initialProductId = typeof route.query.product === 'string' ? route.query.product : baseReview.value?.productId ?? ''
-const { draft, canSubmit, clearSaved, saveDraft } = provideReviewDraft({
+const { draft, canSubmit, clearSaved, saveDraft, loadSaved, saving: savingDraft, lastSavedAt } = provideReviewDraft({
   baseVersion,
   initialCopy: typeof route.query.copy === 'string' ? route.query.copy : '',
   productId: initialProductId,
@@ -83,6 +85,32 @@ const progressSubject = computed(() => {
   return { title: first?.name ?? progressReview.value.productName,
     meta: first ? `${formatFileSize(first.size)}, ${counts}` : counts }
 })
+// 임시저장 불러오기(?draft=). 이전 검토에서 시작한 경우는 그쪽을 따른다.
+const draftNotice = ref('') // loaded | missing
+const draftError = ref('')
+onMounted(async () => {
+  if (typeof route.query.draft === 'string' && !baseReview.value) {
+    try { draftNotice.value = (await loadSaved(route.query.draft)) ? 'loaded' : 'missing' }
+    catch { draftNotice.value = 'missing' }
+  }
+})
+
+const savedOpen = ref(false) // 임시저장 버튼을 눌렀을 때 저장됐다고 알려 주는 창
+
+/** 임시저장하고 주소에 ?draft=를 남긴다(새로고침이나 뒤로 가기에도 이어서 작성). */
+async function saveNow({ notify = true } = {}) {
+  draftError.value = ''
+  try {
+    const id = await saveDraft()
+    if (route.query.draft !== id) await router.replace({ query: { ...route.query, draft: id } })
+    if (notify) savedOpen.value = true
+    return true
+  } catch (e) {
+    draftError.value = e.message === 'DRAFT_PRODUCT_REQUIRED' ? t('reviewNew.draft.productRequired') : t('reviewNew.draft.saveFailed')
+    return false
+  }
+}
+
 onMounted(async () => {
   try {
     const config = await request('/billing/config')
@@ -148,8 +176,9 @@ async function submit() {
 }
 
 // 충전 화면으로 가기 전에 입력한 글자는 임시 저장한다. 올린 파일은 저장되지 않아 돌아와서 다시 올려야 한다.
-function goTopUp() {
-  saveDraft()
+// 충전 화면으로 가기 전에 임시저장한다. 돌아오면(뒤로 가기) 주소의 ?draft=로 이어서 작성한다.
+async function goTopUp() {
+  if (draft.productId) await saveNow({ notify: false })
   topUpOpen.value = false
   router.push({ name: ROUTE_NAMES.CREDITS })
 }
@@ -168,6 +197,9 @@ function goTopUp() {
       </PageHeading>
     </BaseCard>
 
+    <BaseAlert v-if="draftNotice === 'loaded'" variant="info">{{ $t('reviewNew.draft.loaded') }}</BaseAlert>
+    <BaseAlert v-else-if="draftNotice === 'missing'" variant="warning">{{ $t('reviewNew.draft.missing') }}</BaseAlert>
+
     <BaseAlert v-if="baseReview" variant="info" :title="$t('reviewNew.fromAlert.title')">
       {{ $t('reviewNew.fromAlert.text', { name: baseReview.productName }) }}
     </BaseAlert>
@@ -182,10 +214,21 @@ function goTopUp() {
       <AdContentSection />
       <EvidenceDocsSection />
       <BaseAlert v-if="error" variant="danger">{{ error }}</BaseAlert>
-      <ReviewFormActions :submitting="submitting || checkingBalance" />
+      <ReviewFormActions :submitting="submitting || checkingBalance" :saving="savingDraft" :saved-at="lastSavedAt"
+        :save-error="draftError" @save="saveNow" />
     </form>
     <!-- 잔액이 충분할 때: 차감 확인 / 모자랄 때: 충전 안내 -->
     <CreditDialog v-model:open="confirmOpen" mode="confirm" :cost="reviewCost ?? 0" :balance="credits.balance" :busy="submitting" @confirm="submit" />
+    <BaseModal v-model:open="savedOpen" labelledby="draft-saved-title">
+      <template #header>
+        <h2 id="draft-saved-title" class="saved__title">{{ $t('reviewNew.draft.savedTitle') }}</h2>
+      </template>
+      <p class="saved__text">{{ $t('reviewNew.draft.savedText') }}</p>
+      <template #footer>
+        <BaseButton variant="outline" :to="{ name: ROUTE_NAMES.PRODUCT_DETAIL, params: { id: draft.productId } }">{{ $t('reviewNew.draft.toProduct') }}</BaseButton>
+        <BaseButton @click="savedOpen = false">{{ $t('reviewNew.draft.keepWriting') }}</BaseButton>
+      </template>
+    </BaseModal>
     <CreditDialog v-model:open="topUpOpen" mode="topup" :cost="reviewCost ?? 0" :balance="credits.balance" @confirm="goTopUp" />
     <AiDiagnosisModal v-if="submissionInput" v-model:open="progressOpen"
       :review="progressReview" :version="progressVersion" :subject="progressSubject"
@@ -197,6 +240,8 @@ function goTopUp() {
 </template>
 
 <style scoped>
+.saved__title { font-size: var(--font-size-title-m); font-weight: var(--font-weight-bold); }
+.saved__text { color: var(--color-text-secondary); }
 .apply-page,
 .apply-page__form {
   display: flex;

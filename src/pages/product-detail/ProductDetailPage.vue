@@ -20,6 +20,7 @@ import BaseModal from '@/shared/components/base/BaseModal.vue'
 import ProductFormModal from '@/shared/components/product/ProductFormModal.vue'
 import ProductThumb from '@/shared/components/product/ProductThumb.vue'
 import ReviewBoard from '@/shared/components/review/ReviewBoard.vue'
+import ProductDrafts from './features/ProductDrafts.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -127,6 +128,8 @@ async function remove() {
           <BaseButton variant="ghost" icon="delete" @click="askDelete">{{ $t('products.detail.delete') }}</BaseButton>
         </div>
       </header>
+
+      <ProductDrafts :product-id="id" />
 
       <ReviewBoard
         :rows="rows"
