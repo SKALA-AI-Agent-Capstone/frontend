@@ -110,3 +110,9 @@ Backend docs/08-project-memory.md, 03-contracts.md와 10-work-breakdown.md를 �
 광고는 파일당 25 MiB, 전체 75 MiB까지 받고 픽셀 및 페이지와 타일 제한은 별도로 적용한다.
 자료실은 근거 문서 9건과 외부 API 4종을 따로 보여준다. 실제 검증 상태는 backend/docs/07-validation.md를 따른다.
 검증 관리자 비밀번호는 각 실행자의 backend/data/demo-access.md에 생성되며 Git에는 없다.
+
+## 외부 라이브러리 라이선스
+
+제품 대표 이미지의 배경 지우기는 [@imgly/background-removal](https://github.com/imgly/background-removal-js)(AGPL-3.0)을 쓴다.
+AGPL은 이 코드를 넣은 서비스를 제공할 때 서비스의 소스도 같은 조건으로 공개하도록 요구한다. 소스를 비공개로 운영하려면 IMG.LY의 상업 라이선스가 필요하다.
+라이브러리는 등록 창에서 배경 지우기를 누를 때만 불러오고, 이미지는 브라우저 안에서 처리하며, 모델 파일은 IMG.LY CDN에서 받는다.
