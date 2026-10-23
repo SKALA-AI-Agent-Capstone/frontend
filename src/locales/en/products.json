@@ -59,7 +59,8 @@
     "reviews": "Ad reviews",
     "loading": "Loading the product.",
     "notFound": "Product not found.",
-    "notFoundText": "It was deleted or belongs to another company."
+    "notFoundText": "It was deleted or belongs to another company.",
+    "evidence": "Evidence"
   },
   "delete": {
     "confirmTitle": "Delete this product?",
@@ -149,6 +150,7 @@
       "EVIDENCE_NOT_FOUND": "Evidence not found.",
       "EVIDENCE_ALREADY_READING": "Already being read.",
       "PRODUCT_NOT_FOUND": "Product not found."
-    }
+    },
+    "close": "Close"
   }
 }

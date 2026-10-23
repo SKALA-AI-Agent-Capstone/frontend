@@ -1,9 +1,10 @@
 <!--
   제품 증빙: 시험 성적서 등을 제품에 올려 두면 서버가 한 번 읽고, 기관과 코드, 버전, 이 제품의 쪽 범위를 보여 준다.
   같은 파일을 다시 올리면 다시 읽지 않고, 같은 코드의 다른 파일이면 개정본으로 표시한다. 읽는 중에는 이 제품의 검토를 시작할 수 없다.
+  제품 상세의 "증빙 서류" 모달 안에 놓인다. 목록을 받고 지우는 일은 제품 상세가 맡고(버튼에 개수를 보여 주려고), 여기서는 열 때 한 번 더 받는다.
 -->
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { t } from '@/shared/i18n'
 import { DOC_TYPE_OPTIONS } from '@/shared/constants/review'
 import { evidenceErrorKey, EVIDENCE_MAX_BYTES, failureKey, useProductEvidenceStore } from '@/shared/stores/productEvidence'
@@ -33,7 +34,6 @@ watch(() => props.productId, async (id) => {
   try { await store.load(id) } catch (e) { error.value = message(e) }
   loaded.value = true
 }, { immediate: true })
-onBeforeUnmount(() => store.clear(props.productId))
 
 async function pick(files) {
   error.value = ''
@@ -76,11 +76,8 @@ const codeStatus = code => (code.status === 'confirmed' ? '' : t(`products.evide
 </script>
 
 <template>
-  <section class="evidence" :aria-labelledby="`evidence-title-${productId}`">
-    <header class="evidence__head">
-      <h2 :id="`evidence-title-${productId}`" class="evidence__title">{{ $t('products.evidence.title') }}</h2>
-      <p class="evidence__hint">{{ $t('products.evidence.hint') }}</p>
-    </header>
+  <div class="evidence">
+    <p class="evidence__hint">{{ $t('products.evidence.hint') }}</p>
 
     <BaseAlert v-if="readingNow" variant="info" role="status">{{ $t('products.evidence.readingBlocked') }}</BaseAlert>
     <BaseAlert v-if="notice" variant="info">{{ notice }}</BaseAlert>
@@ -167,19 +164,11 @@ const codeStatus = code => (code.status === 'confirmed' ? '' : t(`products.evide
       :confirm-label="$t('products.evidence.remove')" danger @confirm="remove">
       {{ $t('products.evidence.removeText', { name: removing?.fileName ?? '' }) }}
     </BaseConfirmDialog>
-  </section>
+  </div>
 </template>
 
 <style scoped>
-.evidence {
-  display: grid;
-  gap: var(--space-md);
-  padding: 24px;
-  border: var(--border-width) solid var(--color-border);
-  border-radius: 16px;
-  background: var(--color-bg-surface);
-}
-.evidence__title { font-size: var(--font-size-title-m); font-weight: var(--font-weight-bold); }
+.evidence { display: grid; gap: var(--space-md); }
 .evidence__hint, .evidence__empty { color: var(--color-text-secondary); font-size: var(--font-size-body-s); }
 .evidence__upload { display: grid; gap: 12px; }
 .evidence__type { display: grid; gap: 6px; max-width: 320px; font-size: var(--font-size-body-s); font-weight: var(--font-weight-bold); }
