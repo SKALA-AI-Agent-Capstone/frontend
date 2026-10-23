@@ -5,7 +5,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ANALYSIS_STEPS } from '@/shared/api/analysisApi'
+import { stepStates } from '@/shared/api/analysisApi'
 import { REVIEW_STATUS } from '@/shared/constants/review'
 import { ROUTE_NAMES } from '@/shared/constants/routes'
 import { formatFileSize } from '@/shared/utils/format'
@@ -41,15 +41,7 @@ watch(
 )
 
 // 서버는 단계마다 완료(100) 여부만 알려 준다. 끝나지 않은 첫 단계를 진행 중(실패 시 중단)으로 본다.
-const steps = computed(() => {
-  const marks = version.value.steps ?? []
-  const firstOpen = ANALYSIS_STEPS.findIndex((_, i) => (marks[i] ?? 0) < 100)
-  return ANALYSIS_STEPS.map((step, i) => {
-    let state = (marks[i] ?? 0) >= 100 || phase.value === 'done' ? 'done' : 'pending'
-    if (state !== 'done' && i === firstOpen) state = phase.value === 'failed' ? 'failed' : 'running'
-    return { ...step, state }
-  })
-})
+const steps = computed(() => stepStates(version.value, phase.value))
 const doneCount = computed(() => steps.value.filter((s) => s.state === 'done').length)
 
 const subject = computed(() => {

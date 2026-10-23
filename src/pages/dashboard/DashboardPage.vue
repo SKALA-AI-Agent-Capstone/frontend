@@ -20,7 +20,7 @@ import { t } from '@/shared/i18n'
 import ProductThumb from '@/shared/components/product/ProductThumb.vue'
 import ProductFormModal from '@/shared/components/product/ProductFormModal.vue'
 import ReviewThumb from '@/shared/components/review/ReviewThumb.vue'
-import { ANALYSIS_STEPS } from '@/shared/api/analysisApi'
+import { ANALYSIS_STEPS, currentStepIndex, isStepDone, stepsDone } from '@/shared/api/analysisApi'
 
 const RUNNING_LIMIT = 3
 
@@ -50,7 +50,6 @@ onMounted(() => {
 })
 
 const isRunning = (version) => version.status === REVIEW_STATUS.QUEUED || version.status === REVIEW_STATUS.ANALYZING
-const stepsDone = (version) => (version.steps ?? []).filter((v) => v >= 100).length
 
 const rows = computed(() => reviews.list.map((review) => ({ review, version: reviews.latest(review) })))
 const runningRows = computed(() => rows.value.filter((row) => isRunning(row.version)))
@@ -103,11 +102,11 @@ function onSaved(product) {
             <span class="running__text">
               <span class="running__name">{{ row.review.productName }}</span>
               <span class="running__step">
-                {{ ANALYSIS_STEPS[Math.min(stepsDone(row.version), ANALYSIS_STEPS.length - 1)].title }}
+                {{ ANALYSIS_STEPS[currentStepIndex(row.version)].title }}
                 <span class="running__count">{{ stepsDone(row.version) }}/{{ ANALYSIS_STEPS.length }}</span>
               </span>
-              <span class="running__bar" aria-hidden="true">
-                <span v-for="(step, i) in ANALYSIS_STEPS" :key="step.id" :class="{ 'is-done': i < stepsDone(row.version), 'is-now': i === stepsDone(row.version) }"></span>
+              <span class="running__bar" :style="{ '--steps': ANALYSIS_STEPS.length }" aria-hidden="true">
+                <span v-for="(step, i) in ANALYSIS_STEPS" :key="step.id" :class="{ 'is-done': isStepDone(row.version, step), 'is-now': !isStepDone(row.version, step) && i === currentStepIndex(row.version) }"></span>
               </span>
             </span>
           </RouterLink>
@@ -220,7 +219,7 @@ function onSaved(product) {
 .running__name { font-weight: var(--font-weight-bold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .running__step { display: flex; justify-content: space-between; gap: 8px; font-size: var(--font-size-detail-s); color: var(--color-primary-active); }
 .running__count { color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
-.running__bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.running__bar { display: grid; grid-template-columns: repeat(var(--steps), 1fr); gap: 3px; }
 .running__bar span { height: 4px; border-radius: var(--radius-full); background: var(--color-bg-muted); }
 .running__bar span.is-done { background: var(--color-primary); }
 .running__bar span.is-now { background: var(--color-primary); opacity: 0.4; animation: pulse 1.4s ease-in-out infinite; }

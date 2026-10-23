@@ -79,5 +79,16 @@
     "IMAGE_LIMIT_10_MIB": "Images can be up to 10 MB.",
     "PRODUCT_NOT_FOUND": "Product not found.",
     "PRODUCT_HAS_REVIEWS": "Delete every review in this product before deleting the product."
+  },
+  "drafts": {
+    "title": "Drafts",
+    "note": "Saved in this browser only. A draft disappears once its review starts.",
+    "untitled": "No ad file yet",
+    "counts": "{ads} ad files, {evidence} evidence files",
+    "savedAt": "Saved {time}",
+    "resume": "Continue",
+    "delete": "Delete",
+    "deleteTitle": "Delete this draft?",
+    "deleteText": "The saved ad and evidence files are deleted too."
   }
 }

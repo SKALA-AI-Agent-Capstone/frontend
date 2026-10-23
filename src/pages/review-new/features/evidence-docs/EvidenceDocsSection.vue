@@ -1,4 +1,4 @@
-<!-- 4. 증빙 서류 사전 체크리스트 — 업로드, 유형 지정(FR-3) + 주장별 필요 서류 안내(FR-10) -->
+<!-- 4. 증빙 서류 제출: 업로드와 유형 지정(FR-3). 주장별 필요 서류 안내(FR-10)는 후속 -->
 <script setup>
 import { DOC_TYPE_OPTIONS } from '@/shared/constants/review'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
