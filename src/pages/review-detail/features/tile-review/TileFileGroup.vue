@@ -93,9 +93,16 @@ const rows = computed(() =>
         const left = clamp((bx0 - x0) / w)
         return { top: pct(top), left: pct(left), height: pct(clamp((by1 - y0) / h) - top), width: pct(clamp((bx1 - x0) / w) - left) }
       }
+      // 한 덩어리가 멀리 떨어진 항목을 묶은 경우(특허증의 번호와 날짜 표)에는 덩어리 전체 사각형이 사진까지 덮는다.
+      // OCR 단어 위치가 있으면 단어마다 칠하고, 없을 때만 덩어리 사각형을 쓴다.
       const marks = (result.value?.texts ?? [])
         .filter((t) => t.location?.tileId === tile.id && Array.isArray(t.location?.bbox))
-        .map((t) => ({ id: t.id, style: place(t.location.bbox) }))
+        .flatMap((t) => {
+          const words = (t.words ?? []).filter((w) => Array.isArray(w.bbox))
+          return words.length
+            ? words.map((w, i) => ({ id: `${t.id}:${i}`, style: place(w.bbox) }))
+            : [{ id: t.id, style: place(t.location.bbox) }]
+        })
       const boxes = findings.value
         .filter((f) => tileOf(f) === tile.id && (Array.isArray(f.problemSpan?.bbox) || Array.isArray(f.location?.bbox)))
         .map((f) => ({
