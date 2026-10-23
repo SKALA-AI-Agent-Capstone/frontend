@@ -31,7 +31,8 @@ const totalCount = computed(() => productDocs.value.length + draft.evidence.leng
 const docLabel = value => DOC_TYPE_OPTIONS.find(o => o.value === value)?.label ?? value
 const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'reading' }
   : item.status === 'failed' ? { variant: 'danger', key: 'failed' }
-    : item.unreadPages?.length ? { variant: 'warning', key: 'partial' } : { variant: 'success', key: 'done' })
+    : item.unreadPages?.length ? { variant: 'warning', key: 'partial' }
+      : item.productMatch?.checkPages?.length ? { variant: 'warning', key: 'check' } : { variant: 'success', key: 'done' })
 </script>
 
 <template>
