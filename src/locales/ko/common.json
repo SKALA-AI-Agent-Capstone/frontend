@@ -63,28 +63,6 @@
       "description": "결과를 저장하고 리포트를 준비합니다."
     }
   },
-  "media": {
-    "live": {
-      "label": "라이브 커머스",
-      "description": "실시간 판매 방송 대본"
-    },
-    "detailPage": {
-      "label": "온라인 상세페이지",
-      "description": "자사몰 및 오픈마켓"
-    },
-    "print": {
-      "label": "인쇄물 / 옥외광고",
-      "description": "카탈로그, 리플릿, 전광판"
-    },
-    "sns": {
-      "label": "SNS / 숏폼 콘텐츠",
-      "description": "인스타, 유튜브, 틱톡"
-    },
-    "broadcast": {
-      "label": "TV / 라디오 방송",
-      "description": "지상파 및 케이블 송출"
-    }
-  },
   "sourceType": {
     "law": "법령",
     "association": "협회 자문 기준",
