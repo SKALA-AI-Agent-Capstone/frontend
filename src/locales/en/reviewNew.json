@@ -46,9 +46,6 @@
     "productHint": "Change them under \"Evidence\" on the product page. Add files used only for this ad below.",
     "productListLabel": "Evidence registered on the product",
     "fromProduct": "Product evidence",
-    "nextTypeLabel": "Type for the next files",
-    "nextTypeAuto": "Guess from the file name",
-    "nextTypeHint": "The chosen type is given to the files you add next. You can still change it per file.",
     "unsureTypes": "{count} file(s) could not be typed from the name and were set to Other evidence. Please choose the right type.",
     "checkType": "Check type"
   },

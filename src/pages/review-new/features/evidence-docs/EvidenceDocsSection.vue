@@ -4,7 +4,7 @@
   이 광고에만 쓸 서류는 아래에서 더 올린다.
 -->
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { useProductEvidenceStore } from '@/shared/stores/productEvidence'
 import { DOC_TYPE_OPTIONS } from '@/shared/constants/review'
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
@@ -28,9 +28,6 @@ onBeforeUnmount(() => { if (draft.productId) productEvidence.clear(draft.product
 // 이전 판으로 밀려난 것은 검토에 쓰이지 않는다
 const productDocs = computed(() => (draft.productId ? productEvidence.list(draft.productId).filter(item => item.isCurrent) : []))
 const totalCount = computed(() => productDocs.value.length + draft.evidence.length)
-// 다음에 올릴 파일의 유형. 비워 두면 파일 이름으로 고른다(파일을 더 올릴 때마다 바꿀 수 있다).
-const nextType = ref('')
-const addWithType = files => addEvidence(files, nextType.value)
 const unsureCount = computed(() => draft.evidence.filter(doc => doc.needsType).length)
 const docLabel = value => DOC_TYPE_OPTIONS.find(o => o.value === value)?.label ?? value
 const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'reading' }
@@ -66,12 +63,6 @@ const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'r
       </ul>
     </div>
 
-    <div class="next-type">
-      <label class="next-type__label" for="evidence-next-type">{{ $t('reviewNew.evidence.nextTypeLabel') }}</label>
-      <BaseSelect id="evidence-next-type" v-model="nextType" :options="DOC_TYPE_OPTIONS" :placeholder="$t('reviewNew.evidence.nextTypeAuto')" class="next-type__select" />
-      <span class="next-type__hint">{{ $t('reviewNew.evidence.nextTypeHint') }}</span>
-    </div>
-
     <BaseFileDropzone
       :title="$t('reviewNew.evidence.dropTitle')"
       :description="$t('reviewNew.evidence.dropDescription')"
@@ -79,7 +70,7 @@ const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'r
       multiple
       :count="totalCount"
       :filled-title="$t('reviewNew.evidence.filled', { count: totalCount })"
-      @select="addWithType"
+      @select="addEvidence"
     />
 
     <BaseAlert v-if="unsureCount" variant="warning" role="status">{{ $t('reviewNew.evidence.unsureTypes', { count: unsureCount }) }}</BaseAlert>
@@ -148,29 +139,6 @@ const statusOf = item => (item.status === 'reading' ? { variant: 'info', key: 'r
   padding-block: var(--space-sm);
   padding-right: var(--space-md);
   background: var(--color-bg-page);
-}
-.next-type {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs) var(--space-sm);
-}
-.next-type__label {
-  font-size: var(--font-size-label-m);
-  font-weight: var(--font-weight-bold);
-}
-/* 한 줄 보조 설정이라 파일 목록의 유형 칸보다 작게 둔다 */
-.next-type__select {
-  width: 250px; /* 가장 긴 유형(기능성화장품 심사, 보고서)이 잘리지 않는 폭 */
-  max-width: 100%;
-}
-.next-type__select :deep(.base-select__control) {
-  min-height: 36px;
-  font-size: var(--font-size-body-s);
-}
-.next-type__hint {
-  font-size: var(--font-size-detail-s);
-  color: var(--color-text-secondary);
 }
 .evidence-item--unsure {
   border-color: var(--color-warning-border);
