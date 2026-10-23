@@ -63,28 +63,6 @@
       "description": "Saves the results and prepares the report."
     }
   },
-  "media": {
-    "live": {
-      "label": "Live commerce",
-      "description": "Scripts for live shopping streams"
-    },
-    "detailPage": {
-      "label": "Online product page",
-      "description": "Own store and marketplaces"
-    },
-    "print": {
-      "label": "Print / outdoor",
-      "description": "Catalogs, leaflets, billboards"
-    },
-    "sns": {
-      "label": "SNS / short-form",
-      "description": "Instagram, YouTube, TikTok"
-    },
-    "broadcast": {
-      "label": "TV / radio",
-      "description": "Broadcast and cable"
-    }
-  },
   "sourceType": {
     "law": "Law",
     "association": "Association advisory standard",
