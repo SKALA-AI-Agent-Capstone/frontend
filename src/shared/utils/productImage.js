@@ -7,13 +7,47 @@
 const MAX_SIDE = 1200
 const WEBP_QUALITY = 0.86
 
-export async function removeImageBackground(file, onProgress) {
-  const { removeBackground } = await import('@imgly/background-removal')
-  return removeBackground(file, {
-    // 가장 작은 모델. 기본(fp16)보다 내려받는 양이 절반 정도다.
-    model: 'isnet_quint8',
-    output: { format: 'image/png' },
-    progress: onProgress ? (key, current, total) => onProgress(key, current, total) : undefined,
+let worker = null
+let nextId = 0
+const jobs = new Map() // id → { resolve, reject, onProgress }
+
+function backgroundWorker() {
+  if (worker) return worker
+  worker = new Worker(new URL('./backgroundRemoval.worker.js', import.meta.url), { type: 'module' })
+  worker.onmessage = ({ data }) => {
+    const job = jobs.get(data.id)
+    if (!job) return
+    if (data.type === 'progress') { job.onProgress?.(data.key, data.current, data.total); return }
+    jobs.delete(data.id)
+    if (data.type === 'done') job.resolve(data.blob)
+    else job.reject(new Error(data.message))
+  }
+  worker.onerror = (event) => {
+    // 워커를 띄우지 못하면 기다리는 작업을 모두 실패로 끝내고 다음에 새로 띄운다
+    for (const job of jobs.values()) job.reject(new Error(event.message || 'WORKER_FAILED'))
+    jobs.clear()
+    worker.terminate()
+    worker = null
+  }
+  return worker
+}
+
+/**
+ * 배경을 지운 PNG Blob을 돌려준다. 계산은 Web Worker에서 해서 화면이 멈추지 않는다.
+ * onProgress(phase, percent): phase는 'download'(처음 한 번 모델 받기) 또는 'process'(지우는 중)다.
+ */
+export function removeImageBackground(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const id = ++nextId
+    jobs.set(id, {
+      resolve,
+      reject,
+      onProgress: (key, current, total) => {
+        if (key.startsWith('fetch')) onProgress?.('download', total ? Math.round((current / total) * 100) : null)
+        else onProgress?.('process', null)
+      },
+    })
+    backgroundWorker().postMessage({ id, blob: file })
   })
 }
 

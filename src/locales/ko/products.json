@@ -40,12 +40,15 @@
     "submitCreate": "등록",
     "submitEdit": "저장",
     "removeBg": "배경 지우기",
-    "removingBg": "배경을 지우는 중입니다. 처음에는 AI 모델을 받느라 시간이 걸립니다.",
+    "removingBg": "배경을 지우는 동안 다른 입력은 계속할 수 있습니다. 처음 한 번은 AI 모델을 받느라 시간이 더 걸립니다.",
     "removeBgFailed": "배경을 지우지 못했습니다. 원본 이미지로 올리거나 다른 이미지를 골라 주세요.",
     "chooseImage": "올릴 이미지",
     "choiceOriginal": "원본",
     "choiceCutout": "배경 지움",
-    "removeBgNote": "배경은 이 브라우저 안에서 지우고 이미지를 외부로 보내지 않습니다. AI가 제품 일부까지 지울 수 있으니 결과를 확인하고 골라 주세요."
+    "removeBgNote": "배경은 이 브라우저 안에서 지우고 이미지를 외부로 보내지 않습니다. AI가 제품 일부까지 지울 수 있으니 결과를 확인하고 골라 주세요.",
+    "removingPrepare": "준비 중",
+    "removingDownload": "모델 받는 중 {percent}%",
+    "removingProcess": "배경 지우는 중"
   },
   "detail": {
     "back": "제품 목록",

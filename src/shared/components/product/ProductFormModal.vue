@@ -13,6 +13,7 @@ import {
 import BaseAlert from '@/shared/components/base/BaseAlert.vue'
 import BaseButton from '@/shared/components/base/BaseButton.vue'
 import BaseFormField from '@/shared/components/base/BaseFormField.vue'
+import BaseIcon from '@/shared/components/base/BaseIcon.vue'
 import BaseInput from '@/shared/components/base/BaseInput.vue'
 import BaseModal from '@/shared/components/base/BaseModal.vue'
 import ProductThumb from './ProductThumb.vue'
@@ -38,7 +39,15 @@ const cutout = ref(null)
 const cutoutPreview = ref(null)
 const choice = ref('original')
 const removing = ref(false)
-const removeProgress = ref(0)
+// 배경 지우기 단계: 'download'(처음 한 번 모델 받기, percent 있음) 또는 'process'(지우는 중)
+const removePhase = ref('download')
+const removePercent = ref(null)
+const removeStatus = computed(() => {
+  if (removePhase.value === 'process') return t('products.form.removingProcess')
+  return removePercent.value === null
+    ? t('products.form.removingPrepare')
+    : t('products.form.removingDownload', { percent: removePercent.value })
+})
 
 const editing = computed(() => Boolean(props.product))
 const canSave = computed(() => name.value.trim().length > 0 && !saving.value && !removing.value)
@@ -58,13 +67,15 @@ function setCutout(blob) {
 async function removeBackground() {
   if (!image.value || removing.value) return
   removing.value = true
-  removeProgress.value = 0
+  removePhase.value = 'download'
+  removePercent.value = null
   error.value = ''
   const source = image.value
   try {
-    const blob = await removeImageBackground(source, (key, current, total) => {
-      // 처음에는 모델 파일을 받는다. 받는 양을 진행률로 보여 준다.
-      if (key.startsWith('fetch') && total) removeProgress.value = Math.round((current / total) * 100)
+    // 계산은 Web Worker에서 하므로 화면은 계속 움직이고 진행 상태가 그려진다
+    const blob = await removeImageBackground(source, (phase, percent) => {
+      removePhase.value = phase
+      if (phase === 'download' && percent !== null) removePercent.value = percent
     })
     // 기다리는 사이 다른 이미지를 골랐으면 결과를 버린다
     if (image.value === source) setCutout(blob)
@@ -157,7 +168,16 @@ async function save() {
 
       <BaseFormField :label="$t('products.form.image')" optional :hint="$t('products.form.imageHint')">
         <div class="pform__image">
-          <img v-if="preview" :src="preview" alt="" class="pform__preview" />
+          <div v-if="preview" class="pform__preview-wrap">
+            <img :src="preview" alt="" class="pform__preview" />
+            <div v-if="removing" class="pform__busy" role="status" aria-live="polite">
+              <BaseIcon name="progress_activity" class="pform__spinner" />
+              <span class="pform__busy-text">{{ removeStatus }}</span>
+              <span v-if="removePhase === 'download' && removePercent !== null" class="pform__bar" aria-hidden="true">
+                <span :style="{ width: `${removePercent}%` }"></span>
+              </span>
+            </div>
+          </div>
           <ProductThumb v-else-if="product" :product="product" size="lg" />
           <span v-else class="pform__placeholder" aria-hidden="true"></span>
           <div class="pform__image-actions">
@@ -170,9 +190,7 @@ async function save() {
             </BaseButton>
             <BaseButton v-if="image" variant="ghost" size="sm" :disabled="removing" @click="clearImage">{{ $t('products.form.imageClear') }}</BaseButton>
             <span v-if="image" class="pform__file">{{ image.name }}</span>
-            <span v-if="removing" class="pform__file" role="status">
-              {{ $t('products.form.removingBg') }}<template v-if="removeProgress && removeProgress < 100"> ({{ removeProgress }}%)</template>
-            </span>
+            <span v-if="removing" class="pform__file">{{ $t('products.form.removingBg') }}</span>
           </div>
         </div>
       </BaseFormField>
@@ -234,6 +252,25 @@ async function save() {
   outline: 1px solid rgba(0, 0, 0, 0.06);
   outline-offset: -1px;
 }
+.pform__preview-wrap { position: relative; flex: none; }
+.pform__busy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  text-align: center;
+}
+.pform__spinner { color: var(--color-primary); animation: pform-spin 1s linear infinite; }
+@keyframes pform-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pform__spinner { animation: none; } }
+.pform__busy-text { font-size: var(--font-size-detail-s); font-weight: var(--font-weight-bold); color: var(--color-primary-active); line-height: 1.3; }
+.pform__bar { width: 80px; height: 4px; border-radius: var(--radius-full); background: var(--color-bg-muted); overflow: hidden; }
+.pform__bar span { display: block; height: 100%; background: var(--color-primary); transition: width 200ms ease; }
 .pform__image-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
 .pform__file { flex-basis: 100%; font-size: var(--font-size-detail-s); color: var(--color-text-secondary); overflow-wrap: anywhere; }
 .pform__choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; border: 0; padding: 0; margin: 0; }

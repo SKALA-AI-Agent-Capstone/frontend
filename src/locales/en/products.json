@@ -40,12 +40,15 @@
     "submitCreate": "Add",
     "submitEdit": "Save",
     "removeBg": "Remove background",
-    "removingBg": "Removing the background. The first time takes longer while the AI model downloads.",
+    "removingBg": "You can keep filling in the form while the background is removed. The first run takes longer while the AI model downloads.",
     "removeBgFailed": "Could not remove the background. Upload the original or choose another image.",
     "chooseImage": "Image to upload",
     "choiceOriginal": "Original",
     "choiceCutout": "Background removed",
-    "removeBgNote": "The background is removed inside this browser and the image is not sent anywhere else. The AI may cut parts of the product, so check the result before choosing."
+    "removeBgNote": "The background is removed inside this browser and the image is not sent anywhere else. The AI may cut parts of the product, so check the result before choosing.",
+    "removingPrepare": "Preparing",
+    "removingDownload": "Downloading model {percent}%",
+    "removingProcess": "Removing background"
   },
   "detail": {
     "back": "Products",
