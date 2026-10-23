@@ -59,7 +59,8 @@
     "reviews": "Ad reviews",
     "loading": "Loading the product.",
     "notFound": "Product not found.",
-    "notFoundText": "It was deleted or belongs to another company."
+    "notFoundText": "It was deleted or belongs to another company.",
+    "evidence": "Evidence"
   },
   "delete": {
     "confirmTitle": "Delete this product?",
@@ -150,6 +151,18 @@
       "EVIDENCE_NOT_FOUND": "Evidence not found.",
       "EVIDENCE_ALREADY_READING": "Already being read.",
       "PRODUCT_NOT_FOUND": "Product not found."
+    },
+    "close": "Close",
+    "justAdded": "Just added",
+    "mascot": {
+      "uploading": "Uploading the evidence",
+      "reading": "Reading the evidence",
+      "readingDetail": "{name}. We will let you know when it is done. Scans can take a few minutes.",
+      "done": "Finished reading",
+      "partial": "Some pages could not be read",
+      "failed": "Could not read the file",
+      "reused": "Already read, added right away",
+      "skip": "Close without waiting"
     },
     "checkProduct": "On pages {pages} for this product, OCR and the AI read the figures differently. Please check them against the original.",
     "checkOther": "On pages {pages} OCR and the AI read the figures differently, but they are not this product's pages."
