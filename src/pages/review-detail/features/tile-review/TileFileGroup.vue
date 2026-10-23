@@ -2,12 +2,14 @@
   한 원본 이미지의 타일별 검토 줄. 왼쪽은 원본을 타일 region만큼 CSS로 자른 이미지(타일 픽셀은 저장하지 않음),
   오른쪽은 그 타일의 문구 카드와 사진 항목이다. 왼쪽은 줄 안에서 sticky라 오른쪽 항목을 넘기는 동안 고정되고
   다음 타일 줄로 넘어가면 다음 타일로 바뀐다.
+  왼쪽은 화면 높이에 맞춘 창이고, 구간 이미지는 창 폭에 맞춰 크게 보여 준다. 오른쪽에서 화면 가운데쯤 있는 카드의
+  문구 위치가 창 가운데에 오도록 이미지를 위아래로 옮긴다(2026-10-23). 창보다 짧은 구간은 옮기지 않는다.
   노랑 형광펜은 읽은 광고 문구 전체(result.texts, 제품 표면 글자는 Agent가 이미 뺌)이고 누를 수 없다.
   빨강 형광펜은 문구 카드가 가리키는 문제 글자다. 문제 글자 좌표(problemSpan.bbox)가 없으면 문구 줄 좌표를 쓴다.
   좌표가 없는 문구는 박스 없이 센다.
 -->
 <script setup>
-import { computed, ref, toRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRef } from 'vue'
 import { useAssetImage } from '@/shared/composables/useAssetImage'
 import BaseBadge from '@/shared/components/base/BaseBadge.vue'
 import BaseDisclosure from '@/shared/components/base/BaseDisclosure.vue'
@@ -31,6 +33,42 @@ const natural = ref(null)
 function onLoad(event) {
   if (!natural.value) natural.value = { width: event.target.naturalWidth, height: event.target.naturalHeight }
 }
+
+// 줄마다 지금 읽고 있는 카드(화면 가운데에 가장 가까운 카드)의 문구 id
+const readingByTile = ref({})
+const group = ref(null)
+let timer = 0
+function updateReading() {
+  timer = 0
+  if (!group.value) return
+  // 읽는 위치: 화면 위에서 40% 지점. 위쪽 필터와 아래쪽 버튼 막대를 뺀 가운데쯤이다.
+  const line = window.innerHeight * 0.4
+  const next = {}
+  for (const row of group.value.querySelectorAll('.tile-row')) {
+    let best = null
+    // 카드 자체만 본다(카드 안 제목도 finding-…-title id를 쓴다). 접힌 표현 참고 카드는 높이가 0이라 빠진다.
+    for (const card of row.querySelectorAll('.tile-row__items > [id^="finding-"], .tile-row__note-list > [id^="finding-"]')) {
+      const box = card.getBoundingClientRect()
+      if (!box.height || box.bottom < 0 || box.top > window.innerHeight) continue
+      const distance = line < box.top ? box.top - line : line > box.bottom ? line - box.bottom : 0
+      if (!best || distance < best.distance) best = { distance, id: card.id.slice('finding-'.length) }
+    }
+    if (best) next[row.dataset.tile] = best.id
+  }
+  if (Object.keys(next).some((key) => next[key] !== readingByTile.value[key])) readingByTile.value = { ...readingByTile.value, ...next }
+}
+// 스크롤마다 계산하지 않고 80ms에 한 번만 계산한다(화면이 가려져 있어도 동작하도록 타이머를 쓴다)
+const schedule = () => { if (!timer) timer = setTimeout(updateReading, 80) }
+onMounted(() => {
+  window.addEventListener('scroll', schedule, { passive: true })
+  window.addEventListener('resize', schedule, { passive: true })
+  schedule()
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', schedule)
+  window.removeEventListener('resize', schedule)
+  if (timer) clearTimeout(timer)
+})
 
 const pct = (value) => `${(value * 100).toFixed(4)}%`
 const clamp = (value) => Math.min(1, Math.max(0, value))
@@ -66,8 +104,11 @@ const rows = computed(() =>
           tone: decidedFindingIds.value.has(f.id) ? 'success' : 'problem',
           style: place(f.problemSpan?.bbox ?? f.location.bbox),
         }))
-      // 화면 높이 안에 타일 전체가 들어오도록 폭을 줄인다(sticky로 고정해도 잘리지 않게).
       const ratio = natural.value ? (natural.value.width * w) / (natural.value.height * h) : 3 / 4
+      // 지금 읽는 카드의 문구 세로 중심(구간 안 0~1). 문구 좌표가 없으면 구간 위쪽을 보여 준다.
+      const reading = findings.value.find((f) => f.id === readingByTile.value[tile.id])
+      const bbox = reading && (reading.problemSpan?.bbox ?? reading.location?.bbox)
+      const center = Array.isArray(bbox) ? clamp(((bbox[1] + bbox[3]) / 2 - y0) / h) : 0
       return {
         tile,
         number: position + 1,
@@ -76,7 +117,7 @@ const rows = computed(() =>
         visual,
         marks,
         boxes,
-        frameStyle: { aspectRatio: String(ratio), width: `min(100%, calc((100vh - 6rem) * ${ratio}))` },
+        frameStyle: { '--ratio': String(ratio), '--center': String(center) },
         imageStyle: { left: pct(-x0 / w), top: pct(-y0 / h), width: pct(1 / w) },
       }
     })
@@ -86,13 +127,14 @@ const rows = computed(() =>
 </script>
 
 <template>
-  <section class="tile-group" :aria-label="fileName">
+  <section ref="group" class="tile-group" :aria-label="fileName">
     <p v-if="error" class="tile-group__status">{{ $t('reviewDetail.tiles.imageError') }}</p>
 
     <article
       v-for="row in rows"
       :id="`tile-${row.tile.id}`"
       :key="row.tile.id"
+      :data-tile="row.tile.id"
       class="tile-row"
     >
       <div class="tile-row__media">
@@ -109,24 +151,27 @@ const rows = computed(() =>
           :class="{ 'tile-row__frame--focus': row.boxes.some((box) => box.id === activeFindingId) }"
           :style="row.frameStyle"
         >
-          <!-- 이미지만 잘라 내는 층. 번호 표시는 바깥 층에 두어 가장자리에서 잘리지 않는다 -->
-          <div class="tile-row__clip">
-            <img v-if="url" :src="url" alt="" class="tile-row__image" :style="row.imageStyle" @load="onLoad" />
-            <p v-else-if="!error" class="tile-row__loading">{{ $t('reviewDetail.tiles.loading') }}</p>
+          <!-- 구간 전체 크기의 층. 창 안에서 위아래로 옮겨 지금 읽는 문구를 가운데에 둔다 -->
+          <div class="tile-row__canvas">
+            <!-- 이미지만 잘라 내는 층. 번호 표시는 바깥 층에 두어 가장자리에서 잘리지 않는다 -->
+            <div class="tile-row__clip">
+              <img v-if="url" :src="url" alt="" class="tile-row__image" :style="row.imageStyle" @load="onLoad" />
+              <p v-else-if="!error" class="tile-row__loading">{{ $t('reviewDetail.tiles.loading') }}</p>
+            </div>
+            <span v-for="mark in row.marks" :key="mark.id" class="tile-row__mark" :style="mark.style" aria-hidden="true" />
+            <button
+              v-for="box in row.boxes"
+              :key="box.id"
+              type="button"
+              class="tile-row__box"
+              :class="[`tile-row__box--${box.tone}`, { 'tile-row__box--active': activeFindingId === box.id }]"
+              :style="box.style"
+              :aria-label="$t('reviewDetail.tiles.boxLabel', { n: box.number ?? '' })"
+              @click="focusFinding(box.id)"
+            >
+              <span v-if="box.number" class="tile-row__box-no">{{ box.number }}</span>
+            </button>
           </div>
-          <span v-for="mark in row.marks" :key="mark.id" class="tile-row__mark" :style="mark.style" aria-hidden="true" />
-          <button
-            v-for="box in row.boxes"
-            :key="box.id"
-            type="button"
-            class="tile-row__box"
-            :class="[`tile-row__box--${box.tone}`, { 'tile-row__box--active': activeFindingId === box.id }]"
-            :style="box.style"
-            :aria-label="$t('reviewDetail.tiles.boxLabel', { n: box.number ?? '' })"
-            @click="focusFinding(box.id)"
-          >
-            <span v-if="box.number" class="tile-row__box-no">{{ box.number }}</span>
-          </button>
         </div>
       </div>
 
@@ -177,8 +222,11 @@ const rows = computed(() =>
   scroll-margin-top: var(--space-md);
 }
 .tile-row__media {
+  /* 왼쪽 창: 위쪽 필터 막대(약 5.2rem) 아래에 붙고, 아래쪽 버튼 막대(약 8rem)에 가리지 않는 높이 */
+  --window-h: calc(100vh - 22rem);
+  container-type: inline-size;
   position: sticky;
-  top: var(--space-md);
+  top: calc(5.2rem + var(--space-md));
   align-self: start;
   display: flex;
   flex-direction: column;
@@ -214,8 +262,26 @@ const rows = computed(() =>
 }
 .tile-row__frame {
   position: relative;
+  /* 구간이 창보다 짧으면 구간 높이, 길면 창 높이 */
+  height: min(calc(100cqw / var(--ratio)), var(--window-h));
   border-radius: var(--radius-md);
   box-shadow: 0 0 0 1px var(--color-border);
+  /* 위아래만 자른다. 왼쪽 바깥의 번호 표시는 보이게 둔다 */
+  overflow-x: visible;
+  overflow-y: clip;
+}
+.tile-row__canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ratio);
+  /* 문구 중심이 창 가운데에 오도록 옮기되, 구간 위아래 끝을 넘지 않는다 */
+  transform: translateY(calc(-1 * clamp(0px,
+    var(--center) * 100cqw / var(--ratio) - var(--window-h) / 2,
+    max(0px, 100cqw / var(--ratio) - var(--window-h)))));
+  transition: transform 350ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile-row__canvas { transition: none; }
 }
 .tile-row__clip {
   position: absolute;
@@ -301,5 +367,7 @@ const rows = computed(() =>
   .tile-row__media {
     position: static;
   }
+  .tile-row__frame { height: auto; }
+  .tile-row__canvas { transform: none; }
 }
 </style>
