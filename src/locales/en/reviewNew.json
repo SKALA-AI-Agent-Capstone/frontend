@@ -91,5 +91,6 @@
     "saveFailed": "Could not save the draft. Check your browser storage.",
     "savedTitle": "Draft saved",
     "savedText": "Continue any time from the product page"
-  }
+  },
+  "evidenceReading": "Evidence for this product is still being read. Start the review after it finishes."
 }
