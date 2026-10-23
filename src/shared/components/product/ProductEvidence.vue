@@ -64,10 +64,14 @@ async function remove() {
 
 const docLabel = value => DOC_TYPE_OPTIONS.find(o => o.value === value)?.label ?? value
 const readingNow = computed(() => items.value.some(item => item.status === 'reading'))
-const statusVariant = item => (item.status === 'reading' ? 'info' : item.status === 'failed' ? 'danger' : item.unreadPages?.length ? 'warning' : 'success')
+// 이 제품의 쪽 중 OCR과 AI가 숫자를 다르게 읽은 쪽. 다른 제품의 쪽은 이 제품에 영향이 없다.
+const productCheck = item => item.productMatch?.checkPages ?? []
+const needsLook = item => !!item.unreadPages?.length || !!productCheck(item).length
+const statusVariant = item => (item.status === 'reading' ? 'info' : item.status === 'failed' ? 'danger' : needsLook(item) ? 'warning' : 'success')
 const statusLabel = item => (item.status === 'reading' ? t('products.evidence.status.reading')
   : item.status === 'failed' ? t('products.evidence.status.failed')
-    : item.unreadPages?.length ? t('products.evidence.status.partial') : t('products.evidence.status.done'))
+    : item.unreadPages?.length ? t('products.evidence.status.partial')
+      : productCheck(item).length ? t('products.evidence.status.check') : t('products.evidence.status.done'))
 const failureText = (code) => { const key = failureKey(code); return key ? t(key) : code }
 // [[6,7],[9,9]] -> "6-7, 9"
 const ranges = ranges => (ranges ?? []).map(([from, to]) => (from === to ? `${from}` : `${from}-${to}`)).join(', ')
@@ -150,6 +154,12 @@ const codeStatus = code => (code.status === 'confirmed' ? '' : t(`products.evide
         </ul>
 
         <p v-if="item.changeNote" class="item__note item__note--warning">{{ item.changeNote }}</p>
+        <p v-if="productCheck(item).length" class="item__note item__note--warning">
+          {{ $t('products.evidence.checkProduct', { pages: productCheck(item).join(', ') }) }}
+        </p>
+        <p v-else-if="item.checkPages?.length" class="item__note">
+          {{ $t('products.evidence.checkOther', { pages: item.checkPages.join(', ') }) }}
+        </p>
         <p v-if="item.unreadPages?.length" class="item__note item__note--warning">
           {{ $t('products.evidence.unread', { pages: item.unreadPages.join(', ') }) }}
         </p>

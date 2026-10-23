@@ -107,7 +107,8 @@
       "reading": "Reading",
       "done": "Read",
       "partial": "Partly unread",
-      "failed": "Failed"
+      "failed": "Failed",
+      "check": "Check figures"
     },
     "replaced": "Earlier version",
     "issuer": "Issuer",
@@ -149,6 +150,8 @@
       "EVIDENCE_NOT_FOUND": "Evidence not found.",
       "EVIDENCE_ALREADY_READING": "Already being read.",
       "PRODUCT_NOT_FOUND": "Product not found."
-    }
+    },
+    "checkProduct": "On pages {pages} for this product, OCR and the AI read the figures differently. Please check them against the original.",
+    "checkOther": "On pages {pages} OCR and the AI read the figures differently, but they are not this product's pages."
   }
 }
