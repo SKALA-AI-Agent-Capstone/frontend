@@ -198,7 +198,13 @@
     },
     "fromProduct": "Product evidence",
     "notUsed": "Not used in this analysis",
-    "productNotUsed": "{count} evidence file(s) registered on the product were not used in this analysis."
+    "productNotUsed": "{count} evidence file(s) registered on the product were not used in this analysis.",
+    "skip": {
+      "MODEL_NOT_NEEDED": "The AI judged that this ad copy needs no evidence comparison, so it did not read them.",
+      "GUARDRAIL_LIMIT": "The tool-call limit was reached before reading them.",
+      "LOOP_TIMEOUT": "Tool selection ran out of time before reading them."
+    },
+    "skipNote": "AI reasoning: {note}"
   },
   "patent": {
     "title": "Patent check",
