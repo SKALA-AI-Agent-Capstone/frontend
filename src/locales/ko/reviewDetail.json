@@ -198,7 +198,13 @@
     },
     "fromProduct": "제품 증빙",
     "notUsed": "이번 분석에 쓰이지 않음",
-    "productNotUsed": "제품에 등록된 증빙 {count}개가 이번 분석에는 쓰이지 않았습니다."
+    "productNotUsed": "제품에 등록된 증빙 {count}개가 이번 분석에는 쓰이지 않았습니다.",
+    "skip": {
+      "MODEL_NOT_NEEDED": "AI가 이번 광고 문구에는 증빙 대조가 필요 없다고 판단해 읽지 않았습니다.",
+      "GUARDRAIL_LIMIT": "도구 호출 한도에 걸려 읽지 못했습니다.",
+      "LOOP_TIMEOUT": "도구 선택 시간이 초과돼 읽지 못했습니다."
+    },
+    "skipNote": "AI 판단: {note}"
   },
   "patent": {
     "title": "특허 확인",

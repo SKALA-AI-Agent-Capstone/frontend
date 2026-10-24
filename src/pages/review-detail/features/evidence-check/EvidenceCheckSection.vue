@@ -56,6 +56,12 @@ const submitted = computed(() => {
 })
 const analyzed = computed(() => version.value?.status === 'done')
 const unusedProductCount = computed(() => submitted.value.filter((doc) => doc.source === 'product' && !doc.used).length)
+// 증빙 도구를 부르지 않은 이유(AI가 필요 없다고 판단, 호출 한도, 시간 초과). 이유가 없는 예전 결과는 기존 문구만 보여 준다.
+const SKIP_REASONS = ['MODEL_NOT_NEEDED', 'GUARDRAIL_LIMIT', 'LOOP_TIMEOUT']
+const evidenceSkip = computed(() => {
+  const entry = (result.value?.businessToolSelection ?? []).find((t) => t.tool === 'structure_evidence')
+  return entry && !entry.called && SKIP_REASONS.includes(entry.reason) ? entry : null
+})
 </script>
 
 <template>
@@ -86,7 +92,13 @@ const unusedProductCount = computed(() => submitted.value.filter((doc) => doc.so
       <!-- 제출 문서별 요약 -->
       <div class="evidence__block">
         <p class="evidence__label">{{ $t('reviewDetail.evidence.submitted') }}</p>
-        <p v-if="analyzed && unusedProductCount" class="evidence__muted">{{ $t('reviewDetail.evidence.productNotUsed', { count: unusedProductCount }) }}</p>
+        <p v-if="analyzed && unusedProductCount" class="evidence__muted">
+          {{ $t('reviewDetail.evidence.productNotUsed', { count: unusedProductCount }) }}
+          <template v-if="evidenceSkip">{{ $t(`reviewDetail.evidence.skip.${evidenceSkip.reason}`) }}</template>
+        </p>
+        <p v-if="analyzed && unusedProductCount && evidenceSkip?.note" class="evidence__note">
+          {{ $t('reviewDetail.evidence.skipNote', { note: evidenceSkip.note }) }}
+        </p>
         <article v-for="doc in submitted" :key="doc.id" class="doc">
           <p class="doc__head">
             <BaseIcon :name="doc.source === 'product' ? 'inventory_2' : 'description'" size="xs" />
@@ -215,4 +227,5 @@ const unusedProductCount = computed(() => submitted.value.filter((doc) => doc.so
   white-space: pre-wrap;
   font-size: var(--font-size-detail-s);
 }
+.evidence__note { font-size: var(--font-size-body-s); color: var(--color-text-secondary); padding-left: 10px; border-left: 2px solid var(--color-border); border-radius: 0; }
 </style>
