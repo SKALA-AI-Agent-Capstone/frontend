@@ -29,7 +29,9 @@
     "evidence_mismatch": "다른 시험 제출",
     "evidence_conditions": "시험 조건 다름",
     "evidence_not_covering": "증빙에 없음",
-    "evidence_unread": "증빙 읽기 실패"
+    "evidence_unread": "증빙 읽기 실패",
+    "patent_expired": "소멸된 특허",
+    "patent_registered": "등록된 특허"
   },
   "relation": {
     "cites": "인용",

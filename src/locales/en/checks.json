@@ -29,7 +29,9 @@
     "evidence_mismatch": "Different test submitted",
     "evidence_conditions": "Test conditions differ",
     "evidence_not_covering": "Not in evidence",
-    "evidence_unread": "Evidence unreadable"
+    "evidence_unread": "Evidence unreadable",
+    "patent_expired": "Lapsed patent",
+    "patent_registered": "Registered patent"
   },
   "relation": {
     "cites": "Cites",
