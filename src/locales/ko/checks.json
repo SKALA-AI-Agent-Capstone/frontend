@@ -9,7 +9,8 @@
     "substantiation": "실증자료",
     "ingredient": "성분 기준",
     "gmp": "GMP 업체",
-    "patent": "특허"
+    "patent": "특허",
+    "ingredient_list": "성분 함유 확인"
   },
   "status": {
     "consistent": "보고 범위 안",
@@ -31,7 +32,9 @@
     "evidence_not_covering": "증빙에 없음",
     "evidence_unread": "증빙 읽기 실패",
     "patent_expired": "소멸된 특허",
-    "patent_registered": "등록된 특허"
+    "patent_registered": "등록된 특허",
+    "in_attachments": "첨부 자료에 성분 있음",
+    "not_in_attachments": "첨부 자료에 성분 없음"
   },
   "relation": {
     "cites": "인용",

@@ -9,7 +9,8 @@
     "substantiation": "Substantiation",
     "ingredient": "Ingredient standard",
     "gmp": "GMP company",
-    "patent": "Patent"
+    "patent": "Patent",
+    "ingredient_list": "Ingredient presence"
   },
   "status": {
     "consistent": "Within reported scope",
@@ -31,7 +32,9 @@
     "evidence_not_covering": "Not in evidence",
     "evidence_unread": "Evidence unreadable",
     "patent_expired": "Lapsed patent",
-    "patent_registered": "Registered patent"
+    "patent_registered": "Registered patent",
+    "in_attachments": "Found in the attached material",
+    "not_in_attachments": "Not found in the attached material"
   },
   "relation": {
     "cites": "Cites",
