@@ -10,7 +10,7 @@ defineProps({
   // 'attention': 카드 본문의 확인 필요 목록, 'detail': 근거 펼침 안의 전체 목록
   tone: { type: String, default: 'detail' },
 })
-const VARIANT = { consistent: 'success', gmp_listed: 'success', not_listed: 'info', evidence_submitted: 'info',
+const VARIANT = { consistent: 'success', gmp_listed: 'success', in_attachments: 'success', not_listed: 'info', evidence_submitted: 'info',
   prohibited: 'danger', mismatch: 'danger' }
 </script>
 
